@@ -1,6 +1,6 @@
 # DynamodbModel
 
-DynamodbModel is a simple library to make DynamoDB usage a little more friendly.  The modeling is ActiveRecord-ish but not exactly because DynamoDB is a different type of database.  Examples explain it best:
+A simple wrapper library to make DynamoDB usage a little more friendly.  The modeling is ActiveRecord-ish but not exactly because DynamoDB is a different type of database.  Examples and the [item_spec.rb](spec/lib/dynamodb_model/item_spec.rb) explain it best:
 
 ## Examples
 
@@ -17,6 +17,7 @@ end
 ```ruby
 post = Post.new
 post = post.replace(title: "test title")
+post.attrs # {"id" => "generated-id", title" => "my title"}
 ```
 
 `post.attrs[:id]` now contain a generated unique partition_key id.  Usually the partition_key is 'id'. You can set your own unique id also by specifying id.
@@ -24,6 +25,7 @@ post = post.replace(title: "test title")
 ```ruby
 post = Post.new(id: "myid", title: "my title")
 post.replace
+post.attrs # {"id" => "myid", title" => "my title"}
 ```
 
 Note that the replace method replaces the entire item, so you need to merge the attributes if you want to keep the other attributes.  Know this is weird, but this is how DynamoDB works.
@@ -34,14 +36,16 @@ Note that the replace method replaces the entire item, so you need to merge the 
 post = Post.find("myid")
 post.attrs = post.attrs.deep_merge("desc": "my desc") # keeps title field
 post.replace
+post.attrs # {"id" => "myid", title" => "my title", desc: "my desc"}
 ```
 
 The convenience `attrs` method performs a deep_merge:
 
 ```ruby
 post = Post.find("myid")
-post.attrs("desc": "my desc") # <= does a deep_merge
+post.attrs("desc": "my desc 2") # <= does a deep_merge
 post.replace
+post.attrs # {"id" => "myid", title" => "my title", desc: "my desc 2"}
 ```
 
 Note, a race condition edge case can exist when several concurrent replace
@@ -51,14 +55,16 @@ emphasis that possibility.
 ### Delete
 
 ```ruby
-Post.delete("myid")
+resp = Post.delete("myid")
+resp # dynamodb client resp
 ```
 
 ### Scan
 
 ```ruby
 options = {}
-Post.scan(options)
+posts = Post.scan(options)
+posts # Array of Post items.  [Post.new, Post.new, ...]
 ```
 
 ## Installation

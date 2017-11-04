@@ -33,10 +33,8 @@ describe DynamodbModel::Item do
   end
 
   describe "CRUD-ish" do
-    let(:db)   { double(:db) }
-    before(:each) do
-      Post.db = db
-    end
+    before(:each) { Post.db = db }
+    let(:db) { double(:db) }
 
     let(:find_resp) do
       fake_attributes = {"id" => "myid", "title" => "my title"}

@@ -94,7 +94,7 @@ class DynamodbModel::Migration
     # http://docs.aws.amazon.com/sdk-for-ruby/v3/developer-guide/dynamo-example-create-table.html
     def execute
       params = {
-        table_name: @table_ame,
+        table_name: @table_name,
         key_schema: @key_schema,
         attribute_definitions: @attribute_definitions,
         provisioned_throughput: @provisioned_throughput

@@ -1,3 +1,8 @@
+require "aws-sdk-dynamodb"
+require 'fileutils'
+require 'erb'
+require 'yaml'
+
 module DynamodbModel::DbConfig
   def self.included(base)
     base.extend(ClassMethods)

@@ -28,7 +28,7 @@ describe DynamodbModel::Migration::Dsl do
     dsl.partition_key "id:string" # required
     dsl.sort_key  "created_at:string" # optional
     dsl.provisioned_throughput(25)
-    dsl.execute
+    # dsl.execute
   end
 end
 

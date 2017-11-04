@@ -3,16 +3,14 @@ module DynamodbModel
     autoload :Dsl, "dynamodb_model/migration/dsl"
     autoload :Generator, "dynamodb_model/migration/generator"
 
-    class << self
-      def up
-        puts "Running up migration for #{self.class.name}"
-      end
+    def up
+      puts "Should defined an up method for your migration: #{self.class.name}"
+    end
 
-      def create_table(table_name)
-        dsl = Dsl.new(table_name)
-        yield(dsl)
-        # dsl.execute # unsure when to call this
-      end
+    def create_table(table_name)
+      dsl = Dsl.new(table_name)
+      yield(dsl)
+      dsl.execute
     end
   end
 end

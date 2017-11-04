@@ -1,8 +1,6 @@
 module DynamodbModel
-  autoload :Dsl, "dynamodb_model/migration/dsl"
-
   class Migration
-    Dsl.db = "test"
+    autoload :Dsl, "dynamodb_model/migration/dsl"
 
     class << self
       def up

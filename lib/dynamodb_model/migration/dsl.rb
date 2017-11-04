@@ -91,6 +91,7 @@ class DynamodbModel::Migration
       end
     end
 
+    # http://docs.aws.amazon.com/sdk-for-ruby/v3/developer-guide/dynamo-example-create-table.html
     def execute
       params = {
         table_name: @table_ame,
@@ -101,11 +102,9 @@ class DynamodbModel::Migration
       begin
         result = db.create_table(params)
 
-        puts 'DynamoDB Table: proj-posts Status: ' +
-              result.table_description.table_status;
+        puts "DynamoDB Table: #{@table_name} Status: #{result.table_description.table_status}"
       rescue Aws::DynamoDB::Errors::ServiceError => error
-        puts 'Unable to create table:'
-        puts error.message
+        puts "Unable to create table: #{error.message}"
       end
     end
   end

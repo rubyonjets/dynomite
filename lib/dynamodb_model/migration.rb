@@ -1,6 +1,7 @@
 module DynamodbModel
   class Migration
     autoload :Dsl, "dynamodb_model/migration/dsl"
+    autoload :Generator, "dynamodb_model/migration/generator"
 
     class << self
       def up
@@ -10,7 +11,7 @@ module DynamodbModel
       def create_table(table_name)
         dsl = Dsl.new(table_name)
         yield(dsl)
-        dsl.execute
+        # dsl.execute # unsure when to call this
       end
     end
   end

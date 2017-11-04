@@ -74,6 +74,10 @@ module DynamodbModel
       self.class.find(id)
     end
 
+    def delete
+      self.class.delete(@attrs[:id]) if @attrs[:id]
+    end
+
     def table_name
       self.class.table_name
     end

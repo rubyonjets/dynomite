@@ -55,8 +55,10 @@ emphasis that possibility.
 ### Delete
 
 ```ruby
-resp = Post.delete("myid")
-resp # dynamodb client resp
+resp = Post.delete("myid")  # dynamodb client resp
+# or
+post = Post.find("myid")
+resp = post.delete  # dynamodb client resp
 ```
 
 ### Scan

@@ -6,4 +6,7 @@ module DynamodbModel
   autoload :Dsl, "dynamodb_model/dsl"
   autoload :DbConfig, "dynamodb_model/db_config"
   autoload :Item, "dynamodb_model/item"
+  autoload :Util, "dynamodb_model/util"
+
+  extend Util
 end

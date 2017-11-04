@@ -1,15 +1,19 @@
-class DynamodbModel::Migration
-  Dsl.db = "test"
+module DynamodbModel
+  autoload :Dsl, "dynamodb_model/migration/dsl"
 
-  class << self
-    def up
-      puts "Running up migration for #{self.class.name}"
-    end
+  class Migration
+    Dsl.db = "test"
 
-    def create_table(table_name)
-      dsl = Dsl.new(table_name)
-      yield(dsl)
-      dsl.execute
+    class << self
+      def up
+        puts "Running up migration for #{self.class.name}"
+      end
+
+      def create_table(table_name)
+        dsl = Dsl.new(table_name)
+        yield(dsl)
+        dsl.execute
+      end
     end
   end
 end

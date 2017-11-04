@@ -1,9 +1,9 @@
 require "spec_helper"
 
-describe DynamodbModel::Dsl do
+describe DynamodbModel::Migration::Dsl do
   let(:dsl) do
-    DynamodbModel::Dsl.db = double("db").as_null_object
-    DynamodbModel::Dsl.new("posts")
+    DynamodbModel::Migration::Dsl.db = double("db").as_null_object
+    DynamodbModel::Migration::Dsl.new("posts")
   end
 
   it "build up the dsl in memory" do

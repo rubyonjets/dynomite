@@ -3,11 +3,6 @@ module DynamodbModel::DbConfig
     base.extend(ClassMethods)
   end
 
-  # TODO: if dynamodb-local is not available print message to use with instructions that is was not found and how to install it
-  #
-  # For normal production mode it is fine to leave the endpoint as nil
-  # The Aws::DynamoDB::Client is smart enough to figure out the endpoint.
-  # TODO: If in production mode and user has accidentally configured the endpoint, warn the user.
   def db
     self.class.db
   end
@@ -24,7 +19,7 @@ module DynamodbModel::DbConfig
       @@db ||= Aws::DynamoDB::Client.new
     end
 
-    # useful for mocks
+    # useful for specs
     def db=(db)
       @@db = db
     end

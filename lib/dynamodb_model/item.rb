@@ -108,7 +108,11 @@ module DynamodbModel
     #     }
     #   )
     #
-    # TODO: pretty lame interface, improve it somehow
+    # TODO: pretty lame interface, improve it somehow. Maybe:
+    #
+    #   Post.scan(filter: "updated_at between :start_time and :end_time")
+    #
+    # which automatically maps the structure.
     def self.scan(params={})
       puts("Should not use scan for production. It's slow and expensive. You should create either a LSI or GSI and use query the index instead.")
 

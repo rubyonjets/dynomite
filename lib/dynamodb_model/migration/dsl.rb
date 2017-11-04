@@ -1,6 +1,6 @@
-module DynamodbModel
+class DynamodbModel::Migration
   class Dsl
-    include DbConfig
+    include DynamodbModel::DbConfig
 
     ATTRIBUTE_TYPE_MAP = {
       'string' => 'S',

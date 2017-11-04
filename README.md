@@ -4,6 +4,16 @@ DynamodbModel is a simple library to make DynamoDB usage a little more friendly.
 
 ## Examples
 
+First define a class:
+
+```ruby
+class Post < DynamodbModel::Item
+  # partition_key "id" # optional, defaults to id
+end
+```
+
+### Create
+
 ```ruby
 post = Post.new
 post = post.replace(title: "test title")
@@ -17,6 +27,8 @@ post.replace
 ```
 
 Note that the replace method replaces the entire item, so you need to merge the attributes if you want to keep the other attributes.  Know this is weird, but this is how DynamoDB works.
+
+### Find
 
 ```ruby
 post = Post.find("myid")
@@ -36,8 +48,18 @@ Note, a race condition edge case can exist when several concurrent replace
 calls are happening.  This is why the interface is called replace to
 emphasis that possibility.
 
-* TODO: implement post.update with db.update_item in a Ruby-ish way.
+### Delete
 
+```ruby
+Post.delete("myid")
+```
+
+### Scan
+
+```ruby
+options = {}
+Post.scan(options)
+```
 
 ## Installation
 
@@ -64,3 +86,8 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/tongueroo/dynamodb_model.
+
+TODO
+
+* implement Post.query
+* implement `post.update` with `db.update_item` in a Ruby-ish way

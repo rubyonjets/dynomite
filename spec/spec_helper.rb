@@ -1,4 +1,5 @@
-ENV['TEST'] = '1'
+ENV['DYNAMODB_MODEL_ENV'] = 'test'
+ENV['DYNAMODB_MODEL_CONFIG'] = 'spec/fixtures/config/dynamodb.yml'
 
 require "pp"
 root = File.expand_path("../../", __FILE__)

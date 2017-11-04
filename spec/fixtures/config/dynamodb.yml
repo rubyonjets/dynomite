@@ -1,0 +1,7 @@
+# Throwing this in here to make tests easier to write
+development:
+  endpoint: http://localhost:8000
+
+test:
+  table_namespace: 'testnamespace'
+  endpoint: http://localhost:8000

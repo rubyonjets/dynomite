@@ -1,0 +1,50 @@
+module DynamodbModel::DbConfig
+  def self.included(base)
+    base.extend(ClassMethods)
+  end
+
+  # TODO: if dynamodb-local is not available print message to use with instructions that is was not found and how to install it
+  #
+  # For normal production mode it is fine to leave the endpoint as nil
+  # The Aws::DynamoDB::Client is smart enough to figure out the endpoint.
+  # TODO: If in production mode and user has accidentally configured the endpoint, warn the user.
+  def db
+    self.class.db
+  end
+
+  module ClassMethods
+    @@db = nil
+    def db
+      return @@db if @@db
+
+      config = db_config
+      endpoint = ENV['DYNAMODB_ENDPOINT'] || config['endpoint']
+      Aws.config.update(endpoint: endpoint) if endpoint
+
+      @@db ||= Aws::DynamoDB::Client.new
+    end
+
+    # useful for mocks
+    def db=(db)
+      @@db = db
+    end
+
+    def db_config
+      if defined?(Jets)
+        YAML.load_file("#{Jets.root}config/dynamodb.yml")[Jets.env] || {}
+      else
+        config_path = ENV['DYNAMODB_MODEL_CONFIG'] || "./config/dynamodb.yml"
+        env = ENV['DYNAMODB_MODEL_ENV'] || "development"
+        YAML.load_file(config_path)[env] || {}
+      end
+    end
+
+    @table_namespace = nil
+    def table_namespace
+      return @table_namespace if @table_namespace
+
+      config = db_config
+      @table_namespace = config['table_namespace']
+    end
+  end
+end

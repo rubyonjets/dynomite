@@ -1,4 +1,6 @@
 class DynamodbModel::Migration
+  Dsl.db = "test"
+
   class << self
     def up
       puts "Running up migration for #{self.class.name}"

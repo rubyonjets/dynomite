@@ -1,32 +1,5 @@
-class DynamodbModel::Migration
-  class Dsl
-    autoload :GlobalSecondaryIndex, "dynamodb_model/migration/dsl/global_secondary_index"
-    autoload :Common, "dynamodb_model/migration/dsl/common"
-
-    include DynamodbModel::DbConfig
-    include Common
-
-    ATTRIBUTE_TYPE_MAP = {
-      'string' => 'S',
-      'number' => 'N',
-      'binary' => 'B',
-      's' => 'S',
-      'n' => 'N',
-      'b' => 'B',
-    }
-
-    attr_accessor :key_schema, :attribute_definitions
-    # db is the dynamodb client
-    def initialize(table_name)
-      @table_name = table_name
-      @key_schema = []
-      @attribute_definitions = []
-      @provisioned_throughput = {
-        read_capacity_units: 10,
-        write_capacity_units: 10
-      }
-    end
-
+class DynamodbModel::Migration::Dsl
+  module Common
     # http://docs.aws.amazon.com/sdkforruby/api/Aws/DynamoDB/Types/KeySchemaElement.html
     # partition_key is required
     def partition_key(identifier)
@@ -100,49 +73,6 @@ class DynamodbModel::Migration
       else
         @provisioned_throughput[capacity_type] = capacity_units
       end
-    end
-
-    # t.gsi(:create) do |i|
-    #   i.partition_key = "category:string"
-    #   i.sort_key = "created_at:string" # optional
-    # end
-    def gsi(action, index_name=nil, &block)
-      case action.to_sym
-      when :create
-        gsi_create(index_name, &block)
-      when :update
-        gsi_update(index_name, &block)
-      when :delete
-        gsi_delete(index_name, &block)
-      end
-    end
-    alias_method :global_secondary_index, :gsi
-
-    def gsi_create(index_name, &block)
-      gsi_index = GlobalSecondaryIndex.new(:create, index_name, &block)
-      block.call(gsi_index)
-      @gsi_index = gsi_index # store @gsi_index for the parent Dsl to use
-    end
-
-    # http://docs.aws.amazon.com/sdk-for-ruby/v3/developer-guide/dynamo-example-create-table.html
-    def execute
-      params = {
-        table_name: namespaced_table_name,
-        key_schema: @key_schema,
-        attribute_definitions: @attribute_definitions,
-        provisioned_throughput: @provisioned_throughput
-      }
-      begin
-        result = db.create_table(params)
-
-        puts "DynamoDB Table: #{@table_name} Status: #{result.table_description.table_status}"
-      rescue Aws::DynamoDB::Errors::ServiceError => error
-        puts "Unable to create table: #{error.message}"
-      end
-    end
-
-    def namespaced_table_name
-      [self.class.table_namespace, @table_name].reject {|s| s.nil? || s.empty?}.join('-')
     end
   end
 end

@@ -12,5 +12,11 @@ module DynamodbModel
       yield(dsl)
       dsl.execute
     end
+
+    def update_table(table_name)
+      dsl = Dsl.new(table_name)
+      yield(dsl)
+      dsl.execute
+    end
   end
 end

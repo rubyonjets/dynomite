@@ -15,7 +15,7 @@ describe DynamodbModel::Migration::Dsl do
   context "create_table" do
     let(:dsl) do
       DynamodbModel::Migration::Dsl.db = double("db").as_null_object
-      DynamodbModel::Migration::Dsl.new("posts")
+      DynamodbModel::Migration::Dsl.new(:create_table, "posts")
     end
 
     it "build up the dsl in memory" do
@@ -39,7 +39,7 @@ describe DynamodbModel::Migration::Dsl do
   context "update_table" do
     let(:dsl) do
       DynamodbModel::Migration::Dsl.db = double("db").as_null_object
-      DynamodbModel::Migration::Dsl.new("comments")
+      DynamodbModel::Migration::Dsl.new(:update_table, "comments")
     end
 
     it "builds up the gsi index params also" do

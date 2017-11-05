@@ -10,6 +10,8 @@ class DynamodbModel::Migration::Dsl
       @index_name = index_name
       @block = block
 
+      # Dsl fills these atttributes in as methods are called within
+      # the block
       @key_schema = []
       @attribute_definitions = []
       @provisioned_throughput = {

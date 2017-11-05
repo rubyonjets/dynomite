@@ -5,7 +5,7 @@ GSI = DynamodbModel::Migration::Dsl::GlobalSecondaryIndex
 describe GSI do
   let(:index) do
     DynamodbModel::Migration::Dsl.db = double("db").as_null_object
-    GSI.new
+    GSI.new(:create)
   end
 
   # Supports this DSL, the `i` variable passed to the block is the

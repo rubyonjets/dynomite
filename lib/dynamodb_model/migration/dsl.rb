@@ -17,8 +17,12 @@ class DynamodbModel::Migration
 
     attr_accessor :key_schema, :attribute_definitions
     # db is the dynamodb client
-    def initialize(table_name)
+    def initialize(method_name, table_name)
+      @method_name = method_name
       @table_name = table_name
+
+      # Dsl fills these atttributes in as methods are called within
+      # the block
       @key_schema = []
       @attribute_definitions = []
       @provisioned_throughput = {

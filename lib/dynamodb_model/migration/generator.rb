@@ -23,7 +23,8 @@ class DynamodbModel::Migration
       dir = File.dirname(migration_path)
       FileUtils.mkdir_p(dir) unless File.exist?(dir)
       IO.write(migration_path, migration_code)
-      puts "Migration file created: #{migration_relative_path}"
+      puts "Migration file created: #{migration_relative_path}. To run:"
+      puts "  jets db migrate #{migration_relative_path}"
     end
 
     def migration_code

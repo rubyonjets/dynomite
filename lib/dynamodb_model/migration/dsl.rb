@@ -94,7 +94,7 @@ class DynamodbModel::Migration
     # http://docs.aws.amazon.com/sdk-for-ruby/v3/developer-guide/dynamo-example-create-table.html
     def execute
       params = {
-        table_name: @table_name,
+        table_name: namespaced_table_name,
         key_schema: @key_schema,
         attribute_definitions: @attribute_definitions,
         provisioned_throughput: @provisioned_throughput
@@ -106,6 +106,10 @@ class DynamodbModel::Migration
       rescue Aws::DynamoDB::Errors::ServiceError => error
         puts "Unable to create table: #{error.message}"
       end
+    end
+
+    def namespaced_table_name
+      [self.class.table_namespace, @table_name].reject {|s| s.nil? || s.empty?}.join('-')
     end
   end
 end

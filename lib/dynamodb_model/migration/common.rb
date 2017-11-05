@@ -3,11 +3,13 @@ class DynamodbModel::Migration::Dsl
     # http://docs.aws.amazon.com/sdkforruby/api/Aws/DynamoDB/Types/KeySchemaElement.html
     # partition_key is required
     def partition_key(identifier)
+      @partition_key_identifier = identifier # for later use. useful for conventional_index_name
       adjust_schema_and_attributes(identifier, "hash")
     end
 
     # sort_key is optional
     def sort_key(identifier)
+      @sort_key_identifier = identifier # for later use. useful for conventional_index_name
       adjust_schema_and_attributes(identifier, "range")
     end
 
@@ -43,6 +45,9 @@ class DynamodbModel::Migration::Dsl
       when 0 # reader method
         return @provisioned_throughput # early return
       when 1
+        # @provisioned_throughput_set_called useful for update_table
+        # only provide a provisioned_throughput settings if explicitly called for update_table
+        @provisioned_throughput_set_called = true
         arg = params[0]
         if arg.is_a?(Hash)
           # Case:
@@ -58,6 +63,7 @@ class DynamodbModel::Migration::Dsl
           capacity_units = arg
         end
       when 2
+        @provisioned_throughput_set_called = true
         # Case: provisioned_throughput(:read, 5)
         capacity_type, capacity_units = params
       end

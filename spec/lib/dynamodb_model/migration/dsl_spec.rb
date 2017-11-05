@@ -42,13 +42,16 @@ describe DynamodbModel::Migration::Dsl do
       DynamodbModel::Migration::Dsl.new(:update_table, "comments")
     end
 
-    it "builds up the gsi index params also" do
+    it "builds up the gsi index params" do
       dsl.gsi(:create) do |i|
         i.partition_key "post_id:string"
         i.sort_key "updated_at:string" # optional
       end
+      dsl.gsi(:delete, "old-index")
+      dsl.gsi(:update, "another-index")
 
-      pp dsl.instance_variable_get(:@gsi_index)
+      # pp dsl.instance_variable_get(:@gsi_indexes)
+      pp dsl.params
     end
   end
 

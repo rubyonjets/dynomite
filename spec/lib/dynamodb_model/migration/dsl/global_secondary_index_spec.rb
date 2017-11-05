@@ -37,11 +37,36 @@ describe GSI do
     )
   end
 
+  context "parititon_key provided only" do
+    it "index_name" do
+      index.partition_key "post_id:string" # required
+      expect(index.params[:index_name]).to eq("post_id-index")
+    end
+  end
+
+  context "parititon_key and sort_key provided" do
+    it "index_name" do
+      index.partition_key "post_id:string" # required
+      index.sort_key  "created_at:string" # optional
+      expect(index.params[:index_name]).to eq("post_id-created_at-index")
+
+      expect(index.params).to eq({
+        :index_name=>"post_id-created_at-index",
+        :key_schema=>[
+          {:attribute_name=>"post_id", :key_type=>"HASH"},
+          {:attribute_name=>"created_at", :key_type=>"RANGE"}],
+        :projection=>{:projection_type=>"ALL"},
+        :provisioned_throughput=> {:read_capacity_units=>5, :write_capacity_units=>5}
+      })
+    end
+  end
+
   it "execute uses what the dsl methods built up in memory and translates it dynmaodb params that then get used to execute and run the command" do
     index.partition_key "id:string" # required
     index.sort_key  "created_at:string" # optional
     index.provisioned_throughput(30)
     # index.execute # TODO: index.execute in here
   end
+
 end
 

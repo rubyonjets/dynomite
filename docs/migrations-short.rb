@@ -8,4 +8,3 @@ class UpdateCommentsMigration < DynamodbModel::Migration
     end
   end
 end
-

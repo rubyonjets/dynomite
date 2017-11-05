@@ -1,7 +1,7 @@
 class DynamodbModel::Migration
   class Dsl
     autoload :GlobalSecondaryIndex, "dynamodb_model/migration/dsl/global_secondary_index"
-    autoload :Common, "dynamodb_model/migration/dsl/common"
+    autoload :Common, "dynamodb_model/migration/common"
 
     include DynamodbModel::DbConfig
     include Common
@@ -21,89 +21,19 @@ class DynamodbModel::Migration
       @method_name = method_name
       @table_name = table_name
 
-      # Dsl fills these atttributes in as methods are called within
-      # the block
-      @key_schema = []
+      # Dsl fills in atttributes in as methods are called within the block.
+      # Attributes for both create_table and updated_table:
       @attribute_definitions = []
       @provisioned_throughput = {
-        read_capacity_units: 10,
-        write_capacity_units: 10
-      }
-    end
-
-    # http://docs.aws.amazon.com/sdkforruby/api/Aws/DynamoDB/Types/KeySchemaElement.html
-    # partition_key is required
-    def partition_key(identifier)
-      adjust_schema_and_attributes(identifier, "hash")
-    end
-
-    # sort_key is optional
-    def sort_key(identifier)
-      adjust_schema_and_attributes(identifier, "range")
-    end
-
-    # Parameters:
-    #   identifier: "id:string" or "id"
-    #   key_type: "hash" or "range"
-    #
-    # Adjusts the parameters for create_table to add the
-    # partition_key and sort_key
-    def adjust_schema_and_attributes(identifier, key_type)
-      name, attribute_type = identifier.split(':')
-      attribute_type = "string" if attribute_type.nil?
-
-      partition_key = {
-        attribute_name: name,
-        key_type: key_type.upcase
-      }
-      @key_schema << partition_key
-
-      attribute_definition = {
-        attribute_name: name,
-        attribute_type: ATTRIBUTE_TYPE_MAP[attribute_type]
-      }
-      @attribute_definitions << attribute_definition
-    end
-
-    # t.provisioned_throughput(5) # both
-    # t.provisioned_throughput(:read, 5)
-    # t.provisioned_throughput(:write, 5)
-    # t.provisioned_throughput(:both, 5)
-    def provisioned_throughput(*params)
-      case params.size
-      when 0 # reader method
-        return @provisioned_throughput # early return
-      when 1
-        arg = params[0]
-        if arg.is_a?(Hash)
-          # Case:
-          # provisioned_throughput(
-          #   read_capacity_units: 10,
-          #   write_capacity_units: 10
-          # )
-          @provisioned_throughput = arg # set directly
-          return # early return
-        else # assume parameter is an Integer
-          # Case: provisioned_throughput(10)
-          capacity_type = :both
-          capacity_units = arg
-        end
-      when 2
-        # Case: provisioned_throughput(:read, 5)
-        capacity_type, capacity_units = params
-      end
-
-      map = {
-        read: :read_capacity_units,
-        write: :write_capacity_units,
+        read_capacity_units: 5,
+        write_capacity_units: 5
       }
 
-      if capacity_type = :both
-        @provisioned_throughput[map[:read]] = capacity_units
-        @provisioned_throughput[map[:write]] = capacity_units
-      else
-        @provisioned_throughput[capacity_type] = capacity_units
-      end
+      # Attributes for create_table only:
+      @key_schema = []
+
+      # Attributes for update_table only:
+      @gsi_indexes = []
     end
 
     # t.gsi(:create) do |i|
@@ -111,38 +41,82 @@ class DynamodbModel::Migration
     #   i.sort_key = "created_at:string" # optional
     # end
     def gsi(action, index_name=nil, &block)
-      case action.to_sym
-      when :create
-        gsi_create(index_name, &block)
-      when :update
-        gsi_update(index_name, &block)
-      when :delete
-        gsi_delete(index_name, &block)
-      end
+      gsi_index = GlobalSecondaryIndex.new(action, index_name, &block)
+      block.call(gsi_index) if block
+      @gsi_indexes << gsi_index # store @gsi_index for the parent Dsl to use
     end
     alias_method :global_secondary_index, :gsi
 
-    def gsi_create(index_name, &block)
-      gsi_index = GlobalSecondaryIndex.new(:create, index_name, &block)
-      block.call(gsi_index)
-      @gsi_index = gsi_index # store @gsi_index for the parent Dsl to use
+    # http://docs.aws.amazon.com/sdk-for-ruby/v3/developer-guide/dynamo-example-create-table.html
+    # build the params up from dsl in memory and provides params to the
+      # executor
+    def params
+      # Not using send because this is clearer
+      case @method_name
+      when :create_table
+        params_create_table
+      when :update_table
+        params_update_table
+      end
     end
 
-    # http://docs.aws.amazon.com/sdk-for-ruby/v3/developer-guide/dynamo-example-create-table.html
-    def execute
-      params = {
+    def params_create_table
+      {
         table_name: namespaced_table_name,
         key_schema: @key_schema,
         attribute_definitions: @attribute_definitions,
         provisioned_throughput: @provisioned_throughput
       }
-      begin
-        result = db.create_table(params)
+    end
 
-        puts "DynamoDB Table: #{@table_name} Status: #{result.table_description.table_status}"
-      rescue Aws::DynamoDB::Errors::ServiceError => error
-        puts "Unable to create table: #{error.message}"
+    def params_update_table
+      params = {
+        table_name: namespaced_table_name,
+        # update table take values only some values for the "parent" table
+        attribute_definitions: gsi_create_attribute_definitions, # This is only a partial
+        # key_schema: @key_schema, # update_table does not handle key_schema for the "parent" table,
+      }
+      # only set "parent" table provisioned_throughput if user actually invoked
+      # it in the dsl
+      params[:provisioned_throughput] =  @provisioned_throughput if @provisioned_throughput_set_called
+      params[:global_secondary_index_updates] = global_secondary_index_updates
+      params
+    end
+
+    # Goes thorugh all the gsi_indexes that have been built up in memory.
+    # Find the gsi object that creates an index and then grab the
+    # attribute_definitions from it.
+    def gsi_create_attribute_definitions
+      # puts "@gsi_indexes #{@gsi_indexes.inspect}"
+      gsi = @gsi_indexes.find { |gsi| gsi.action == :create }
+      gsi_attrs = gsi && gsi.attribute_definitions
+      if gsi_attrs
+        current_attribute_definitions + gsi_attrs
+      else
+        current_attribute_definitions
       end
+    end
+
+    # maps each gsi to the hash structure expected by dynamodb update_table
+    # under the global_secondary_index_updates key:
+    #
+    #   { create: {...} }
+    #   { update: {...} }
+    #   { delete: {...} }
+    def global_secondary_index_updates
+      @gsi_indexes.map do |gsi|
+        { gsi.action => gsi.params }
+      end
+    end
+
+    # >> resp = Post.db.describe_table(table_name: "proj-dev-posts")
+    # >> resp.table.attribute_definitions.map(&:to_h)
+    # => [{:attribute_name=>"id", :attribute_type=>"S"}]
+    def current_attribute_definitions
+      return @current_attribute_definitions if @current_attribute_definitions
+
+      resp = db.describe_table(table_name: namespaced_table_name)
+      @current_attribute_definitions = resp.table.attribute_definitions.map(&:to_h)
     end
 
     def namespaced_table_name

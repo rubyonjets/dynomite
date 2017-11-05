@@ -44,12 +44,24 @@ module DynamodbModel::DbConfig
       @db_config ||= config[env] || {}
     end
 
-    @table_namespace = nil
-    def table_namespace
-      return @table_namespace if @table_namespace
+    def table_namespace(*args)
+      case args.size
+      when 0
+        get_table_namespace
+      when 1
+        set_table_namespace(args[0])
+      end
+    end
+
+    def get_table_namespace
+      return @table_namespace if defined?(@table_namespace)
 
       config = db_config
       @table_namespace = config['table_namespace']
+    end
+
+    def set_table_namespace(value)
+      @table_namespace = value
     end
 
     def erb_result(path)

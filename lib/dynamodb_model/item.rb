@@ -8,25 +8,25 @@ require "yaml"
 #
 # Examples:
 #
-#   post = Post.new
+#   post = MyModel.new
 #   post = post.replace(title: "test title")
 #
 # post.attrs[:id] now contain a generaetd unique partition_key id.
 # Usually the partition_key is 'id'. You can set your own unique id also:
 #
-#   post = Post.new(id: "myid", title: "my title")
+#   post = MyModel.new(id: "myid", title: "my title")
 #   post.replace
 #
 # Note that the replace method replaces the entire item, so you
 # need to merge the attributes if you want to keep the other attributes.
 #
-#   post = Post.find("myid")
+#   post = MyModel.find("myid")
 #   post.attrs = post.attrs.deep_merge("desc": "my desc") # keeps title field
 #   post.replace
 #
 # The convenience `attrs` method performs a deep_merge:
 #
-#   post = Post.find("myid")
+#   post = MyModel.find("myid")
 #   post.attrs("desc": "my desc") # <= does a deep_merge
 #   post.replace
 #
@@ -100,10 +100,16 @@ module DynamodbModel
       @attributes
     end
 
-    # AWS Docs examples: http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GettingStarted.Ruby.04.html
-    # Usage:
+    # Adds very little wrapper logic to scan.
     #
-    #   Post.scan(
+    # * Automatically add table_name to options for convenience.
+    # * Decorates return value.  Returns Array of [MyModel.new] instead of the
+    #   dynamodb client response.
+    #
+    # Other than that, usage is same was using the dynamodb client scan method
+    # directly.  Example:
+    #
+    #   MyModel.scan(
     #     expression_attribute_names: {"#updated_at"=>"updated_at"},
     #     filter_expression: "#updated_at between :start_time and :end_time",
     #     expression_attribute_values: {
@@ -112,20 +118,78 @@ module DynamodbModel
     #     }
     #   )
     #
-    # TODO: pretty lame interface, improve it somehow. Maybe:
-    #
-    #   Post.scan(filter: "updated_at between :start_time and :end_time")
-    #
-    # which automatically maps the structure.
+    # AWS Docs examples: http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GettingStarted.Ruby.04.html
     def self.scan(params={})
       puts("Should not use scan for production. It's slow and expensive. You should create either a LSI or GSI and use query the index instead.")
-
-      defaults = {
-        table_name: table_name
-      }
-      params = defaults.merge(params)
+      params = { table_name: table_name }.merge(params)
       resp = db.scan(params)
-      resp.items.map {|i| Post.new(i) }
+      resp.items.map {|i| self.new(i) }
+    end
+
+    # Adds very little wrapper logic to query.
+    #
+    # * Automatically add table_name to options for convenience.
+    # * Decorates return value.  Returns Array of [MyModel.new] instead of the
+    #   dynamodb client response.
+    #
+    # Other than that, usage is same was using the dynamodb client query method
+    # directly.  Example:
+    #
+    #   MyModel.query(
+    #     index_name: 'category-index',
+    #     expression_attribute_names: { "#category_name" => "category" },
+    #     expression_attribute_values: { ":category_value" => "Entertainment" },
+    #     key_condition_expression: "#category_name = :category_value",
+    #   )
+    #
+    # AWS Docs examples: http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GettingStarted.Ruby.04.html
+    def self.query(params={})
+      params = { table_name: table_name }.merge(params)
+      resp = db.query(params)
+      resp.items.map {|i| self.new(i) }
+    end
+
+    # Translates simple query searches:
+    #
+    #   Post.where({category: "Drama"}, index_name: "category-index")
+    #
+    # translates to
+    #
+    #   resp = db.query(
+    #     table_name: "proj-dev-post",
+    #     index_name: 'category-index',
+    #     expression_attribute_names: { "#category_name" => "category" },
+    #     expression_attribute_values: { ":category_value" => category },
+    #     key_condition_expression: "#category_name = :category_value",
+    #   )
+    #
+    # TODO: Implement nicer where syntax with index_name as a chained method.
+    #
+    #   Post.where({category: "Drama"}, {index_name: "category-index"})
+    #     VS
+    #   Post.where(category: "Drama").index_name("category-index")
+    def self.where(attributes, options={})
+      raise "attributes.size == 1 only supported for now" if attributes.size != 1
+
+      attr_name = attributes.keys.first
+      attr_value = attributes[attr_name]
+
+      # params = {
+      #   expression_attribute_names: { "#category_name" => "category" },
+      #   expression_attribute_values: { ":category_value" => "Entertainment" },
+      #   key_condition_expression: "#category_name = :category_value",
+      # }
+      name_key, value_key = "##{attr_name}_name", ":#{attr_name}_value"
+      params = {
+        expression_attribute_names: { name_key => attr_name },
+        expression_attribute_values: { value_key => attr_value },
+        key_condition_expression: "#{name_key} = #{value_key}",
+      }
+      # Allow direct access to override params passed to dynamodb query options.
+      # This is is how index_name is passed:
+      params = params.merge(options)
+
+      query(params)
     end
 
     def self.replace(attrs)
@@ -156,7 +220,7 @@ module DynamodbModel
         key: {partition_key => id}
       )
       attributes = resp.item # unwraps the item's attributes
-      Post.new(attributes) if attributes
+      self.new(attributes) if attributes
     end
 
     # Two ways to use the delete method:
@@ -203,9 +267,23 @@ module DynamodbModel
       end
     end
 
-    def self.table_name
-      @table_name = self.name.pluralize.underscore
+    def self.table_name(*args)
+      case args.size
+      when 0
+        get_table_name
+      when 1
+        set_table_name(args[0])
+      end
+    end
+
+    def self.get_table_name
+      @table_name ||= self.name.pluralize.underscore
       [table_namespace, @table_name].reject {|s| s.nil? || s.empty?}.join('-')
     end
+
+    def self.set_table_name(value)
+      @table_name = value
+    end
+
   end
 end

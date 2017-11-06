@@ -12,6 +12,11 @@ module DynamodbModel::DbConfig
     self.class.db
   end
 
+  # NOTE: requires table_name method in the class that includes DynamodbModel::DbConfig
+  def namespaced_table_name
+    [self.class.table_namespace, table_name].reject {|s| s.nil? || s.empty?}.join('-')
+  end
+
   module ClassMethods
     @@db = nil
     def db

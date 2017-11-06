@@ -47,11 +47,20 @@ describe DynamodbModel::Migration::Dsl do
         i.partition_key "post_id:string"
         i.sort_key "updated_at:string" # optional
       end
+      dsl.gsi(:update, "another-index") do |i|
+        i.provisioned_throughput(8)
+      end
       dsl.gsi(:delete, "old-index")
-      dsl.gsi(:update, "another-index")
 
-      # pp dsl.instance_variable_get(:@gsi_indexes)
-      pp dsl.params
+      params = dsl.params
+      # pp params # uncomment out to inspect params
+      # attribute_definitions is a Double because we've mocked out:
+      # DynamodbModel::Migration::Dsl.db = double("db").as_null_object
+      expect(params.has_key?(:attribute_definitions)).to be true
+      expect(params.has_key?(:global_secondary_index_updates)).to be true
+      global_secondary_index_updates = params[:global_secondary_index_updates]
+      index_actions = global_secondary_index_updates.map {|hash| hash.keys.first }
+      expect(index_actions.sort).to eq([:create, :update, :delete].sort)
     end
   end
 

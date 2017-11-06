@@ -5,6 +5,7 @@ class DynamodbModel::Migration::Dsl
     ATTRIBUTE_TYPE_MAP = DynamodbModel::Migration::Dsl::ATTRIBUTE_TYPE_MAP
 
     attr_accessor :action, :key_schema, :attribute_definitions
+    attr_accessor :index_name
     def initialize(action, index_name=nil, &block)
       @action = action.to_sym # :create, :update, :index
       @index_name = index_name
@@ -40,17 +41,31 @@ class DynamodbModel::Migration::Dsl
       [partition_key, sort_key, "index"].compact.join('-')
     end
 
+    def evaluate
+      return if @evaluated
+      @block.call(self) if @block
+      @evaluated = true
+    end
+
     def params
-      {
-        index_name: index_name, # required
-        key_schema: @key_schema, # # required
+      evaluate # lazy evaluation: wait until as long as possible before evaluating code block
+
+      params = { index_name: index_name } # required for all actions
+
+      if @action == :create
+        params[:key_schema] = @key_schema # required for create action
         # hardcode to ALL for now
-        projection: { # required
+        params[:projection] = { # required
           projection_type: "ALL", # accepts ALL, KEYS_ONLY, INCLUDE
           # non_key_attributes: ["NonKeyAttributeName"],
-        },
-        provisioned_throughput: @provisioned_throughput,
-      }
+        }
+      end
+
+      if [:create, :update].include?(@action)
+        params[:provisioned_throughput] = @provisioned_throughput
+      end
+
+      params
     end
   end
 end

@@ -16,7 +16,7 @@ class DynamodbModel::Migration
     }
 
     attr_accessor :key_schema, :attribute_definitions
-    # db is the dynamodb client
+    attr_accessor :table_name
     def initialize(method_name, table_name)
       @method_name = method_name
       @table_name = table_name
@@ -42,15 +42,22 @@ class DynamodbModel::Migration
     # end
     def gsi(action, index_name=nil, &block)
       gsi_index = GlobalSecondaryIndex.new(action, index_name, &block)
-      block.call(gsi_index) if block
       @gsi_indexes << gsi_index # store @gsi_index for the parent Dsl to use
     end
     alias_method :global_secondary_index, :gsi
+
+    def evaluate
+      return if @evaluated
+      @block.call(self) if @block
+      @evaluated = true
+    end
 
     # http://docs.aws.amazon.com/sdk-for-ruby/v3/developer-guide/dynamo-example-create-table.html
     # build the params up from dsl in memory and provides params to the
       # executor
     def params
+      evaluate # lazy evaluation: wait until as long as possible before evaluating code block
+
       # Not using send because this is clearer
       case @method_name
       when :create_table

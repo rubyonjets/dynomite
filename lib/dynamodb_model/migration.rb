@@ -2,6 +2,7 @@ module DynamodbModel
   class Migration
     autoload :Dsl, "dynamodb_model/migration/dsl"
     autoload :Generator, "dynamodb_model/migration/generator"
+    autoload :Executor, "dynamodb_model/migration/executor"
 
     def up
       puts "Should defined an up method for your migration: #{self.class.name}"
@@ -19,9 +20,8 @@ module DynamodbModel
     def execute_with_dsl_params(method_name, table_name)
       dsl = Dsl.new(method_name, table_name)
       params = dsl.params
-      # executor = DslExecutor.new(method_name, params)
-      # executor.run
-      # dsl.execute(method_name)
+      executor = Executor.new(table_name, method_name, params)
+      executor.run
     end
   end
 end

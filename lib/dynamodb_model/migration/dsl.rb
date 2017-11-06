@@ -125,9 +125,5 @@ class DynamodbModel::Migration
       resp = db.describe_table(table_name: namespaced_table_name)
       @current_attribute_definitions = resp.table.attribute_definitions.map(&:to_h)
     end
-
-    def namespaced_table_name
-      [self.class.table_namespace, @table_name].reject {|s| s.nil? || s.empty?}.join('-')
-    end
   end
 end

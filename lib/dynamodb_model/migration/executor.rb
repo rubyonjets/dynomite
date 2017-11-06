@@ -23,7 +23,7 @@ class DynamodbModel::Migration
 
         puts "DynamoDB Table: #{@table_name} Status: #{result.table_description.table_status}"
       rescue Aws::DynamoDB::Errors::ServiceError => error
-        puts "Unable to #{@method_name.gsub('_',' ')}: #{error.message}"
+        puts "Unable to #{@method_name.to_s.gsub('_',' ')}: #{error.message}"
       end
     end
   end

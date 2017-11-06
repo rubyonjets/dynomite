@@ -13,16 +13,18 @@ end
 class UpdateCommentsMigration < DynamodbModel::Migration
   def up
     update_table :comments do |t|
-      t.provisioned_throughput(7) # sets both read and write, defaults to 5 when not set
+      # NOTE: You cannot update provisioned_throughput at the same time as creating
+      # an GSI
+      # t.provisioned_throughput(7) # sets both read and write, defaults to 5 when not set
       t.gsi(:create) do |i|
         i.partition_key "post_id:string"
         i.sort_key "updated_at:string" # optional
         i.provisioned_throughput(8)
       end
-      t.gsi(:update, "update-me-index") do |i|
-        i.provisioned_throughput(9)
-      end
-      t.gsi(:delete, "delete-me-index")
+      # t.gsi(:update, "update-me-index") do |i|
+      #   i.provisioned_throughput(9)
+      # end
+      # t.gsi(:delete, "delete-me-index")
     end
   end
 end
@@ -42,13 +44,16 @@ describe DynamodbModel::Migration do
     end
   end
 
-  # To test dynamodb endpoint configured in config/dynamodb.yml run:
+  # To test dynamodb endpoint configured in config/dynamodb.yml uncomment the code
+  # you want to test and run:
   #
   #   LIVE=1 rspec spec/lib/dynamodb_model/migration_spec.rb -e 'live db'
+  #
   context "live db" do
     before(:each) { DynamodbModel::Item.db = nil } # setting to nil will clear out mock and force it to load AWS
     it "executes the migration" do
-      CommentsMigration.new.up
+      CreateCommentsMigration.new.up # uncomment to test
+      # UpdateCommentsMigration.new.up # uncomment to test
     end
   end if ENV['LIVE']
 end

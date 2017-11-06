@@ -9,16 +9,16 @@ module DynamodbModel
     end
 
     def create_table(table_name, &block)
-      execute_with_dsl_params(:create_table, table_name, &block)
+      execute_with_dsl_params(table_name, :create_table, &block)
     end
 
     def update_table(table_name, &block)
-      execute_with_dsl_params(:update_table, table_name, &block)
+      execute_with_dsl_params(table_name, :update_table, &block)
     end
 
   private
-    def execute_with_dsl_params(method_name, table_name)
-      dsl = Dsl.new(method_name, table_name)
+    def execute_with_dsl_params(table_name, method_name, &block)
+      dsl = Dsl.new(method_name, table_name, &block)
       params = dsl.params
       executor = Executor.new(table_name, method_name, params)
       executor.run

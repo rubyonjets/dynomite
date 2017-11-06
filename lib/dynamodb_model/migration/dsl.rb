@@ -17,9 +17,10 @@ class DynamodbModel::Migration
 
     attr_accessor :key_schema, :attribute_definitions
     attr_accessor :table_name
-    def initialize(method_name, table_name)
+    def initialize(method_name, table_name, &block)
       @method_name = method_name
       @table_name = table_name
+      @block = block
 
       # Dsl fills in atttributes in as methods are called within the block.
       # Attributes for both create_table and updated_table:
@@ -58,7 +59,7 @@ class DynamodbModel::Migration
     def params
       evaluate # lazy evaluation: wait until as long as possible before evaluating code block
 
-      # Not using send because this is clearer
+      # Not using send because think its clearer in this case
       case @method_name
       when :create_table
         params_create_table
@@ -94,14 +95,18 @@ class DynamodbModel::Migration
     # Find the gsi object that creates an index and then grab the
     # attribute_definitions from it.
     def gsi_create_attribute_definitions
-      # puts "@gsi_indexes #{@gsi_indexes.inspect}"
       gsi = @gsi_indexes.find { |gsi| gsi.action == :create }
-      gsi_attrs = gsi && gsi.attribute_definitions
-      if gsi_attrs
-        current_attribute_definitions + gsi_attrs
-      else
-        current_attribute_definitions
+      if gsi
+        gsi.evaluate # force early evaluate since we need the params to
+          # add: current_attribute_definitions + gsi_attrs
+        gsi_attrs = gsi.attribute_definitions
       end
+      all_attrs = if gsi_attrs
+                    current_attribute_definitions + gsi_attrs
+                  else
+                    current_attribute_definitions
+                  end
+      all_attrs.uniq
     end
 
     # maps each gsi to the hash structure expected by dynamodb update_table

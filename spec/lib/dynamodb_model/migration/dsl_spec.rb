@@ -43,6 +43,8 @@ describe DynamodbModel::Migration::Dsl do
     end
 
     it "builds up the gsi index params" do
+      dsl.provisioned_throughput(18)
+
       dsl.gsi(:create) do |i|
         i.partition_key "post_id:string"
         i.sort_key "updated_at:string" # optional

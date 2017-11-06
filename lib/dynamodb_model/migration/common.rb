@@ -73,7 +73,7 @@ class DynamodbModel::Migration::Dsl
         write: :write_capacity_units,
       }
 
-      if capacity_type = :both
+      if capacity_type == :both
         @provisioned_throughput[map[:read]] = capacity_units
         @provisioned_throughput[map[:write]] = capacity_units
       else

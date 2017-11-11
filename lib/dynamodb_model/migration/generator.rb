@@ -18,13 +18,13 @@ class DynamodbModel::Migration
     end
 
     def create_migration
-      migration_relative_path = "db/migrate/#{migration_file_name}.rb"
+      migration_relative_path = "dynamodb/migrate/#{migration_file_name}.rb"
       migration_path = "#{DynamodbModel.root}#{migration_relative_path}"
       dir = File.dirname(migration_path)
-      FileUtils.mkdir_p(dir) unless File.exist?(dir)
+      FileUtils.mkdir_p(dir)
       IO.write(migration_path, migration_code)
       puts "Migration file created: #{migration_relative_path}. To run:"
-      puts "  jets db migrate #{migration_relative_path}"
+      puts "  jets dynamodb migrate #{migration_relative_path}"
     end
 
     def migration_code

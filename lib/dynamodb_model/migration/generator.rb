@@ -19,7 +19,7 @@ class DynamodbModel::Migration
 
     def create_migration
       migration_relative_path = "dynamodb/migrate/#{migration_file_name}.rb"
-      migration_path = "#{DynamodbModel.root}#{migration_relative_path}"
+      migration_path = "#{DynamodbModel.app_root}#{migration_relative_path}"
       dir = File.dirname(migration_path)
       FileUtils.mkdir_p(dir)
       IO.write(migration_path, migration_code)

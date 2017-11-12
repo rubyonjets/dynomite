@@ -3,8 +3,6 @@ class DynamodbModel::Migration::Dsl
   class BaseSecondaryIndex
     include Common
 
-    ATTRIBUTE_TYPE_MAP = DynamodbModel::Migration::Dsl::ATTRIBUTE_TYPE_MAP
-
     attr_accessor :action, :key_schema, :attribute_definitions
     attr_accessor :index_name
     def initialize(action, index_name=nil, &block)

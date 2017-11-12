@@ -33,7 +33,7 @@ class DynamodbModel::Migration::Dsl
 
       attribute_definition = {
         attribute_name: name,
-        attribute_type: ATTRIBUTE_TYPE_MAP[attribute_type]
+        attribute_type: DynamodbModel::ATTRIBUTE_TYPES[attribute_type]
       }
       @attribute_definitions << attribute_definition
     end

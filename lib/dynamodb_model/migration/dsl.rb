@@ -8,15 +8,6 @@ class DynamodbModel::Migration
     include DynamodbModel::DbConfig
     include Common
 
-    ATTRIBUTE_TYPE_MAP = {
-      'string' => 'S',
-      'number' => 'N',
-      'binary' => 'B',
-      's' => 'S',
-      'n' => 'N',
-      'b' => 'B',
-    }
-
     attr_accessor :key_schema, :attribute_definitions
     attr_accessor :table_name
     def initialize(method_name, table_name, &block)

@@ -1,3 +1,5 @@
+# Common methods to the *SecondaryIndex classes that handle gsi and lsi methods
+# as well a the Dsl class that handles create_table and update_table methods.
 class DynamodbModel::Migration::Dsl
   module Common
     # http://docs.aws.amazon.com/sdkforruby/api/Aws/DynamoDB/Types/KeySchemaElement.html

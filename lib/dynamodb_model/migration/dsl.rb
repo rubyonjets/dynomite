@@ -1,7 +1,9 @@
 class DynamodbModel::Migration
   class Dsl
-    autoload :GlobalSecondaryIndex, "dynamodb_model/migration/dsl/global_secondary_index"
     autoload :Common, "dynamodb_model/migration/common"
+    autoload :BaseSecondaryIndex, "dynamodb_model/migration/dsl/base_secondary_index"
+    autoload :LocalSecondaryIndex, "dynamodb_model/migration/dsl/local_secondary_index"
+    autoload :GlobalSecondaryIndex, "dynamodb_model/migration/dsl/global_secondary_index"
 
     include DynamodbModel::DbConfig
     include Common

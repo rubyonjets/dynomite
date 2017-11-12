@@ -4,6 +4,13 @@ class CreateCommentsMigration < DynamodbModel::Migration
       t.partition_key "post_id:string" # required
       t.sort_key  "created_at:string" # optional
       t.provisioned_throughput(5) # sets both read and write, defaults to 5 when not set
+
+      t.lsi do |i|
+        i.partition_key "user_id:string"
+        i.sort_key "updated_at:string" # optional
+
+        i.provisioned_throughput(10)
+      end
     end
   end
 end

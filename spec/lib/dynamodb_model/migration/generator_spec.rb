@@ -16,7 +16,7 @@ describe DynamodbModel::Migration::Generator do
   it "generates migration file in dynamodb/migrate" do
     generator.generate
 
-    migration_path = Dir.glob("#{DynamodbModel.app_root}dynamodynamodb/migrate/*").first
+    migration_path = Dir.glob("#{DynamodbModel.app_root}dynamodb/migrate/*").first
     migration_exist = File.exist?(migration_path)
     expect(migration_exist).to be true
   end

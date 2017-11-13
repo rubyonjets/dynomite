@@ -1,6 +1,6 @@
 # DynamodbModel
 
-A simple wrapper library to make DynamoDB usage a little more friendly.  The modeling is ActiveRecord-ish but not exactly because DynamoDB is a different type of database.  Examples and the [item_spec.rb](spec/lib/dynamodb_model/item_spec.rb) explain it best:
+A simple wrapper library to make DynamoDB usage a little more friendly.  The modeling is ActiveRecord-ish but not exactly because DynamoDB is a different type of database.  Examples below explain it best:
 
 ## Examples
 
@@ -69,9 +69,25 @@ posts = Post.scan(options)
 posts # Array of Post items.  [Post.new, Post.new, ...]
 ```
 
+Examples are also in [item_spec.rb](spec/lib/dynamodb_model/item_spec.rb).
+
 ## Migration Support
 
-DynamodbModel supports ActiveRecord-like migrations.  Examples are in: [docs](docs).
+DynamodbModel supports ActiveRecord-like migrations.  Here's a short example:
+
+```ruby
+class CreateCommentsMigration < DynamodbModel::Migration
+  def up
+    create_table :comments do |t|
+      t.partition_key "post_id:string" # required
+      t.sort_key  "created_at:string" # optional
+      t.provisioned_throughput(5) # sets both read and write, defaults to 5 when not set
+    end
+  end
+end
+```
+
+More examples are in the [docs/migrations](docs/migrations) folder.
 
 ## Installation
 

@@ -159,7 +159,7 @@ class DynamodbModel::Migration
       end
     end
 
-    # >> resp = Post.db.describe_table(table_name: "proj-dev-posts")
+    # >> resp = Post.db.describe_table(table_name: "demo-dev-posts")
     # >> resp.table.attribute_definitions.map(&:to_h)
     # => [{:attribute_name=>"id", :attribute_type=>"S"}]
     def gsi_attribute_definitions

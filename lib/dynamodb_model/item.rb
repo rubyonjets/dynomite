@@ -156,7 +156,7 @@ module DynamodbModel
     # translates to
     #
     #   resp = db.query(
-    #     table_name: "proj-dev-post",
+    #     table_name: "demo-dev-post",
     #     index_name: 'category-index',
     #     expression_attribute_names: { "#category_name" => "category" },
     #     expression_attribute_values: { ":category_value" => category },

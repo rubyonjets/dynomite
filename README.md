@@ -115,7 +115,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/tongueroo/dynamodb_model.
 
-TODO
+### TODO
 
 * implement Post.query
 * implement `post.update` with `db.update_item` in a Ruby-ish way

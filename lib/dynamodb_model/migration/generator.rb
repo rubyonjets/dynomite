@@ -20,12 +20,12 @@ class DynamodbModel::Migration
     def create_migration
       FileUtils.mkdir_p(File.dirname(migration_path))
       IO.write(migration_path, migration_code)
-      puts "Migration file created: #{migration_path}. To run:"
+      puts "Migration file created: #{migration_path}. \nTo run:"
       puts "  jets dynamodb migrate #{migration_path}"
     end
 
     def migration_code
-      path = File.expand_path("../templates/create_table.rb", __FILE__)
+      path = File.expand_path("../templates/#{table_action}.rb", __FILE__)
       result = DynamodbModel::Erb.result(path,
         migration_class_name: migration_class_name,
         table_name: table_name,
@@ -33,6 +33,14 @@ class DynamodbModel::Migration
         sort_key: @options[:sort_key],
         provisioned_throughput: @options[:provisioned_throughput] || 5,
       )
+    end
+
+    def table_action
+      @options[:table_action] || conventional_table_action
+    end
+
+    def conventional_table_action
+      @migration_name.include?("update") ? "update_table" : "create_table"
     end
 
     def table_name

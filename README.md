@@ -69,6 +69,20 @@ posts = Post.scan(options)
 posts # Array of Post items.  [Post.new, Post.new, ...]
 ```
 
+### Query
+
+The query is not very pretty right now. Appreciate any pull requests.
+
+```ruby
+posts = Post.query(
+  index_name: 'category-index',
+  expression_attribute_names: { "#category_name" => "category" },
+  expression_attribute_values: { ":category_value" => "Entertainment" },
+  key_condition_expression: "#category_name = :category_value",
+)
+posts # Array of Post items.  [Post.new, Post.new, ...]
+```
+
 Examples are also in [item_spec.rb](spec/lib/dynamodb_model/item_spec.rb).
 
 ## Migration Support
@@ -117,5 +131,5 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/tongue
 
 ### TODO
 
-* implement Post.query
+* implement better Post.query support.  `Item.index_name("user_id").query(category_name: "Entertainment")` would be nice.
 * implement `post.update` with `db.update_item` in a Ruby-ish way

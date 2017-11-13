@@ -1,7 +1,7 @@
 require "active_support/core_ext/string"
 
 class DynamodbModel::Migration
-  # jets generate migration posts --partition-key id:string
+  # jets dynamodb generate posts --partition-key id:string
   class Generator
     include DynamodbModel::DbConfig
 

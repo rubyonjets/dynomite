@@ -5,9 +5,9 @@ class DynamodbModel::Migration
   class Generator
     include DynamodbModel::DbConfig
 
-    attr_reader :table_name
-    def initialize(table_name, options)
-      @table_name = table_name.pluralize
+    attr_reader :migration_name, :table_name
+    def initialize(migration_name, options)
+      @migration_name = migration_name
       @options = options
     end
 
@@ -18,27 +18,39 @@ class DynamodbModel::Migration
     end
 
     def create_migration
-      migration_relative_path = "dynamodb/migrate/#{migration_file_name}.rb"
-      migration_path = "#{DynamodbModel.app_root}#{migration_relative_path}"
-      dir = File.dirname(migration_path)
-      FileUtils.mkdir_p(dir)
+      FileUtils.mkdir_p(File.dirname(migration_path))
       IO.write(migration_path, migration_code)
-      puts "Migration file created: #{migration_relative_path}. To run:"
-      puts "  jets dynamodb migrate #{migration_relative_path}"
+      puts "Migration file created: #{migration_path}. To run:"
+      puts "  jets dynamodb migrate #{migration_path}"
     end
 
     def migration_code
-      # @table_name already set
-      @migration_class_name = "#{@table_name}_migration".classify
-      @partition_key = @options[:partition_key]
-      @sort_key = @options[:sort_key]
-      @provisioned_throughput = @options[:provisioned_throughput] || 5
-      template = IO.read(File.expand_path("../template.rb", __FILE__))
-      result = ERB.new(template, nil, "-").result(binding)
+      path = File.expand_path("../templates/create_table.rb", __FILE__)
+      result = DynamodbModel::Erb.result(path,
+        migration_class_name: migration_class_name,
+        table_name: table_name,
+        partition_key: @options[:partition_key],
+        sort_key: @options[:sort_key],
+        provisioned_throughput: @options[:provisioned_throughput] || 5,
+      )
     end
 
-    def migration_file_name
-      "#{@table_name}_migration"
+    def table_name
+      @options[:table_name] || conventional_table_name
+    end
+
+    # create_posts => posts
+    # update_posts => posts
+    def conventional_table_name
+      @migration_name.sub(/^(create|update)_/, '')
+    end
+
+    def migration_class_name
+      "#{@migration_name}_migration".classify # doesnt include timestamp
+    end
+
+    def migration_path
+      "#{DynamodbModel.app_root}dynamodb/migrate/#{timestamp}-#{@migration_name}_migration.rb"
     end
 
     def timestamp

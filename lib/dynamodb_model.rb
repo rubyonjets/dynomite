@@ -16,6 +16,7 @@ module DynamodbModel
   autoload :DbConfig, "dynamodb_model/db_config"
   autoload :Item, "dynamodb_model/item"
   autoload :Util, "dynamodb_model/util"
+  autoload :Erb, "dynamodb_model/erb"
 
   extend Util
 end

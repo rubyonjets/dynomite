@@ -28,6 +28,7 @@ class DynamodbModel::Migration
 
       # Attributes for update_table only:
       @gsi_indexes = []
+      @lsi_indexes = []
     end
 
     # t.gsi(:create) do |i|
@@ -39,6 +40,17 @@ class DynamodbModel::Migration
       @gsi_indexes << gsi_index # store @gsi_index for the parent Dsl to use
     end
     alias_method :global_secondary_index, :gsi
+
+    # t.lsi(:create) do |i|
+    #   i.partition_key = "category:string"
+    #   i.sort_key = "created_at:string" # optional
+    # end
+    def lsi(action=:create, index_name=nil, &block)
+      # dont need action create but have it to keep the lsi and gsi method consistent
+      lsi_index = LocalSecondaryIndex.new(index_name, &block)
+      @lsi_indexes << lsi_index # store @lsi_index for the parent Dsl to use
+    end
+    alias_method :local_secondary_index, :gsi
 
     def evaluate
       return if @evaluated
@@ -62,20 +74,53 @@ class DynamodbModel::Migration
     end
 
     def params_create_table
-      {
+      params = {
         table_name: namespaced_table_name,
         key_schema: @key_schema,
         attribute_definitions: @attribute_definitions,
         provisioned_throughput: @provisioned_throughput
       }
+
+      params[:local_secondary_index_creates] = local_secondary_index_creates unless @lsi_indexes.empty?
+      params
+    end
+
+    # Goes thorugh all the lsi_indexes that have been built up in memory.
+    # Find the lsi object that creates an index and then grab the
+    # attribute_definitions from it.
+    def lsi_create_attribute_definitions
+      lsi = @lsi_indexes.first # DynamoDB only supports adding one index at a time anyway. The reason @lsi_indexes is an Array is because we're sharing the same class code for LSI and GSI
+      if lsi
+        lsi.evaluate # force early evaluate since we need the params to
+          # add: gsi_attribute_definitions + lsi_attrs
+        lsi_attrs = lsi.attribute_definitions
+      end
+      all_attrs = if lsi_attrs
+                    @attribute_definitions + lsi_attrs
+                  else
+                    @attribute_definitions
+                  end
+      all_attrs.uniq
+    end
+
+    # maps each lsi to the hash structure expected by dynamodb update_table
+    # under the global_secondary_index_updates key:
+    #
+    #   { create: {...} }
+    #   { update: {...} }
+    #   { delete: {...} }
+    def lsi_secondary_index_creates
+      @lsi_indexes.map do |lsi|
+        { lsi.action => lsi.params }
+      end
     end
 
     def params_update_table
       params = {
         table_name: namespaced_table_name,
+        attribute_definitions: gsi_create_attribute_definitions,
         # update table take values only some values for the "parent" table
-        attribute_definitions: gsi_create_attribute_definitions, # This is only a partial
-        # key_schema: @key_schema, # update_table does not handle key_schema for the "parent" table,
+        # no key_schema, update_table does not handle key_schema for the "parent" table
       }
       # only set "parent" table provisioned_throughput if user actually invoked
       # it in the dsl
@@ -91,13 +136,13 @@ class DynamodbModel::Migration
       gsi = @gsi_indexes.find { |gsi| gsi.action == :create }
       if gsi
         gsi.evaluate # force early evaluate since we need the params to
-          # add: current_attribute_definitions + gsi_attrs
+          # add: gsi_attribute_definitions + gsi_attrs
         gsi_attrs = gsi.attribute_definitions
       end
       all_attrs = if gsi_attrs
-                    current_attribute_definitions + gsi_attrs
+                    gsi_attribute_definitions + gsi_attrs
                   else
-                    current_attribute_definitions
+                    gsi_attribute_definitions
                   end
       all_attrs.uniq
     end
@@ -117,11 +162,11 @@ class DynamodbModel::Migration
     # >> resp = Post.db.describe_table(table_name: "proj-dev-posts")
     # >> resp.table.attribute_definitions.map(&:to_h)
     # => [{:attribute_name=>"id", :attribute_type=>"S"}]
-    def current_attribute_definitions
-      return @current_attribute_definitions if @current_attribute_definitions
+    def gsi_attribute_definitions
+      return @gsi_attribute_definitions if @gsi_attribute_definitions
 
       resp = db.describe_table(table_name: namespaced_table_name)
-      @current_attribute_definitions = resp.table.attribute_definitions.map(&:to_h)
+      @gsi_attribute_definitions = resp.table.attribute_definitions.map(&:to_h)
     end
   end
 end

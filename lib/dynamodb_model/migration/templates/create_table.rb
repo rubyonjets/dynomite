@@ -1,32 +1,3 @@
-# Note: table name created will be namespaced based on
-# DynamodbModel::Migration.table_namespace.  This can be set in
-# config/dynamodb.yml
-#
-# development:
-#   table_namespace: "mynamespace"
-#
-# This results in:
-#   create_table "posts" => table name: "mynamespace-posts"
-#
-# When you're in a in Jets project you can set the namespace based on
-# Jets.config.table_namespace, which is based on the project name and
-# a short version of the environment.  Example:
-#
-# `config/dynamodb.yml`:
-# development:
-#   table_namespace: <%%= Jets.config.table_namespace %>
-#
-# If your project_name is proj and environment is production:
-#   create_table "posts" => table name: "proj-prod-posts"
-#
-# If your project_name is proj and environment is staging:
-#   create_table "posts" => table name: "proj-stag-posts"
-#
-# If your project_name is proj and environment is development:
-#   create_table "posts" => table name: "proj-dev-posts"
-#
-# If the table_namespace is set to a blank string or nil, then a namespace
-# will not be prepended at all.
 class <%= @migration_class_name %> < DynamodbModel::Migration
   def up
     create_table :<%= @table_name %> do |t|
@@ -57,3 +28,5 @@ class <%= @migration_class_name %> < DynamodbModel::Migration
     end
   end
 end
+
+# More examples: https://github.com/tongueroo/dynamodb_model/tree/master/docs

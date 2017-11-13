@@ -69,6 +69,10 @@ posts = Post.scan(options)
 posts # Array of Post items.  [Post.new, Post.new, ...]
 ```
 
+## Migration Support
+
+DynamodbModel supports ActiveRecord-like migrations.  Examples are in: [docs](docs).
+
 ## Installation
 
 Add this line to your application's Gemfile:

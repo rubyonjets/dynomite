@@ -1,3 +1,5 @@
+# Common methods to the *SecondaryIndex classes that handle gsi and lsi methods
+# as well a the Dsl class that handles create_table and update_table methods.
 class DynamodbModel::Migration::Dsl
   module Common
     # http://docs.aws.amazon.com/sdkforruby/api/Aws/DynamoDB/Types/KeySchemaElement.html
@@ -31,7 +33,7 @@ class DynamodbModel::Migration::Dsl
 
       attribute_definition = {
         attribute_name: name,
-        attribute_type: ATTRIBUTE_TYPE_MAP[attribute_type]
+        attribute_type: DynamodbModel::ATTRIBUTE_TYPES[attribute_type]
       }
       @attribute_definitions << attribute_definition
     end

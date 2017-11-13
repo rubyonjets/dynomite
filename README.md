@@ -71,8 +71,6 @@ posts # Array of Post items.  [Post.new, Post.new, ...]
 
 ### Query
 
-The query is not very pretty right now. Appreciate any pull requests.
-
 ```ruby
 posts = Post.query(
   index_name: 'category-index',
@@ -81,6 +79,14 @@ posts = Post.query(
   key_condition_expression: "#category_name = :category_value",
 )
 posts # Array of Post items.  [Post.new, Post.new, ...]
+```
+
+### Where
+
+The where could be prettied up. Appreciate any pull requests.
+
+```ruby
+Post.where({category: "Drama"}, {index_name: "category-index"})
 ```
 
 Examples are also in [item_spec.rb](spec/lib/dynamodb_model/item_spec.rb).
@@ -131,5 +137,5 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/tongue
 
 ### TODO
 
-* implement better Post.query support.  `Item.index_name("user_id").query(category_name: "Entertainment")` would be nice.
+* improve Post.where.  Something like `Post.index_name("user_id").where(category_name: "Entertainment")` would be nice.
 * implement `post.update` with `db.update_item` in a Ruby-ish way

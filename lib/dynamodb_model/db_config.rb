@@ -24,9 +24,38 @@ module DynamodbModel::DbConfig
 
       config = db_config
       endpoint = ENV['DYNAMODB_ENDPOINT'] || config['endpoint']
-      Aws.config.update(endpoint: endpoint) if endpoint
+      check_dynamodb_local!(endpoint)
 
+      Aws.config.update(endpoint: endpoint) if endpoint
       @@db ||= Aws::DynamoDB::Client.new
+    end
+
+    # When endoint has been configured to point at dynamodb local: localhost:8000
+    # check if port 8000 is listening and timeout quickly. Or else it takes a
+    # for DynamoDB local to time out, about 10 seconds...
+    # This wastes less of the users time.
+    def check_dynamodb_local!(endpoint)
+      return unless endpoint && endpoint.include?("8000")
+
+      open = port_open?("127.0.0.1", 8000, 0.2)
+      unless open
+        raise "You have configured your app to use DynamoDB local, but it is not running.  Please start DynamoDB local. Example: brew cask install dynamodb-local && dynamodb-local"
+      end
+    end
+
+    # Thanks: https://gist.github.com/ashrithr/5305786
+    def port_open?(ip, port, seconds=1)
+      # => checks if a port is open or not
+      Timeout::timeout(seconds) do
+        begin
+          TCPSocket.new(ip, port).close
+          true
+        rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH, SocketError
+          false
+        end
+      end
+    rescue Timeout::Error
+      false
     end
 
     # useful for specs

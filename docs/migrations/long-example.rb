@@ -6,7 +6,9 @@
 #   table_namespace: "mynamespace"
 #
 # This results in:
-#   create_table "posts" => table name: "mynamespace-posts"
+#   create_table "posts"
+# Produces:
+#   table name: "mynamespace-posts"
 #
 # When you're in a in Jets project you can set the namespace based on
 # Jets.config.table_namespace, which is based on the project name and
@@ -14,16 +16,16 @@
 #
 # `config/dynamodb.yml`:
 # development:
-#   table_namespace: <%%= Jets.config.table_namespace %>
+#   table_namespace: <%= Jets.config.table_namespace %>
 #
-# If your project_name is proj and environment is production:
-#   create_table "posts" => table name: "proj-prod-posts"
+# If your project_name is demo and environment is production:
+#   create_table "posts" => table name: "demo-prod-posts"
 #
 # If your project_name is proj and environment is staging:
-#   create_table "posts" => table name: "proj-stag-posts"
+#   create_table "posts" => table name: "demo-stag-posts"
 #
 # If your project_name is proj and environment is development:
-#   create_table "posts" => table name: "proj-dev-posts"
+#   create_table "posts" => table name: "demo-dev-posts"
 #
 # If the table_namespace is set to a blank string or nil, then a namespace
 # will not be prepended at all.

@@ -58,8 +58,8 @@ describe DynamodbModel::Migration::Dsl do
       # pp params # uncomment out to inspect params
       # attribute_definitions is a Double because we've mocked out:
       # DynamodbModel::Migration::Dsl.db = double("db").as_null_object
-      expect(params.has_key?(:attribute_definitions)).to be true
-      expect(params.has_key?(:global_secondary_index_updates)).to be true
+      expect(params.key?(:attribute_definitions)).to be true
+      expect(params.key?(:global_secondary_index_updates)).to be true
       global_secondary_index_updates = params[:global_secondary_index_updates]
       index_actions = global_secondary_index_updates.map {|hash| hash.keys.first }
       expect(index_actions.sort).to eq([:create, :update, :delete].sort)

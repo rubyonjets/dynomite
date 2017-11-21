@@ -86,7 +86,8 @@ module DynamodbModel
       self.class.partition_key
     end
 
-    def to_attrs
+    # For render json: item
+    def as_json(options={})
       @attrs
     end
 

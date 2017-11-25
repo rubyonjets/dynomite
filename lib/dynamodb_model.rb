@@ -15,8 +15,9 @@ module DynamodbModel
   autoload :Dsl, "dynamodb_model/dsl"
   autoload :DbConfig, "dynamodb_model/db_config"
   autoload :Item, "dynamodb_model/item"
-  autoload :Util, "dynamodb_model/util"
+  autoload :Core, "dynamodb_model/core"
   autoload :Erb, "dynamodb_model/erb"
+  autoload :Log, "dynamodb_model/log"
 
-  extend Util
+  extend Core
 end

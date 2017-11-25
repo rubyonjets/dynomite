@@ -7,6 +7,8 @@ require 'erb'
 #   result = DynamodbModel::Erb.result(path, key1: "val1", key2: "val2")
 #
 class DynamodbModel::Erb
+  include DynamodbModel::Log
+
   class << self
     def result(path, variables={})
       set_template_variables(variables)
@@ -14,8 +16,8 @@ class DynamodbModel::Erb
       begin
         ERB.new(template, nil, "-").result(binding)
       rescue Exception => e
-        puts e
-        puts e.backtrace if ENV['DEBUG']
+        log(e)
+        log(e.backtrace) if ENV['DEBUG']
 
         # how to know where ERB stopped? - https://www.ruby-forum.com/topic/182051
         # syntax errors have the (erb):xxx info in e.message
@@ -24,7 +26,7 @@ class DynamodbModel::Erb
         error_info ||= e.backtrace.grep(/\(erb\)/)[0]
         raise unless error_info # unable to find the (erb):xxx: error line
         line = error_info.split(':')[1].to_i
-        puts "Error evaluating ERB template on line #{line.to_s.colorize(:red)} of: #{path.sub(/^\.\//, '').colorize(:green)}"
+        log "Error evaluating ERB template on line #{line.to_s.colorize(:red)} of: #{path.sub(/^\.\//, '').colorize(:green)}"
 
         template_lines = template.split("\n")
         context = 5 # lines of context

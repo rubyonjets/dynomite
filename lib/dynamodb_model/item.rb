@@ -37,6 +37,7 @@ require "yaml"
 #
 module DynamodbModel
   class Item
+    include Log
     include DbConfig
 
     def initialize(attrs={})
@@ -121,7 +122,7 @@ module DynamodbModel
     #
     # AWS Docs examples: http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GettingStarted.Ruby.04.html
     def self.scan(params={})
-      puts("It's recommended to not use scan for production. It can be slow and expensive. You can a LSI or GSI and query the index instead.")
+      log("It's recommended to not use scan for production. It can be slow and expensive. You can a LSI or GSI and query the index instead.")
       params = { table_name: table_name }.merge(params)
       resp = db.scan(params)
       resp.items.map {|i| self.new(i) }

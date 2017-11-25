@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file.
 This project *tries* to adhere to [Semantic Versioning](http://semver.org/), even before v1.0.
 
+## [1.0.4]
+- Add and use log method instead of puts to write to stderr by default
+
 ## [1.0.3]
 - rename APP_ROOT to JETS_ROOT
 

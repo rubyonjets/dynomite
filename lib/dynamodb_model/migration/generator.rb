@@ -1,7 +1,7 @@
 require "active_support/core_ext/string"
 
 class DynamodbModel::Migration
-  # jets dynamodb generate posts --partition-key id:string
+  # jets dynamodb:generate posts --partition-key id:string
   class Generator
     include DynamodbModel::DbConfig
 
@@ -21,7 +21,7 @@ class DynamodbModel::Migration
       FileUtils.mkdir_p(File.dirname(migration_path))
       IO.write(migration_path, migration_code)
       puts "Migration file created: #{migration_path}. \nTo run:"
-      puts "  jets dynamodb migrate #{migration_path}"
+      puts "  jets dynamodb:migrate #{migration_path}"
     end
 
     def migration_code

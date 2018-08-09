@@ -1,6 +1,6 @@
-class DynamodbModel::Migration
+class Dynomite::Migration
   class Executor
-    include DynamodbModel::DbConfig
+    include Dynomite::DbConfig
 
     # Examples:
     #  Executor.new(:create_table, params) or

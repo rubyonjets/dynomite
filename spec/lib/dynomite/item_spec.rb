@@ -1,12 +1,12 @@
 require "spec_helper"
 
-class Post < DynamodbModel::Item
+class Post < Dynomite::Item
 end
-class Comment < DynamodbModel::Item
+class Comment < Dynomite::Item
   partition_key "post_id" # defaults to id
 end
 
-describe DynamodbModel::Item do
+describe Dynomite::Item do
   describe "general" do
     it "loads attributes" do
       post = Post.new(title: "my title", desc: "my desc")

@@ -1,4 +1,4 @@
-class <%= @migration_class_name %> < DynamodbModel::Migration
+class <%= @migration_class_name %> < Dynomite::Migration
   def up
     create_table :<%= @table_name %> do |t|
       t.partition_key "<%= @partition_key %>" # required
@@ -29,4 +29,4 @@ class <%= @migration_class_name %> < DynamodbModel::Migration
   end
 end
 
-# More examples: https://github.com/tongueroo/dynamodb_model/tree/master/docs
+# More examples: https://github.com/tongueroo/dynomite/tree/master/docs

@@ -3,7 +3,7 @@ require 'fileutils'
 require 'erb'
 require 'yaml'
 
-module DynamodbModel::DbConfig
+module Dynomite::DbConfig
   def self.included(base)
     base.extend(ClassMethods)
   end
@@ -12,7 +12,7 @@ module DynamodbModel::DbConfig
     self.class.db
   end
 
-  # NOTE: Class including DynamodbModel::DbConfig is required to have table_name method defined
+  # NOTE: Class including Dynomite::DbConfig is required to have table_name method defined
   def namespaced_table_name
     [self.class.table_namespace, table_name].reject {|s| s.nil? || s.empty?}.join('-')
   end
@@ -74,7 +74,7 @@ module DynamodbModel::DbConfig
         env = ENV['DYNAMODB_MODEL_ENV'] || "development"
       end
 
-      config = YAML.load(DynamodbModel::Erb.result(config_path))
+      config = YAML.load(Dynomite::Erb.result(config_path))
       @db_config ||= config[env] || {}
     end
 

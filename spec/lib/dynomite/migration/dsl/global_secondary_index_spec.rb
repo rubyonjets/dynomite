@@ -1,18 +1,18 @@
 require "spec_helper"
 
-LSI = DynamodbModel::Migration::Dsl::LocalSecondaryIndex
+GSI = Dynomite::Migration::Dsl::GlobalSecondaryIndex
 
-describe LSI do
+describe GSI do
   context "create index" do
     let(:index) do
-      DynamodbModel::Migration::Dsl.db = double("db").as_null_object
-      LSI.new
+      Dynomite::Migration::Dsl.db = double("db").as_null_object
+      GSI.new(:create)
     end
 
     # Supports this DSL, the `i` variable passed to the block is the
     # Dsl::GlobalSecondaryIndex instance
     #
-    # class UpdateCommentsMigration < DynamodbModel::Migration
+    # class UpdateCommentsMigration < Dynomite::Migration
     #   def up
     #     update_table :comments do |t|
     #       t.partition_key "post_id:string" # required
@@ -67,6 +67,40 @@ describe LSI do
       index.sort_key  "created_at:string" # optional
       index.provisioned_throughput(30)
       # index.execute # TODO: index.execute in here
+    end
+  end
+
+  context "update index" do
+    let(:index) do
+      Dynomite::Migration::Dsl.db = double("db").as_null_object
+      GSI.new(:update) do |i|
+        i.index_name = "update-me-index"
+      end
+    end
+
+    it "only sets the index_name and provisioned_throughput params keys" do
+      index.provisioned_throughput(8)
+      params = index.params
+      expect(params[:provisioned_throughput]).to eq({:read_capacity_units=>8, :write_capacity_units=>8})
+      expect(params[:index_name]).not_to be nil
+      expect(params[:key_schema]).to be nil
+      expect(params[:projection]).to be nil
+    end
+  end
+
+  context "delete index" do
+    let(:index) do
+      Dynomite::Migration::Dsl.db = double("db").as_null_object
+      GSI.new(:delete, "delete-me-index")
+    end
+
+    it "only sets the index_name" do
+      index.provisioned_throughput(8)
+      params = index.params
+      expect(params[:index_name]).not_to be nil
+      expect(params[:provisioned_throughput]).to be nil
+      expect(params[:key_schema]).to be nil
+      expect(params[:projection]).to be nil
     end
   end
 end

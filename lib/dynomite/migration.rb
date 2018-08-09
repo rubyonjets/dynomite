@@ -1,8 +1,8 @@
-module DynamodbModel
+module Dynomite
   class Migration
-    autoload :Dsl, "dynamodb_model/migration/dsl"
-    autoload :Generator, "dynamodb_model/migration/generator"
-    autoload :Executor, "dynamodb_model/migration/executor"
+    autoload :Dsl, "dynomite/migration/dsl"
+    autoload :Generator, "dynomite/migration/generator"
+    autoload :Executor, "dynomite/migration/executor"
 
     def up
       puts "Should defined an up method for your migration: #{self.class.name}"

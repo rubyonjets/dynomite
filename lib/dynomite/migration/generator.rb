@@ -1,9 +1,9 @@
 require "active_support/core_ext/string"
 
-class DynamodbModel::Migration
+class Dynomite::Migration
   # jets dynamodb:generate posts --partition-key id:string
   class Generator
-    include DynamodbModel::DbConfig
+    include Dynomite::DbConfig
 
     attr_reader :migration_name, :table_name
     def initialize(migration_name, options)
@@ -26,7 +26,7 @@ class DynamodbModel::Migration
 
     def migration_code
       path = File.expand_path("../templates/#{table_action}.rb", __FILE__)
-      result = DynamodbModel::Erb.result(path,
+      result = Dynomite::Erb.result(path,
         migration_class_name: migration_class_name,
         table_name: table_name,
         partition_key: @options[:partition_key],
@@ -58,7 +58,7 @@ class DynamodbModel::Migration
     end
 
     def migration_path
-      "#{DynamodbModel.app_root}dynamodb/migrate/#{timestamp}-#{@migration_name}_migration.rb"
+      "#{Dynomite.app_root}dynamodb/migrate/#{timestamp}-#{@migration_name}_migration.rb"
     end
 
     def timestamp

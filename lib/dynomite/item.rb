@@ -35,7 +35,7 @@ require "yaml"
 # emphasis that possibility.
 # TODO: implement post.update with db.update_item in a Ruby-ish way.
 #
-module DynamodbModel
+module Dynomite
   class Item
     include Log
     include DbConfig
@@ -257,7 +257,7 @@ module DynamodbModel
 
     # When called with an argument we'll set the internal @partition_key value
     # When called without an argument just retun it.
-    # class Comment < DynamodbModel::Item
+    # class Comment < Dynomite::Item
     #   partition_key "post_id"
     # end
     def self.partition_key(*args)

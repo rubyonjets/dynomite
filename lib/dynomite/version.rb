@@ -1,3 +1,3 @@
-module DynamodbModel
+module Dynomite
   VERSION = "1.0.5"
 end

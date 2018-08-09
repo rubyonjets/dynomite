@@ -1,6 +1,6 @@
 require 'logger'
 
-module DynamodbModel::Core
+module Dynomite::Core
   # Ensures trailing slash
   # Useful for appending a './' in front of a path or leaving it alone.
   # Returns: '/path/with/trailing/slash/' or './'

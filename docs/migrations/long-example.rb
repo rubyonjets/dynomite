@@ -1,5 +1,5 @@
 # Note: table name created will be namespaced based on
-# DynamodbModel::Migration.table_namespace.  This can be set in
+# Dynomite::Migration.table_namespace.  This can be set in
 # config/dynamodb.yml
 #
 # development:
@@ -30,7 +30,7 @@
 # If the table_namespace is set to a blank string or nil, then a namespace
 # will not be prepended at all.
 
-class CreateCommentsMigration < DynamodbModel::Migration
+class CreateCommentsMigration < Dynomite::Migration
   def up
     create_table :comments do |t|
       t.partition_key "post_id:string" # required
@@ -59,7 +59,7 @@ class CreateCommentsMigration < DynamodbModel::Migration
   end
 end
 
-class UpdateCommentsMigration < DynamodbModel::Migration
+class UpdateCommentsMigration < Dynomite::Migration
   def up
     update_table :comments do |t|
 

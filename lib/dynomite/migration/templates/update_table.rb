@@ -1,4 +1,4 @@
-class <%= @migration_class_name %> < DynamodbModel::Migration
+class <%= @migration_class_name %> < Dynomite::Migration
   def up
     update_table :<%= @table_name %> do |t|
       t.gsi(:create) do |i|
@@ -23,4 +23,4 @@ class <%= @migration_class_name %> < DynamodbModel::Migration
   end
 end
 
-# More examples: https://github.com/tongueroo/dynamodb_model/tree/master/docs
+# More examples: https://github.com/tongueroo/dynomite/tree/master/docs

@@ -4,10 +4,10 @@ require 'erb'
 #
 # Usage:
 #
-#   result = DynamodbModel::Erb.result(path, key1: "val1", key2: "val2")
+#   result = Dynomite::Erb.result(path, key1: "val1", key2: "val2")
 #
-class DynamodbModel::Erb
-  include DynamodbModel::Log
+class Dynomite::Erb
+  include Dynomite::Log
 
   class << self
     def result(path, variables={})

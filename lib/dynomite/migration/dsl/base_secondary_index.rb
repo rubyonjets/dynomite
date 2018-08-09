@@ -1,5 +1,5 @@
 # Base class for LocalSecondaryIndex and GlobalSecondaryIndex
-class DynamodbModel::Migration::Dsl
+class Dynomite::Migration::Dsl
   class BaseSecondaryIndex
     include Common
 

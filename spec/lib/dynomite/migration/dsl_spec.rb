@@ -1,9 +1,9 @@
 require "spec_helper"
 
-describe DynamodbModel::Migration::Dsl do
+describe Dynomite::Migration::Dsl do
   # Supports this DSL, the `t` variable passed to the block is the Dsl instance
   #
-  # class CreateCommentsMigration < DynamodbModel::Migration
+  # class CreateCommentsMigration < Dynomite::Migration
   #   def up
   #     create_table :comments do |t|
   #       t.partition_key "post_id:string" # required
@@ -14,8 +14,8 @@ describe DynamodbModel::Migration::Dsl do
   # end
   context "create_table" do
     let(:dsl) do
-      DynamodbModel::Migration::Dsl.db = double("db").as_null_object
-      DynamodbModel::Migration::Dsl.new(:create_table, "posts")
+      Dynomite::Migration::Dsl.db = double("db").as_null_object
+      Dynomite::Migration::Dsl.new(:create_table, "posts")
     end
 
     it "build up the dsl in memory" do
@@ -38,8 +38,8 @@ describe DynamodbModel::Migration::Dsl do
 
   context "update_table" do
     let(:dsl) do
-      DynamodbModel::Migration::Dsl.db = double("db").as_null_object
-      DynamodbModel::Migration::Dsl.new(:update_table, "comments")
+      Dynomite::Migration::Dsl.db = double("db").as_null_object
+      Dynomite::Migration::Dsl.new(:update_table, "comments")
     end
 
     it "builds up the gsi index params" do
@@ -57,7 +57,7 @@ describe DynamodbModel::Migration::Dsl do
       params = dsl.params
       # pp params # uncomment out to inspect params
       # attribute_definitions is a Double because we've mocked out:
-      # DynamodbModel::Migration::Dsl.db = double("db").as_null_object
+      # Dynomite::Migration::Dsl.db = double("db").as_null_object
       expect(params.key?(:attribute_definitions)).to be true
       expect(params.key?(:global_secondary_index_updates)).to be true
       global_secondary_index_updates = params[:global_secondary_index_updates]

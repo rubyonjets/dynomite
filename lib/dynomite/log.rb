@@ -1,4 +1,4 @@
-module DynamodbModel::Log
+module Dynomite::Log
   def self.included(base)
     base.extend(ClassMethods)
   end
@@ -9,7 +9,7 @@ module DynamodbModel::Log
 
   module ClassMethods
     def log(msg)
-      DynamodbModel.logger.info(msg)
+      Dynomite.logger.info(msg)
     end
   end
 end

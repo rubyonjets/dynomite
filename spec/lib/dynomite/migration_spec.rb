@@ -1,6 +1,6 @@
 require "spec_helper"
 
-class CreateCommentsMigration < DynamodbModel::Migration
+class CreateCommentsMigration < Dynomite::Migration
   def up
     create_table :comments do |t|
       t.partition_key "post_id:string" # required
@@ -10,7 +10,7 @@ class CreateCommentsMigration < DynamodbModel::Migration
   end
 end
 
-class UpdateCommentsMigration < DynamodbModel::Migration
+class UpdateCommentsMigration < Dynomite::Migration
   def up
     update_table :comments do |t|
       # NOTE: You cannot update provisioned_throughput at the same time as creating
@@ -29,9 +29,9 @@ class UpdateCommentsMigration < DynamodbModel::Migration
   end
 end
 
-describe DynamodbModel::Migration do
+describe Dynomite::Migration do
   context "mocked db" do
-    before(:each) { DynamodbModel::Migration::Dsl.db = db }
+    before(:each) { Dynomite::Migration::Dsl.db = db }
     let(:db) { double(:db) }
     let(:null) { double(:null).as_null_object }
 
@@ -47,10 +47,10 @@ describe DynamodbModel::Migration do
   # To test dynamodb endpoint configured in config/dynamodb.yml uncomment the code
   # you want to test and run:
   #
-  #   LIVE=1 rspec spec/lib/dynamodb_model/migration_spec.rb -e 'live db'
+  #   LIVE=1 rspec spec/lib/dynomite/migration_spec.rb -e 'live db'
   #
   context "live db" do
-    before(:each) { DynamodbModel::Item.db = nil } # setting to nil will clear out mock and force it to load AWS
+    before(:each) { Dynomite::Item.db = nil } # setting to nil will clear out mock and force it to load AWS
     it "executes the migration" do
       CreateCommentsMigration.new.up # uncomment to test
       # UpdateCommentsMigration.new.up # uncomment to test

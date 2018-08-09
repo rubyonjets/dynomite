@@ -3,7 +3,7 @@ ENV['DYNAMODB_MODEL_CONFIG'] = 'spec/fixtures/app_root/config/dynamodb.yml'
 ENV['JETS_ROOT'] = 'spec/fixtures'
 
 root = File.expand_path("../../", __FILE__)
-require "#{root}/lib/dynamodb_model"
+require "#{root}/lib/dynomite"
 
 require "pp"
 require "fileutils"

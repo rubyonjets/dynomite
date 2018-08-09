@@ -1,4 +1,4 @@
-class CreateCommentsMigration < DynamodbModel::Migration
+class CreateCommentsMigration < Dynomite::Migration
   def up
     create_table :comments do |t|
       t.partition_key "post_id:string" # required
@@ -15,7 +15,7 @@ class CreateCommentsMigration < DynamodbModel::Migration
   end
 end
 
-class UpdateCommentsMigration < DynamodbModel::Migration
+class UpdateCommentsMigration < Dynomite::Migration
   def up
     update_table :comments do |t|
       t.gsi(:create) do |i|

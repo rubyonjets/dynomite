@@ -1,4 +1,4 @@
-# DynamodbModel
+# Dynomite
 
 A simple wrapper library to make DynamoDB usage a little more friendly.  The modeling is ActiveRecord-ish but not exactly because DynamoDB is a different type of database.  Examples below explain it best:
 
@@ -7,7 +7,7 @@ A simple wrapper library to make DynamoDB usage a little more friendly.  The mod
 First define a class:
 
 ```ruby
-class Post < DynamodbModel::Item
+class Post < Dynomite::Item
   # partition_key "id" # optional, defaults to id
 end
 ```
@@ -89,14 +89,14 @@ The where could be prettied up. Appreciate any pull requests.
 Post.where({category: "Drama"}, {index_name: "category-index"})
 ```
 
-Examples are also in [item_spec.rb](spec/lib/dynamodb_model/item_spec.rb).
+Examples are also in [item_spec.rb](spec/lib/dynomite/item_spec.rb).
 
 ## Migration Support
 
-DynamodbModel supports ActiveRecord-like migrations.  Here's a short example:
+Dynomite supports ActiveRecord-like migrations.  Here's a short example:
 
 ```ruby
-class CreateCommentsMigration < DynamodbModel::Migration
+class CreateCommentsMigration < Dynomite::Migration
   def up
     create_table :comments do |t|
       t.partition_key "post_id:string" # required
@@ -114,7 +114,7 @@ More examples are in the [docs/migrations](docs/migrations) folder.
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'dynamodb_model'
+gem 'dynomite'
 ```
 
 And then execute:
@@ -123,7 +123,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install dynamodb_model
+    $ gem install dynomite
 
 ## Development
 
@@ -133,7 +133,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/tongueroo/dynamodb_model.
+Bug reports and pull requests are welcome on GitHub at https://github.com/tongueroo/dynomite.
 
 ### TODO
 

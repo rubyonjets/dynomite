@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file.
 This project *tries* to adhere to [Semantic Versioning](http://semver.org/), even before v1.0.
 
+## [1.0.6]
+- rename to dynomite
+
 ## [1.0.5]
 - fix jets dynamodb:migrate tip
 

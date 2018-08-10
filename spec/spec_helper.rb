@@ -1,5 +1,5 @@
-ENV['DYNAMODB_MODEL_ENV'] = 'test'
-ENV['DYNAMODB_MODEL_CONFIG'] = 'spec/fixtures/app_root/config/dynamodb.yml'
+ENV['DYNOMITE_ENV'] = 'test'
+ENV['DYNOMITE_CONFIG'] = 'spec/fixtures/app_root/config/dynamodb.yml'
 ENV['JETS_ROOT'] = 'spec/fixtures'
 
 root = File.expand_path("../../", __FILE__)

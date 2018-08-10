@@ -70,8 +70,8 @@ module Dynomite::DbConfig
         config_path = "#{Jets.root}config/dynamodb.yml"
         env = Jets.env
       else
-        config_path = ENV['DYNAMODB_MODEL_CONFIG'] || "./config/dynamodb.yml"
-        env = ENV['DYNAMODB_MODEL_ENV'] || "development"
+        config_path = ENV['DYNOMITE_CONFIG'] || "./config/dynamodb.yml"
+        env = ENV['DYNOMITE_ENV'] || "development"
       end
 
       config = YAML.load(Dynomite::Erb.result(config_path))

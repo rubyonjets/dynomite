@@ -50,7 +50,7 @@ post.attrs # {"id" => "myid", title" => "my title", desc: "my desc 2"}
 
 Note, a race condition edge case can exist when several concurrent replace
 calls are happening.  This is why the interface is called replace to
-emphasis that possibility.
+emphasize that possibility.
 
 ### Delete
 

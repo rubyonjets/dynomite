@@ -26,8 +26,8 @@ module Dynomite::DbConfig
       endpoint = ENV['DYNAMODB_ENDPOINT'] || config['endpoint']
       check_dynamodb_local!(endpoint)
 
-      Aws.config.update(endpoint: endpoint) if endpoint
-      @@db ||= Aws::DynamoDB::Client.new
+      options = endpoint ? { endpoint: endpoint } : {}
+      @@db ||= Aws::DynamoDB::Client.new(options)
     end
 
     # When endoint has been configured to point at dynamodb local: localhost:8000

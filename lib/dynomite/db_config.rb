@@ -26,6 +26,12 @@ module Dynomite::DbConfig
       endpoint = ENV['DYNAMODB_ENDPOINT'] || config['endpoint']
       check_dynamodb_local!(endpoint)
 
+      # Normally, do not set the endpoint to use the current configured region.
+      # Probably want to stay in the same region anyway for db connections.
+      #
+      # List of regional endpoints: https://docs.aws.amazon.com/general/latest/gr/rande.html#ddb_region
+      # Example:
+      #   endpoint: https://dynamodb.us-east-1.amazonaws.com
       options = endpoint ? { endpoint: endpoint } : {}
       @@db ||= Aws::DynamoDB::Client.new(options)
     end

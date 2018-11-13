@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file.
 This project *tries* to adhere to [Semantic Versioning](http://semver.org/), even before v1.0.
 
+## [1.0.8]
+- scope endpoint option to dynamodb client only vs the entire Aws.config
+
 ## [1.0.7]
 - update DYNOMITE_ENV var
 

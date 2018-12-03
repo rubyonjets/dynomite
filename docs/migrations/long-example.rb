@@ -21,10 +21,10 @@
 # If your project_name is demo and environment is production:
 #   create_table "posts" => table name: "demo-prod-posts"
 #
-# If your project_name is proj and environment is staging:
+# If your project_name is demo and environment is staging:
 #   create_table "posts" => table name: "demo-stag-posts"
 #
-# If your project_name is proj and environment is development:
+# If your project_name is demo and environment is development:
 #   create_table "posts" => table name: "demo-dev-posts"
 #
 # If the table_namespace is set to a blank string or nil, then a namespace

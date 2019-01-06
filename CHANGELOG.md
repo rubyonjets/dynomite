@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 This project *tries* to adhere to [Semantic Versioning](http://semver.org/), even before v1.0.
 
+## [1.0.9]
+- allow item.replace(hash) to work
+- Merge pull request #3 from mveer99/patch-1 Update comments: Fixed typo in project_name
+
 ## [1.0.8]
 - scope endpoint option to dynamodb client only vs the entire Aws.config
 

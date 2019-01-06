@@ -66,8 +66,8 @@ module Dynomite
 
     # The method is named replace to clearly indicate that the item is
     # fully replaced.
-    def replace
-      attrs = self.class.replace(@attrs)
+    def replace(hash={})
+      attrs = self.class.replace(@attrs.deep_merge(hash))
       @attrs = attrs # refresh attrs because it now has the id
     end
 
@@ -123,6 +123,7 @@ module Dynomite
     # AWS Docs examples: http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GettingStarted.Ruby.04.html
     def self.scan(params={})
       log("It's recommended to not use scan for production. It can be slow and expensive. You can a LSI or GSI and query the index instead.")
+      log("Scanning table: #{table_name}")
       params = { table_name: table_name }.merge(params)
       resp = db.scan(params)
       resp.items.map {|i| self.new(i) }

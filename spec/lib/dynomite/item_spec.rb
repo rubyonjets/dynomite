@@ -63,6 +63,19 @@ describe Dynomite::Item do
       expect(attrs[:id].size).to eq 40 # generated unique id
     end
 
+    it "replace with hash" do
+      # Not returning a resp with receive because it is not useful
+      # Dynanmodb doesnt provide much useful info there.
+      expect(Post.db).to receive(:put_item)
+
+      post = Post.new(title: "my title")
+      post.replace(title: "my title 2")
+      attrs = post.attrs
+
+      expect(attrs[:title]).to eq "my title 2"
+      expect(attrs[:id].size).to eq 40 # generated unique id
+    end
+
     it "delete" do
       allow(Post.db).to receive(:delete_item)
 

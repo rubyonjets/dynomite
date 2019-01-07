@@ -19,11 +19,19 @@ class Dynomite::Migration
         # Examples:
         #   result = db.create_table(@params)
         #   result = db.update_table(@params)
+
+        # Leaving this verbose output in here until this DSL is more hardened to help debug
+        unless ENV['DYNOMITE_ENV'] == 'test'
+          puts "Calling #{@method_name} with params:"
+          pp @params
+        end
+
+        return if ENV['DYNOMITE_DRY'] # dry run flag
         result = db.send(@method_name, @params)
 
         puts "DynamoDB Table: #{@table_name} Status: #{result.table_description.table_status}"
       rescue Aws::DynamoDB::Errors::ServiceError => error
-        puts "Unable to #{@method_name.to_s.gsub('_',' ')}: #{error.message}"
+        puts "Unable to #{@method_name.to_s.gsub('_',' ')}: #{error.message}".colorize(:red)
       end
     end
   end

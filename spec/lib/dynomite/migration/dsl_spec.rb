@@ -38,12 +38,12 @@ describe Dynomite::Migration::Dsl do
 
   context "update_table" do
     let(:dsl) do
-      Dynomite::Migration::Dsl.db = double("db").as_null_object
       Dynomite::Migration::Dsl.new(:update_table, "comments")
     end
 
     it "builds up the gsi index params" do
       dsl.provisioned_throughput(18)
+      allow(dsl).to receive(:gsi_attribute_definitions).and_return([])
 
       dsl.gsi(:create) do |i|
         i.partition_key "post_id:string"

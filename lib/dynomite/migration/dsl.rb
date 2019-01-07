@@ -35,7 +35,7 @@ class Dynomite::Migration
     #   i.partition_key = "category:string"
     #   i.sort_key = "created_at:string" # optional
     # end
-    def gsi(action, index_name=nil, &block)
+    def gsi(action=:create, index_name=nil, &block)
       gsi_index = GlobalSecondaryIndex.new(action, index_name, &block)
       @gsi_indexes << gsi_index # store @gsi_index for the parent Dsl to use
     end
@@ -50,7 +50,7 @@ class Dynomite::Migration
       lsi_index = LocalSecondaryIndex.new(index_name, &block)
       @lsi_indexes << lsi_index # store @lsi_index for the parent Dsl to use
     end
-    alias_method :local_secondary_index, :gsi
+    alias_method :local_secondary_index, :lsi
 
     def evaluate
       return if @evaluated
@@ -74,6 +74,9 @@ class Dynomite::Migration
     end
 
     def params_create_table
+      merge_lsi_attribute_definitions!
+      merge_gsi_attribute_definitions!
+
       params = {
         table_name: namespaced_table_name,
         key_schema: @key_schema,
@@ -81,14 +84,31 @@ class Dynomite::Migration
         provisioned_throughput: @provisioned_throughput
       }
 
-      params[:local_secondary_index_creates] = local_secondary_index_creates unless @lsi_indexes.empty?
+      params[:local_secondary_indexes] = lsi_secondary_index_creates unless @lsi_indexes.empty?
+      params[:global_secondary_indexes] = gsi_secondary_index_creates unless @gsi_indexes.empty?
+      params
+    end
+
+    def params_update_table
+      merge_gsi_attribute_definitions!
+
+      params = {
+        table_name: namespaced_table_name,
+        attribute_definitions: @attribute_definitions,
+        # update table take values only some values for the "parent" table
+        # no key_schema, update_table does not handle key_schema for the "parent" table
+      }
+      # only set "parent" table provisioned_throughput if user actually invoked
+      # it in the dsl
+      params[:provisioned_throughput] =  @provisioned_throughput if @provisioned_throughput_set_called
+      params[:global_secondary_index_updates] = global_secondary_index_updates
       params
     end
 
     # Goes thorugh all the lsi_indexes that have been built up in memory.
     # Find the lsi object that creates an index and then grab the
     # attribute_definitions from it.
-    def lsi_create_attribute_definitions
+    def merge_lsi_attribute_definitions!
       lsi = @lsi_indexes.first # DynamoDB only supports adding one index at a time anyway. The reason @lsi_indexes is an Array is because we're sharing the same class code for LSI and GSI
       if lsi
         lsi.evaluate # force early evaluate since we need the params to
@@ -100,7 +120,7 @@ class Dynomite::Migration
                   else
                     @attribute_definitions
                   end
-      all_attrs.uniq
+      @attribute_definitions = all_attrs.uniq
     end
 
     # maps each lsi to the hash structure expected by dynamodb update_table
@@ -111,40 +131,42 @@ class Dynomite::Migration
     #   { delete: {...} }
     def lsi_secondary_index_creates
       @lsi_indexes.map do |lsi|
-        { lsi.action => lsi.params }
+        lsi.params
       end
     end
 
-    def params_update_table
-      params = {
-        table_name: namespaced_table_name,
-        attribute_definitions: gsi_create_attribute_definitions,
-        # update table take values only some values for the "parent" table
-        # no key_schema, update_table does not handle key_schema for the "parent" table
-      }
-      # only set "parent" table provisioned_throughput if user actually invoked
-      # it in the dsl
-      params[:provisioned_throughput] =  @provisioned_throughput if @provisioned_throughput_set_called
-      params[:global_secondary_index_updates] = global_secondary_index_updates
-      params
+    # maps each lsi to the hash structure expected by dynamodb update_table
+    # under the global_secondary_index_updates key:
+    #
+    #   { create: {...} }
+    #   { update: {...} }
+    #   { delete: {...} }
+    def gsi_secondary_index_creates
+      @gsi_indexes.map do |gsi|
+        gsi.params
+      end
     end
 
     # Goes thorugh all the gsi_indexes that have been built up in memory.
     # Find the gsi object that creates an index and then grab the
     # attribute_definitions from it.
-    def gsi_create_attribute_definitions
-      gsi = @gsi_indexes.find { |gsi| gsi.action == :create }
+    def merge_gsi_attribute_definitions!
+      gsi_attrs = []
+
+      gsi = @gsi_indexes.find { |i| i.action == :create }
       if gsi
         gsi.evaluate # force early evaluate since we need the params to
           # add: gsi_attribute_definitions + gsi_attrs
         gsi_attrs = gsi.attribute_definitions
       end
-      all_attrs = if gsi_attrs
-                    gsi_attribute_definitions + gsi_attrs
-                  else
-                    gsi_attribute_definitions
-                  end
-      all_attrs.uniq
+
+      # Merge existing attributes for update table
+      all_gsi_attrs = @method_name == :update_table ?
+        gsi_attribute_definitions + gsi_attrs :
+        gsi_attrs
+
+      all_attrs = (@attribute_definitions + all_gsi_attrs).uniq
+      @attribute_definitions = all_attrs
     end
 
     # maps each gsi to the hash structure expected by dynamodb update_table

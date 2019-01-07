@@ -62,7 +62,8 @@ class Dynomite::Migration::Dsl
         }
       end
 
-      if [:create, :update].include?(@action)
+      if self.is_a?(GlobalSecondaryIndex) && [:create, :update].include?(@action)
+        # provisioned_throughput is required for gsi index definition
         params[:provisioned_throughput] = @provisioned_throughput
       end
 

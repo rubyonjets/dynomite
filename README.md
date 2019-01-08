@@ -1,6 +1,6 @@
 # Dynomite
 
-NOTE: Am looking for maintainers to help with this gem. Send me an email!
+NOTE: Am looking for maintainers to help with this gem. Send me an email!  Also [dynamoid](https://github.com/Dynamoid/dynamoid) seems like a good option that should be considered delegating to or straight using. Learning on delegation so we can have better default behavior for a DynamoDB model layer for Jets.
 
 A simple wrapper library to make DynamoDB usage a little more friendly.  The modeling is ActiveRecord-ish but not exactly because DynamoDB is a different type of database.  Examples below explain it best:
 

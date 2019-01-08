@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 This project *tries* to adhere to [Semantic Versioning](http://semver.org/), even before v1.0.
 
+## [1.1.0]
+- Merge pull request #5 from tongueroo/fix-index-creation
+- fix index creation dsl among other things
+
 ## [1.0.9]
 - allow item.replace(hash) to work
 - Merge pull request #3 from mveer99/patch-1 Update comments: Fixed typo in project_name

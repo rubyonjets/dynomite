@@ -1,5 +1,7 @@
 # Dynomite
 
+NOTE: Am looking for maintainers to help with this gem. Send me an email!
+
 A simple wrapper library to make DynamoDB usage a little more friendly.  The modeling is ActiveRecord-ish but not exactly because DynamoDB is a different type of database.  Examples below explain it best:
 
 ## Examples

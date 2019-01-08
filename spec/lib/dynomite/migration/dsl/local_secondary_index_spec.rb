@@ -56,8 +56,7 @@ describe LSI do
           :key_schema=>[
             {:attribute_name=>"post_id", :key_type=>"HASH"},
             {:attribute_name=>"created_at", :key_type=>"RANGE"}],
-          :projection=>{:projection_type=>"ALL"},
-          :provisioned_throughput=> {:read_capacity_units=>5, :write_capacity_units=>5}
+          :projection=>{:projection_type=>"ALL"}
         })
       end
     end

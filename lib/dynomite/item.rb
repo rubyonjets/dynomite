@@ -288,5 +288,12 @@ module Dynomite
       @table_name = value
     end
 
+    def self.table
+      Aws::DynamoDB::Table.new(name: table_name, client: db)
+    end
+
+    def self.count
+      table.item_count
+    end
   end
 end

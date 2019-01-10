@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file.
 This project *tries* to adhere to [Semantic Versioning](http://semver.org/), even before v1.0.
 
+## [UNRELEASED]
+- add Item.count
+
 ## [1.1.0]
 - Merge pull request #5 from tongueroo/fix-index-creation
 - fix index creation dsl among other things

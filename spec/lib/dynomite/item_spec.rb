@@ -97,6 +97,14 @@ describe Dynomite::Item do
 
       expect(Post.db).to have_received(:scan)
     end
+
+    it "count" do
+      table = double(:table)
+      allow(Post).to receive(:table).and_return(table)
+      expect(table).to receive(:item_count).and_return(1)
+
+      expect(Post.count).to eq 1
+    end
   end
 end
 

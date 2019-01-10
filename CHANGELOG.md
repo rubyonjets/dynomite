@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 This project *tries* to adhere to [Semantic Versioning](http://semver.org/), even before v1.0.
 
 ## [1.1.1]
-- add Item.count
+- #6 from patchkit-net/feature/table-count: add Item.count
 
 ## [1.1.0]
 - Merge pull request #5 from tongueroo/fix-index-creation

@@ -11,6 +11,8 @@ First define a class:
 ```ruby
 class Post < Dynomite::Item
   # partition_key "id" # optional, defaults to id
+  
+  column :id, :title, :desc
 end
 ```
 
@@ -92,6 +94,48 @@ Post.where({category: "Drama"}, {index_name: "category-index"})
 ```
 
 Examples are also in [item_spec.rb](spec/lib/dynomite/item_spec.rb).
+
+## Column Lists
+
+Optionally you can define your column list using `column` method inside your item class.
+Any columns defined that way can be easily accessed using getters and setters. Also, defined columns
+may be passed to validators.
+
+```ruby
+class Post < Dynomite::Item
+  column :id, :name
+end
+
+post = Post.new
+post.id = SecureRandom.uuid
+post.name = "My First Post"
+post.replace
+
+puts post.name # "My First Post"
+``` 
+
+Any column not defined using `column` method can still be accessed using `attrs` method.
+
+## Validations
+
+You can add validations known from ActiveRecord to your Dynomite items.
+Just add `include ActiveModel::Validations` at the top of your item class.
+
+```ruby
+class Post < Dynomite::Item
+  include ActiveModel::Validations
+  
+  column :id, :name # needed
+  
+  validate :id, presence: true
+  validate :name, presence: true
+end
+``` 
+
+**Be sure to define all validated columns using `column` method**.  
+
+Validations can be ran manually using `valid?` method. It is also executed internally by `replace`
+method, returning `false` on failed validation.
 
 ## Migration Support
 

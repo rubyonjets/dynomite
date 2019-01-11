@@ -1,6 +1,7 @@
 require "spec_helper"
 
 class Post < Dynomite::Item
+  column :defined_column
 end
 class Comment < Dynomite::Item
   partition_key "post_id" # defaults to id
@@ -29,6 +30,36 @@ describe Dynomite::Item do
     it "partition_key" do
       expect(Post.partition_key).to eq "id"
       expect(Comment.partition_key).to eq "post_id"
+    end
+
+    it "uses defined column" do
+      post = Post.new
+      expect(post.defined_column).to be_nil
+      expect(post.attrs).to_not include('defined_column')
+
+      post.defined_column = 'abc'
+      expect(post.defined_column).to eq 'abc'
+      expect(post.attrs).to include('defined_column')
+    end
+
+    it "tries to use undefined column" do
+      post = Post.new
+      expect do
+        post.undefined_column
+      end.to raise_exception(NoMethodError)
+
+      post.attrs('undefined_column' => 'value')
+
+      # should not allow access while column is undefined
+      expect do
+        post.undefined_column
+      end.to raise_exception(NoMethodError)
+
+      Post.add_column('undefined_column')
+
+      expect do
+        post.undefined_column
+      end.to_not raise_exception(NoMethodError)
     end
   end
 

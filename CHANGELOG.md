@@ -8,6 +8,7 @@ This project *tries* to adhere to [Semantic Versioning](http://semver.org/), eve
 - Can be used with `ActiveModel::Validations`
 - Add ActiveModel::Validations (group=test,development) dependency
 - Add ActiveModel::Validations Item integration spec
+- Add Dynomite::Item.replace and .replace! spec with validations
 
 ## [1.1.1]
 - #6 from patchkit-net/feature/table-count: add Item.count

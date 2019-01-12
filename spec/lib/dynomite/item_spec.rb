@@ -147,6 +147,9 @@ describe Dynomite::Item do
       validates :first, presence: true
     end
 
+    before(:each) { ValidatedItem.db = db }
+    let(:db) { double(:db) }
+
     it "validates first column" do
       post = ValidatedItem.new
       expect(post.valid?).to be false
@@ -166,6 +169,30 @@ describe Dynomite::Item do
       post.valid? # runs validations
 
       expect(post.errors.messages).to_not include(:second)
+    end
+
+    it "validates on replace" do
+      post = ValidatedItem.new
+      expect(post.replace).to be false
+      expect(post.errors.messages).to include(:first)
+
+      expect(ValidatedItem.db).to receive(:put_item)
+
+      post.first = 'content'
+      expect(post.replace).to_not be false
+      expect(post.errors.messages.size).to eq 0
+    end
+
+    it "validates on replace!" do
+      post = ValidatedItem.new
+      expect { post.replace! }.to raise_error(RuntimeError)
+      expect(post.errors.messages).to include(:first)
+
+      expect(ValidatedItem.db).to receive(:put_item)
+
+      post.first = 'content'
+      expect{ post.replace! }.to_not raise_error(RuntimeError)
+      expect(post.errors.messages.size).to eq 0
     end
   end
 end

@@ -1,6 +1,8 @@
 require "spec_helper"
+require "active_model"
 
 class Post < Dynomite::Item
+  column :defined_column
 end
 class Comment < Dynomite::Item
   partition_key "post_id" # defaults to id
@@ -29,6 +31,36 @@ describe Dynomite::Item do
     it "partition_key" do
       expect(Post.partition_key).to eq "id"
       expect(Comment.partition_key).to eq "post_id"
+    end
+
+    it "uses defined column" do
+      post = Post.new
+      expect(post.defined_column).to be_nil
+      expect(post.attrs).to_not include('defined_column')
+
+      post.defined_column = 'abc'
+      expect(post.defined_column).to eq 'abc'
+      expect(post.attrs).to include('defined_column')
+    end
+
+    it "tries to use undefined column" do
+      post = Post.new
+      expect do
+        post.undefined_column
+      end.to raise_exception(NoMethodError)
+
+      post.attrs('undefined_column' => 'value')
+
+      # should not allow access while column is undefined
+      expect do
+        post.undefined_column
+      end.to raise_exception(NoMethodError)
+
+      Post.add_column('undefined_column')
+
+      expect do
+        post.undefined_column
+      end.to_not raise_exception(NoMethodError)
     end
   end
 
@@ -104,6 +136,63 @@ describe Dynomite::Item do
       expect(table).to receive(:item_count).and_return(1)
 
       expect(Post.count).to eq 1
+    end
+  end
+
+  describe "validations" do
+    class ValidatedItem < Dynomite::Item
+      include ActiveModel::Validations
+
+      column :first, :second
+      validates :first, presence: true
+    end
+
+    before(:each) { ValidatedItem.db = db }
+    let(:db) { double(:db) }
+
+    it "validates first column" do
+      post = ValidatedItem.new
+      expect(post.valid?).to be false
+      expect(post.errors.messages).to include(:first)
+      expect(post.errors.messages[:first].size).to eq 1
+      expect(post.errors.messages[:first][0]).to eq "can't be blank"
+
+      post.first = 'content'
+      expect(post.valid?).to be true
+      expect(post.errors.messages).to be_empty
+    end
+
+    it "ignores second column" do
+      post = ValidatedItem.new
+      expect(post.respond_to?(:second)).to be true
+
+      post.valid? # runs validations
+
+      expect(post.errors.messages).to_not include(:second)
+    end
+
+    it "validates on replace" do
+      post = ValidatedItem.new
+      expect(post.replace).to be false
+      expect(post.errors.messages).to include(:first)
+
+      expect(ValidatedItem.db).to receive(:put_item)
+
+      post.first = 'content'
+      expect(post.replace).to_not be false
+      expect(post.errors.messages.size).to eq 0
+    end
+
+    it "validates on replace!" do
+      post = ValidatedItem.new
+      expect { post.replace! }.to raise_error(RuntimeError)
+      expect(post.errors.messages).to include(:first)
+
+      expect(ValidatedItem.db).to receive(:put_item)
+
+      post.first = 'content'
+      expect{ post.replace! }.to_not raise_error(RuntimeError)
+      expect(post.errors.messages.size).to eq 0
     end
   end
 end

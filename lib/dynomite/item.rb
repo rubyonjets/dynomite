@@ -3,6 +3,8 @@ require "aws-sdk-dynamodb"
 require "digest"
 require "yaml"
 
+require "dynomite/reserved_words"
+
 # The modeling is ActiveRecord-ish but not exactly because DynamoDB is a
 # different type of database.
 #
@@ -67,8 +69,22 @@ module Dynomite
     # The method is named replace to clearly indicate that the item is
     # fully replaced.
     def replace(hash={})
-      attrs = self.class.replace(@attrs.deep_merge(hash))
+      @attrs = @attrs.deep_merge(hash)
+
+      # valid? method comes from ActiveModel::Validations
+      if respond_to? :valid?
+        return false unless valid?
+      end
+
+      attrs = self.class.replace(@attrs)
+
       @attrs = attrs # refresh attrs because it now has the id
+    end
+
+    # Similar to replace, but raises an error on failed validation.
+    # Works that way only if ActiveModel::Validations are included
+    def replace!(hash={})
+      raise "Validation failed: #{errors.full_messages.join(', ')}" unless replace(hash)
     end
 
     def find(id)
@@ -294,6 +310,26 @@ module Dynomite
 
     def self.count
       table.item_count
+    end
+
+    # Defines column. Defined column can be accessed by getter and setter methods of the same
+    # name (e.g. [model.my_column]). Attributes with undefined columns can be accessed by
+    # [model.attrs] method.
+    def self.column(*names)
+      names.each(&method(:add_column))
+    end
+
+    # @see Item.column
+    def self.add_column(name)
+      raise "'#{name}' is a reserved word" if Dynomite::RESERVED_WORDS.include?(name)
+
+      define_method(name) do
+        @attrs[name.to_s]
+      end
+
+      define_method("#{name}=") do |value|
+        @attrs[name.to_s] = value
+      end
     end
   end
 end

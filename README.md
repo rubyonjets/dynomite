@@ -97,9 +97,9 @@ Examples are also in [item_spec.rb](spec/lib/dynomite/item_spec.rb).
 
 ## Column Lists
 
-Optionally you can define your column list using `column` method inside your item class.
-Any columns defined that way can be easily accessed using getters and setters. Also, defined columns
-may be passed to validators.
+You can define your column list using the `column` method inside your item class. This gives you
+a possibility to access your column fields using getters and setters. Also, any predefined column
+can be passed to `ActiveModel::Validations` (see Validations).
 
 ```ruby
 class Post < Dynomite::Item
@@ -107,14 +107,15 @@ class Post < Dynomite::Item
 end
 
 post = Post.new
-post.id = SecureRandom.uuid
 post.name = "My First Post"
 post.replace
 
+puts post.id # 1962DE7D852298C5CDC809C0FEF50D8262CEDF09
 puts post.name # "My First Post"
 ``` 
 
-Any column not defined using `column` method can still be accessed using `attrs` method.
+Note that any column not defined using the `column` method can still be accessed using the `attrs`
+method.
 
 ## Validations
 
@@ -134,8 +135,9 @@ end
 
 **Be sure to define all validated columns using `column` method**.  
 
-Validations can be ran manually using `valid?` method. It is also executed internally by `replace`
-method, returning `false` on failed validation.
+Validations are executed by default as soon as you call the `replace` method, returning `false` on
+failure. It also can be ran manually using the `valid?` method just like with ActiveRecord models.
+
 
 ## Migration Support
 

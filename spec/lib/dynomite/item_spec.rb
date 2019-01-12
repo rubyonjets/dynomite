@@ -1,4 +1,5 @@
 require "spec_helper"
+require "active_model"
 
 class Post < Dynomite::Item
   column :defined_column
@@ -135,6 +136,36 @@ describe Dynomite::Item do
       expect(table).to receive(:item_count).and_return(1)
 
       expect(Post.count).to eq 1
+    end
+  end
+
+  describe "validations" do
+    class ValidatedItem < Dynomite::Item
+      include ActiveModel::Validations
+
+      column :first, :second
+      validates :first, presence: true
+    end
+
+    it "validates first column" do
+      post = ValidatedItem.new
+      expect(post.valid?).to be false
+      expect(post.errors.messages).to include(:first)
+      expect(post.errors.messages[:first].size).to eq 1
+      expect(post.errors.messages[:first][0]).to eq "can't be blank"
+
+      post.first = 'content'
+      expect(post.valid?).to be true
+      expect(post.errors.messages).to be_empty
+    end
+
+    it "ignores second column" do
+      post = ValidatedItem.new
+      expect(post.respond_to?(:second)).to be true
+
+      post.valid? # runs validations
+
+      expect(post.errors.messages).to_not include(:second)
     end
   end
 end

@@ -6,6 +6,8 @@ This project *tries* to adhere to [Semantic Versioning](http://semver.org/), eve
 ## [UNRELEASED]
 - Add a way to quickly define getters and setters using `column` method
 - Can be used with `ActiveModel::Validations`
+- Add ActiveModel::Validations (group=test,development) dependency
+- Add ActiveModel::Validations Item integration spec
 
 ## [1.1.1]
 - #6 from patchkit-net/feature/table-count: add Item.count

@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file.
 This project *tries* to adhere to [Semantic Versioning](http://semver.org/), even before v1.0.
+## [UNRELEASED]
+- Change Item#replace method to return self
 
 ## [1.2.0]
 - #7 from patchkit-net/feature/validations

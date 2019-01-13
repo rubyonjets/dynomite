@@ -41,6 +41,7 @@ module Dynomite
   class Item
     include Log
     include DbConfig
+    include Errors
 
     def initialize(attrs={})
       @attrs = attrs
@@ -84,7 +85,7 @@ module Dynomite
     # Similar to replace, but raises an error on failed validation.
     # Works that way only if ActiveModel::Validations are included
     def replace!(hash={})
-      raise "Validation failed: #{errors.full_messages.join(', ')}" unless replace(hash)
+      raise ValidationError, "Validation failed: #{errors.full_messages.join(', ')}" unless replace(hash)
     end
 
     def find(id)
@@ -321,7 +322,9 @@ module Dynomite
 
     # @see Item.column
     def self.add_column(name)
-      raise "'#{name}' is a reserved word" if Dynomite::RESERVED_WORDS.include?(name)
+      if Dynomite::RESERVED_WORDS.include?(name)
+        raise ReservedWordError, "'#{name}' is a reserved word"
+      end
 
       define_method(name) do
         @attrs[name.to_s]

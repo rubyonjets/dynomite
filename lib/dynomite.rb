@@ -18,6 +18,7 @@ module Dynomite
   autoload :Core, "dynomite/core"
   autoload :Erb, "dynomite/erb"
   autoload :Log, "dynomite/log"
+  autoload :Errors, "dynomite/errors"
 
   extend Core
 end

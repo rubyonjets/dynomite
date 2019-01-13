@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 This project *tries* to adhere to [Semantic Versioning](http://semver.org/), even before v1.0.
 
+## [UNRELEASED]
+- Add custom Dynomite::Errors::ValidationError and Dynomite::Errors::ReservedWordError
+  fixing rspec warnings.
+
 ## [1.2.0]
 - #7 from patchkit-net/feature/validations
 - Add a way to quickly define getters and setters using `column` method

@@ -128,8 +128,8 @@ class Post < Dynomite::Item
   
   column :id, :name # needed
   
-  validate :id, presence: true
-  validate :name, presence: true
+  validates :id, presence: true
+  validates :name, presence: true
 end
 ``` 
 

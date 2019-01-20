@@ -60,7 +60,7 @@ describe Dynomite::Item do
 
       expect do
         post.undefined_column
-      end.to_not raise_exception(NoMethodError)
+      end.to_not raise_exception
     end
   end
 
@@ -185,13 +185,13 @@ describe Dynomite::Item do
 
     it "validates on replace!" do
       post = ValidatedItem.new
-      expect { post.replace! }.to raise_error(RuntimeError)
+      expect { post.replace! }.to raise_error(Dynomite::Errors::ValidationError)
       expect(post.errors.messages).to include(:first)
 
       expect(ValidatedItem.db).to receive(:put_item)
 
       post.first = 'content'
-      expect{ post.replace! }.to_not raise_error(RuntimeError)
+      expect{ post.replace! }.to_not raise_error
       expect(post.errors.messages.size).to eq 0
     end
   end

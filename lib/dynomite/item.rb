@@ -79,6 +79,7 @@ module Dynomite
       attrs = self.class.replace(@attrs)
 
       @attrs = attrs # refresh attrs because it now has the id
+      self
     end
 
     # Similar to replace, but raises an error on failed validation.

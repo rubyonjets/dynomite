@@ -2,10 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 This project *tries* to adhere to [Semantic Versioning](http://semver.org/), even before v1.0.
-## [UNRELEASED]
-- Change Item#replace method to return self
 
-## [UNRELEASED]
+## [1.2.1]
+- #10 from gotchane/fix-readme-about-validation
+- #8 from patchkit-net/feature/replace-return-self
+- #9 from patchkit-net/feature/custom-errors
+- Change Item#replace method to return self
 - Add custom Dynomite::Errors::ValidationError and Dynomite::Errors::ReservedWordError
   fixing rspec warnings.
 

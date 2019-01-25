@@ -73,7 +73,7 @@ module Dynomite::DbConfig
       return @db_config if @db_config
 
       if defined?(Jets)
-        config_path = "#{Jets.root}config/dynamodb.yml"
+        config_path = "#{Jets.root}/config/dynamodb.yml"
         env = Jets.env
       else
         config_path = ENV['DYNOMITE_CONFIG'] || "./config/dynamodb.yml"

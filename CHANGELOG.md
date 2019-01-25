@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file.
 This project *tries* to adhere to [Semantic Versioning](http://semver.org/), even before v1.0.
 
+## [1.2.2]
+- update Jets.root usage
+
 ## [1.2.1]
 - #10 from gotchane/fix-readme-about-validation
 - #8 from patchkit-net/feature/replace-return-self

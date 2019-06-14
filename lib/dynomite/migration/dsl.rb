@@ -32,8 +32,8 @@ class Dynomite::Migration
     end
 
     # t.gsi(:create) do |i|
-    #   i.partition_key = "category:string"
-    #   i.sort_key = "created_at:string" # optional
+    #   i.partition_key "category:string"
+    #   i.sort_key "created_at:string" # optional
     # end
     def gsi(action=:create, index_name=nil, &block)
       gsi_index = GlobalSecondaryIndex.new(action, index_name, &block)
@@ -42,8 +42,8 @@ class Dynomite::Migration
     alias_method :global_secondary_index, :gsi
 
     # t.lsi(:create) do |i|
-    #   i.partition_key = "category:string"
-    #   i.sort_key = "created_at:string" # optional
+    #   i.partition_key "category:string"
+    #   i.sort_key "created_at:string" # optional
     # end
     def lsi(action=:create, index_name=nil, &block)
       # dont need action create but have it to keep the lsi and gsi method consistent

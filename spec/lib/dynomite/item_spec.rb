@@ -82,6 +82,14 @@ describe Dynomite::Item do
       expect(post.attrs).to eq("id" => "myid", "title" => "my title")
     end
 
+    it "find with hash" do
+      expect(Post.db).to receive(:get_item).and_return(find_resp)
+
+      post = Post.find(id: "myid")
+
+      expect(post.attrs).to eq("id" => "myid", "title" => "my title")
+    end
+
     it "replace" do
       # Not returning a resp with receive because it is not useful
       # Dynanmodb doesnt provide much useful info there.
@@ -196,4 +204,3 @@ describe Dynomite::Item do
     end
   end
 end
-

@@ -236,9 +236,17 @@ module Dynomite
     end
 
     def self.find(id)
+      params =
+        case id
+        when String
+          { partition_key => id }
+        when Hash
+          id
+        end
+
       resp = db.get_item(
         table_name: table_name,
-        key: {partition_key => id}
+        key: params
       )
       attributes = resp.item # unwraps the item's attributes
       self.new(attributes) if attributes

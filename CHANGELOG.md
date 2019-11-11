@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 This project *tries* to adhere to [Semantic Versioning](http://semver.org/), even before v1.0.
 
+## [1.2.3]
+- #11 fix comments in dsl.rb
+- #13 update find method to support composite key
+
 ## [1.2.2]
 - update Jets.root usage
 

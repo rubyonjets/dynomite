@@ -1,5 +1,6 @@
 $:.unshift(File.expand_path("../", __FILE__))
 require "dynomite/version"
+require "rainbow/ext/string"
 
 module Dynomite
   ATTRIBUTE_TYPES = {

@@ -3,8 +3,11 @@
 All notable changes to this project will be documented in this file.
 This project *tries* to adhere to [Semantic Versioning](http://semver.org/), even before v1.0.
 
+## [1.2.5]
+- use correct color method
+
 ## [1.2.4]
-- #16 add rainbow gem dependency for colorize method
+- #16 add rainbow gem dependency for color method
 - #17 fix table names for models with namespaces
 
 ## [1.2.3]

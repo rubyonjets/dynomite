@@ -306,7 +306,7 @@ module Dynomite
     end
 
     def self.get_table_name
-      @table_name ||= self.name.pluralize.underscore
+      @table_name ||= self.name.pluralize.gsub('::','-').underscore.dasherize
       [table_namespace, @table_name].reject {|s| s.nil? || s.empty?}.join('-')
     end
 

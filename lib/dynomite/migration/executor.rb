@@ -31,7 +31,7 @@ class Dynomite::Migration
 
         puts "DynamoDB Table: #{@table_name} Status: #{result.table_description.table_status}"
       rescue Aws::DynamoDB::Errors::ServiceError => error
-        puts "Unable to #{@method_name.to_s.gsub('_',' ')}: #{error.message}".colorize(:red)
+        puts "Unable to #{@method_name.to_s.gsub('_',' ')}: #{error.message}".color(:red)
       end
     end
   end

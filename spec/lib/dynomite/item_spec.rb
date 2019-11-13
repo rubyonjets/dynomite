@@ -7,6 +7,9 @@ end
 class Comment < Dynomite::Item
   partition_key "post_id" # defaults to id
 end
+module Ns
+  class Pet < Dynomite::Item; end
+end
 
 describe Dynomite::Item do
   describe "general" do
@@ -26,6 +29,8 @@ describe Dynomite::Item do
       Comment.instance_variable_set(:@table_namespace, '')
       expect(Comment.table_name).to eq "comments"
       Comment.instance_variable_set(:@table_namespace, old_namespace)
+      # test for namespaced models
+      expect(Ns::Pet.table_name).to eq "testnamespace-ns-pets"
     end
 
     it "partition_key" do

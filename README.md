@@ -1,5 +1,7 @@
 # Dynomite
 
+[![BoltOps Badge](https://img.boltops.com/boltops/badges/boltops-badge.png)](https://www.boltops.com)
+
 NOTE: Am looking for maintainers to help with this gem. Send me an email!  Also [dynamoid](https://github.com/Dynamoid/dynamoid) seems like a good option that should be considered delegating to or straight using. Learning on delegation so we can have better default behavior for a DynamoDB model layer for Jets.
 
 A simple wrapper library to make DynamoDB usage a little more friendly.  The modeling is ActiveRecord-ish but not exactly because DynamoDB is a different type of database.  Examples below explain it best:
@@ -11,7 +13,7 @@ First define a class:
 ```ruby
 class Post < Dynomite::Item
   # partition_key "id" # optional, defaults to id
-  
+
   column :id, :title, :desc
 end
 ```
@@ -112,7 +114,7 @@ post.replace
 
 puts post.id # 1962DE7D852298C5CDC809C0FEF50D8262CEDF09
 puts post.name # "My First Post"
-``` 
+```
 
 Note that any column not defined using the `column` method can still be accessed using the `attrs`
 method.
@@ -125,15 +127,15 @@ Just add `include ActiveModel::Validations` at the top of your item class.
 ```ruby
 class Post < Dynomite::Item
   include ActiveModel::Validations
-  
+
   column :id, :name # needed
-  
+
   validates :id, presence: true
   validates :name, presence: true
 end
-``` 
+```
 
-**Be sure to define all validated columns using `column` method**.  
+**Be sure to define all validated columns using `column` method**.
 
 Validations are executed by default as soon as you call the `replace` method, returning `false` on
 failure. It also can be ran manually using the `valid?` method just like with ActiveRecord models.

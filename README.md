@@ -6,6 +6,10 @@ NOTE: Am looking for maintainers to help with this gem. Send me an email!  Also 
 
 A simple wrapper library to make DynamoDB usage a little more friendly.  The modeling is ActiveRecord-ish but not exactly because DynamoDB is a different type of database.  Examples below explain it best:
 
+## Jets Docs
+
+* [Database DynamoDB](https://rubyonjets.com/docs/database/dynamodb/)
+
 ## Examples
 
 First define a class:

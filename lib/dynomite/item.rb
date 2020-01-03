@@ -1,3 +1,4 @@
+require "active_model"
 require "active_support/core_ext/hash"
 require "aws-sdk-dynamodb"
 require "digest"
@@ -39,6 +40,7 @@ require "dynomite/reserved_words"
 #
 module Dynomite
   class Item
+    include ActiveModel::Model
     include Log
     include DbConfig
     include Errors
@@ -336,10 +338,12 @@ module Dynomite
       end
 
       define_method(name) do
+        @attrs ||= {}
         @attrs[name.to_s]
       end
 
       define_method("#{name}=") do |value|
+        @attrs ||= {}
         @attrs[name.to_s] = value
       end
     end

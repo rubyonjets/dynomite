@@ -1,0 +1,3 @@
+## Examples
+
+    jets dynamodb:migrate

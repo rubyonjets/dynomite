@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 This project *tries* to adhere to [Semantic Versioning](http://semver.org/), even before v1.0.
 
+## [2.0.0] UNRELEASED
+- Breakings Change interface to be ActiveModel compatible
+- ActiveModel: validations, callbacks, etc
+- Use zeitwerk for autoloading
+- Typecast support for DateTime-like objects. Store date as iso8601 string.
+- Remove config/dynamodb.yml in favor of Dynomite.configure for use with initializers
+- namespace separator default is _ instead of -
+- Dynomite.logger introduced
+- arel like where query builder interface
+- finder methods: all, first, last, find_by, find, count
+- index finder: automatically use query over scan with where when possible
+- organize query to read and write ruby files
+- Migrations: improved migrate command. No need to specify files. namespaced schema_migrations table tracks - ran migrations.
+- Favor ondemand provisioning vs explicit provisioned_throughput
+- Standalone dynamodb cli to generate migrations and run them
+
 ## [1.2.7] - 2022-06-12
 - [#23](https://github.com/tongueroo/dynomite/pull/23) #where method refactor to allow Model.index_name('index').where(...)
 - [#24](https://github.com/tongueroo/dynomite/pull/24) Add get_endpoint_ip to db_config.rb

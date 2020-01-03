@@ -7,14 +7,12 @@ require 'erb'
 #   result = Dynomite::Erb.result(path, key1: "val1", key2: "val2")
 #
 class Dynomite::Erb
-  include Dynomite::Log
-
   class << self
     def result(path, variables={})
       set_template_variables(variables)
       template = IO.read(path)
       begin
-        ERB.new(template, nil, "-").result(binding)
+        ERB.new(template, trim_mode: '-').result(binding)
       rescue Exception => e
         log(e)
         log(e.backtrace) if ENV['DEBUG']
@@ -48,6 +46,10 @@ class Dynomite::Erb
       variables.each do |key, value|
         instance_variable_set(:"@#{key}", value)
       end
+    end
+
+    def log(msg)
+      logger.info(msg)
     end
   end
 end

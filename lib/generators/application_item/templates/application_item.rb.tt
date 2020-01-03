@@ -1,0 +1,4 @@
+<% module_namespacing do -%>
+class ApplicationItem < Dynomite::Item
+end
+<% end -%>

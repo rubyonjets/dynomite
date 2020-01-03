@@ -1,9 +1,5 @@
 module Dynomite
   class Migration
-    autoload :Dsl, "dynomite/migration/dsl"
-    autoload :Generator, "dynomite/migration/generator"
-    autoload :Executor, "dynomite/migration/executor"
-
     def up
       puts "Should defined an up method for your migration: #{self.class.name}"
     end

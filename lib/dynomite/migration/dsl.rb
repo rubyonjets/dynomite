@@ -1,10 +1,5 @@
 class Dynomite::Migration
   class Dsl
-    autoload :Common, "dynomite/migration/common"
-    autoload :BaseSecondaryIndex, "dynomite/migration/dsl/base_secondary_index"
-    autoload :LocalSecondaryIndex, "dynomite/migration/dsl/local_secondary_index"
-    autoload :GlobalSecondaryIndex, "dynomite/migration/dsl/global_secondary_index"
-
     include Dynomite::DbConfig
     include Common
 

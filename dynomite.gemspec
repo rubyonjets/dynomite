@@ -23,6 +23,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "activesupport"
   spec.add_dependency "aws-sdk-dynamodb"
   spec.add_dependency "rainbow"
+  spec.add_dependency "zeitwerk"
 
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "rake"

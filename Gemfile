@@ -2,9 +2,7 @@ source "https://rubygems.org"
 
 git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
 
-# Specify your gem's dependencies in dynomite.gemspec
+# Specify your gem dependencies in dynomite.gemspec
 gemspec
 
-group :development, :test do
-  gem "activemodel"
-end
+gem "codeclimate-test-reporter", group: :test, require: nil

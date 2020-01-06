@@ -4,8 +4,6 @@ require "aws-sdk-dynamodb"
 require "digest"
 require "yaml"
 
-require "dynomite/reserved_words"
-
 # The modeling is ActiveRecord-ish but not exactly because DynamoDB is a
 # different type of database.
 #
@@ -42,10 +40,12 @@ module Dynomite
   class Item
     include ActiveModel::Model
     include ActiveModel::Validations
-    include DbConfig
+    include Client
     include Errors
     include Log
-    extend ClassMethods
+    include TableNamespace
+    include Query
+    extend Dsl
 
     def initialize(attrs={})
       @attrs = attrs
@@ -64,45 +64,6 @@ module Dynomite
           @attrs = attrs.deep_merge!(attributes)
         end
       end
-    end
-
-    # Not using method_missing to allow usage of dot notation and assign
-    # @attrs because it might hide actual missing methods errors.
-    # DynamoDB attrs can go many levels deep so it makes less make sense to
-    # use to dot notation.
-
-    # The method is named replace to clearly indicate that the item is
-    # fully replaced.
-    def replace(hash={})
-      @attrs = @attrs.deep_merge(hash)
-
-      # valid? method comes from ActiveModel::Validations
-      if respond_to? :valid?
-        return false unless valid?
-      end
-
-      attrs = self.class.replace(@attrs)
-
-      @attrs = attrs # refresh attrs because it now has the id
-      self
-    end
-
-    # Similar to replace, but raises an error on failed validation.
-    # Works that way only if ActiveModel::Validations are included
-    def replace!(hash={})
-      raise ValidationError, "Validation failed: #{errors.full_messages.join(', ')}" unless replace(hash)
-    end
-
-    def find(id)
-      self.class.find(id)
-    end
-
-    def delete
-      self.class.delete(@attrs[:id]) if @attrs[:id]
-    end
-
-    def table_name
-      self.class.table_name
     end
 
     def partition_key

@@ -4,7 +4,7 @@ require 'erb'
 require 'yaml'
 
 module Dynomite
-  module DbConfig
+  module Client
     def self.included(base)
       base.extend(ClassMethods)
     end
@@ -62,24 +62,6 @@ module Dynomite
       # useful for specs
       def db=(db)
         @@db = db
-      end
-
-      def table_namespace(*args)
-        case args.size
-        when 0
-          get_table_namespace
-        when 1
-          set_table_namespace(args[0])
-        end
-      end
-
-      def get_table_namespace
-        return @table_namespace if defined?(@table_namespace)
-        @table_namespace = Dynomite.config.table_namespace
-      end
-
-      def set_table_namespace(value)
-        @table_namespace = value
       end
     end
   end

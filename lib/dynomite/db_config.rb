@@ -12,11 +12,6 @@ module Dynomite::DbConfig
     self.class.db
   end
 
-  # NOTE: Class including Dynomite::DbConfig is required to have table_name method defined
-  def namespaced_table_name
-    [self.class.table_namespace, table_name].reject {|s| s.nil? || s.empty?}.join('-')
-  end
-
   module ClassMethods
     @@db = nil
     def db

@@ -41,9 +41,9 @@ require "dynomite/reserved_words"
 module Dynomite
   class Item
     include ActiveModel::Model
-    include Log
     include DbConfig
     include Errors
+    include Log
     extend ClassMethods
 
     def initialize(attrs={})

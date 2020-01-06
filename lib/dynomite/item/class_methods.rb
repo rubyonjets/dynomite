@@ -187,7 +187,15 @@ class Dynomite::Item
 
     def get_table_name
       @table_name ||= self.name.pluralize.gsub('::','-').underscore.dasherize
-      [table_namespace, @table_name].reject {|s| s.nil? || s.empty?}.join('-')
+      [table_namespace, @table_name].reject {|s| s.nil? || s.empty?}.join(namespace_separator)
+    end
+
+    def namespace_separator
+      separator = db_config["table_namespace_separator"] || "-"
+      if separator == "-"
+        puts "INFO: table_namespace_separator is '-'. Ths is deprecated. Next major release will have '_' as the separator. You can override this to `table_namespace_separator: -` config/dynamodb.yml but is encouraged to rename your tables.".color(:yellow)
+      end
+      separator
     end
 
     def set_table_name(value)

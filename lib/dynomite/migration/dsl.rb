@@ -26,6 +26,10 @@ class Dynomite::Migration
       @lsi_indexes = []
     end
 
+    def namespaced_table_name
+      [self.class.table_namespace, table_name].reject {|s| s.nil? || s.empty?}.join(self.class.namespace_separator)
+    end
+
     # t.gsi(:create) do |i|
     #   i.partition_key "category:string"
     #   i.sort_key "created_at:string" # optional

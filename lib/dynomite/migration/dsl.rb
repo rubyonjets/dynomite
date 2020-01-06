@@ -27,7 +27,7 @@ class Dynomite::Migration
     end
 
     def namespaced_table_name
-      [self.class.table_namespace, table_name].reject {|s| s.nil? || s.empty?}.join(self.class.namespace_separator)
+      [Dynomite.config.table_namespace, table_name].reject {|s| s.nil? || s.empty?}.join(Dynomite.config.namespace_separator)
     end
 
     # t.gsi(:create) do |i|

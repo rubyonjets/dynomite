@@ -192,7 +192,7 @@ class Dynomite::Item
     end
 
     def namespace_separator
-      separator = db_config["table_namespace_separator"] || "-"
+      separator = Dynomite.config.table_namespace_separator || "-"
       if separator == "-"
         log "INFO: table_namespace_separator is '-'. Ths is deprecated. Next major release will have '_' as the separator. You can override this to `table_namespace_separator: -` config/dynamodb.yml but is encouraged to rename your tables.".color(:yellow)
       end

@@ -1,13 +1,13 @@
 class Dynomite::Migration
   class Runner
-    include Dynomite::DbConfig
-
     def initialize(options={})
       @options = options
     end
 
     def run
-      puts "Dynomite::Migration::Runner#migrate"
+      puts "Running Dynomite migrations"
+      Dynomite::SchemaMigration.ensure_table_exists!
+
       migration_files.each do |path|
         load path
         migration_class = get_migration_class(path)

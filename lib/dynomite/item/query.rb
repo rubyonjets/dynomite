@@ -1,5 +1,7 @@
 class Dynomite::Item
   module Query
+    extend ActiveSupport::Concern
+
     # Not using method_missing to allow usage of dot notation and assign
     # @attrs because it might hide actual missing methods errors.
     # DynamoDB attrs can go many levels deep so it makes less make sense to
@@ -56,11 +58,11 @@ class Dynomite::Item
       #
       # AWS Docs examples: http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GettingStarted.Ruby.04.html
       def scan(params={})
-        log("It's recommended to not use scan for production. It can be slow and expensive. You can a LSI or GSI and query the index instead.")
-        log("Scanning table: #{table_name}")
+        Dynomite.logger.info("It's recommended to not use scan for production. It can be slow and expensive. You can a LSI or GSI and query the index instead.")
+        Dynomite.logger.info("Scanning table: #{table_name}")
         params = { table_name: table_name }.merge(params)
         resp = db.scan(params)
-        log("REQUEST: #{params}")
+        Dynomite.logger.info("REQUEST: #{params}")
         resp.items.map {|i| self.new(i) }
       end
 

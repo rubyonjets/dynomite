@@ -1,6 +1,6 @@
 class Dynomite::Migration
   class Dsl
-    include Dynomite::DbConfig
+    include Dynomite::Client
     include Common
 
     attr_accessor :key_schema, :attribute_definitions

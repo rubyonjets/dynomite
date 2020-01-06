@@ -1,5 +1,3 @@
-require 'active_support/concern'
-
 class Dynomite::Item
   module TableNamespace
     extend ActiveSupport::Concern
@@ -46,10 +44,12 @@ class Dynomite::Item
       end
 
       def namespace_separator
-        separator = Dynomite.config.table_namespace_separator || "-"
-        if separator == "-"
-          log "INFO: table_namespace_separator is '-'. Ths is deprecated. Next major release will have '_' as the separator. You can override this to `table_namespace_separator: -` config/dynamodb.yml but is encouraged to rename your tables.".color(:yellow)
-        end
+        legacy = File.exist?("#{Dynomite.root}/config/dynamodb.yml")
+        default = legacy ? '-' : '_'
+        separator = Dynomite.config.namespace_separator || default
+        # if legacy && separator == '-'
+        #   Dynomite.logger.info "INFO: namespace_separator is '-' is deprecated. Next major release will have '_' as the separator. You can override this to `table_namespace_separator: -` config/dynamodb.yml but is encouraged to rename your tables.".color(:yellow)
+        # end
         separator
       end
     end

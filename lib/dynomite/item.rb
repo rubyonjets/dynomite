@@ -1,6 +1,4 @@
 require "active_model"
-require "active_support/core_ext/hash"
-require "aws-sdk-dynamodb"
 require "digest"
 require "yaml"
 
@@ -38,14 +36,15 @@ require "yaml"
 #
 module Dynomite
   class Item
+    extend Memoist
+    extend Dsl
     include ActiveModel::Model
     include ActiveModel::Validations
     include Client
     include Errors
-    include Log
-    include TableNamespace
     include Query
-    extend Dsl
+    include TableNamespace
+    include WaiterMethods
 
     def initialize(attrs={})
       @attrs = attrs
@@ -84,6 +83,5 @@ module Dynomite
     def attributes
       @attributes
     end
-
   end
 end

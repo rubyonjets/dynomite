@@ -7,8 +7,6 @@ require 'erb'
 #   result = Dynomite::Erb.result(path, key1: "val1", key2: "val2")
 #
 class Dynomite::Erb
-  include Dynomite::Log
-
   class << self
     def result(path, variables={})
       set_template_variables(variables)
@@ -48,6 +46,10 @@ class Dynomite::Erb
       variables.each do |key, value|
         instance_variable_set(:"@#{key}", value)
       end
+    end
+
+    def log(msg)
+      Dynomite.logger.info(msg)
     end
   end
 end

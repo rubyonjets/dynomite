@@ -31,6 +31,14 @@ module Dynomite
         @@db ||= Aws::DynamoDB::Client.new(options)
       end
 
+      def show_request(params)
+        Dynomite.logger.info("REQUEST: #{JSON.dump(params)}")
+      end
+
+      def show_response(resp)
+        Dynomite.logger.info("RESPONSE: #{JSON.dump(resp)}")
+      end
+
       # When endoint has been configured to point at dynamodb local: localhost:8000
       # check if port 8000 is listening and timeout quickly. Or else it takes a
       # for DynamoDB local to time out, about 10 seconds...

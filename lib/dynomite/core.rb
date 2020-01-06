@@ -12,5 +12,9 @@ module Dynomite
     def config
       @@config ||= Config.new
     end
+
+    def logger
+      config.logger
+    end
   end
 end

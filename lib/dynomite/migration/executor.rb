@@ -1,6 +1,6 @@
 class Dynomite::Migration
   class Executor
-    include Dynomite::DbConfig
+    include Dynomite::Client
 
     # Examples:
     #  Executor.new(:create_table, params) or

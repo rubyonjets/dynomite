@@ -3,8 +3,6 @@ require "active_support/core_ext/string"
 class Dynomite::Migration
   # jets dynamodb:generate posts --partition-key id:string
   class Generator
-    include Dynomite::DbConfig
-
     attr_reader :migration_name, :table_name
     def initialize(migration_name, options)
       @migration_name = migration_name

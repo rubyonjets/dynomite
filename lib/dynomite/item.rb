@@ -41,6 +41,7 @@ require "dynomite/reserved_words"
 module Dynomite
   class Item
     include ActiveModel::Model
+    include ActiveModel::Validations
     include DbConfig
     include Errors
     include Log

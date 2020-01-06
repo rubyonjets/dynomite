@@ -24,6 +24,7 @@ class Dynomite::Item
       log("Scanning table: #{table_name}")
       params = { table_name: table_name }.merge(params)
       resp = db.scan(params)
+      log("REQUEST: #{params}")
       resp.items.map {|i| self.new(i) }
     end
 
@@ -193,7 +194,7 @@ class Dynomite::Item
     def namespace_separator
       separator = db_config["table_namespace_separator"] || "-"
       if separator == "-"
-        puts "INFO: table_namespace_separator is '-'. Ths is deprecated. Next major release will have '_' as the separator. You can override this to `table_namespace_separator: -` config/dynamodb.yml but is encouraged to rename your tables.".color(:yellow)
+        log "INFO: table_namespace_separator is '-'. Ths is deprecated. Next major release will have '_' as the separator. You can override this to `table_namespace_separator: -` config/dynamodb.yml but is encouraged to rename your tables.".color(:yellow)
       end
       separator
     end

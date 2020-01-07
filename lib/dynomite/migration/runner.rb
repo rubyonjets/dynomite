@@ -21,22 +21,32 @@ class Dynomite::Migration
 
       migration = find_record(file_info)
 
-      if migration && migration.status != "complete"
-        Dynomite.logger.info(<<~EOL)
-          The {file_info.path} migration is status is not complete. Status: #{migration.status}
-          This can happen and was if the migration interupted by a CTRL-C.
-          To continue, verify that the migration completed successfully and you can mark this migration completed with:
+      if migration
+        if migration.status == "complete"
+          return
+        else
+          Dynomite.logger.info(<<~EOL)
+            The {file_info.path} migration is status is not complete. Status: #{migration.status}
+            This can happen and was if the migration interupted by a CTRL-C.
+            To continue, verify that the migration completed successfully and you can mark this migration completed with:
 
-              dynomite complete #{file_info.path}
+                dynomite complete #{file_info.path}
 
-        EOL
-        exit 1
+          EOL
+          exit 1
+        end
       end
 
       # INSERT scheme_migrations table - in_progress
+      migration = Dynomite::SchemaMigration.new(version: file_info.version, status: "in_progress")
+      migration.save
+
       migration_class = file_info.migration_class
       migration_class.new.up # wait happens within create_table or update_table
+
       # UPDATE scheme_migrations table - complete
+      migration.status = "complete"
+      migration.save
     end
 
     def find_record(file_info)

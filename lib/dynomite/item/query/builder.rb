@@ -7,6 +7,7 @@ module Dynomite::Item::Query
     def initialize(source)
       @source = source
       @args = []
+      @index_finder = IndexFinder.new(@source, @args)
     end
 
     def where(args)
@@ -20,7 +21,7 @@ module Dynomite::Item::Query
         hash.each do |k,v|
           names.merge!("##{k}" => k.to_s)
           values.merge!(":#{k}" => v)
-          index = find_index(k) # Only supports the first index it finds
+          index = @index_finder.find(k) # Only supports the first index it finds
           if index
             key_condition_expression << "##{k} = :#{k}"
           else
@@ -43,15 +44,6 @@ module Dynomite::Item::Query
 
     def all
       records.lazy.flat_map { |i| i }
-    end
-
-    # TODO: possiblet to hav multiple indexes with the same name.
-    def find_index(attribute_name)
-      @source.indexes.find do |i|
-        i.key_schema.find do |key|
-          attribute_name.to_s == key.attribute_name
-        end
-      end
     end
 
     def records

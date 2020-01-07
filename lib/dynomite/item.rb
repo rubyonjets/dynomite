@@ -46,8 +46,10 @@ module Dynomite
     include TableNamespace
     include WaiterMethods
 
+    attr_writer :new_record
     def initialize(attrs={})
       @attrs = attrs
+      @new_record = true
     end
 
     # Defining our own reader so we can do a deep merge if user passes in attrs
@@ -82,6 +84,10 @@ module Dynomite
 
     def attributes
       @attributes
+    end
+
+    def new_record?
+      @new_record
     end
   end
 end

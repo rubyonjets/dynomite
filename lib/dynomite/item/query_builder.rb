@@ -15,10 +15,27 @@ class Dynomite::Item
     end
 
     def all
-      params = to_params
-      params = { table_name: @source.table_name }.merge(params)
-      resp = db.scan(params)
-      resp.items.map {|i| @source.new(i.merge(new_record: false)) }
+      Enumerator.new do |y|
+        params = to_params
+        params = { table_name: @source.table_name }.merge(params)
+        # params[:limit] = 1
+        resp = db.scan(params)
+        puts "resp:"
+        pp resp
+        results = resp.items.map do |i|
+          item = @source.new(i)
+          item.new_record = false
+          item
+        end
+        puts "results:"
+        pp results
+
+        y.yield(results, resp)
+      end.lazy.flat_map { |i| i }
+    end
+
+    def each(&block)
+      all.each(&block)
     end
 
     def execute

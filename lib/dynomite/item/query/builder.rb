@@ -18,15 +18,22 @@ module Dynomite::Item::Query
       params = to_params
       enumerator = Enumerator.new do |y|
         executer.scan(params).each do |resp|
-          page = resp.items.map do |i|
-            item = @source.new(i)
-            item.new_record = false
-            item
-          end
+          page = resp.items.map { |i| build_item(i) }
           y.yield(page, resp)
         end
       end
       enumerator.lazy.flat_map { |i| i }
+    end
+
+    def build_item(i)
+      item = @source.new(i)
+      item.new_record = false
+      item
+    end
+
+    # Enumerable provides .first but does not provide .last
+    def last
+      all.to_a.last
     end
 
     def executer

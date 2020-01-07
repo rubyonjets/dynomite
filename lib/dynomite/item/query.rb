@@ -22,12 +22,14 @@ class Dynomite::Item
       @attrs = attrs # refresh attrs because it now has the id
       self
     end
+    alias_method :save, :replace
 
     # Similar to replace, but raises an error on failed validation.
     # Works that way only if ActiveModel::Validations are included
     def replace!(hash={})
       raise ValidationError, "Validation failed: #{errors.full_messages.join(', ')}" unless replace(hash)
     end
+    alias_method :save!, :replace!
 
     def find(id)
       self.class.find(id)

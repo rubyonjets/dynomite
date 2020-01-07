@@ -1,5 +1,7 @@
 module Dynomite
   class Migration
+    include Item::WaiterMethods
+
     def up
       puts "Should defined an up method for your migration: #{self.class.name}"
     end
@@ -18,6 +20,7 @@ module Dynomite
       params = dsl.params
       executor = Executor.new(table_name, method_name, params)
       executor.run
+      waiter.wait(params[:table_name])
     end
   end
 end

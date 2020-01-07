@@ -4,7 +4,7 @@ module Dynomite
     def initialize
       @logger = Logger.new($stderr)
       @table_namespace = "dynomite"
-      @namespace_separator = "-"
+      @namespace_separator = "_"
       @endpoint = ENV['DYNAMODB_ENDPOINT'] # allow to use local dynamodb
       @env = ActiveSupport::StringInquirer.new(ENV['DYNAMODB_ENV'] || "development")
     end

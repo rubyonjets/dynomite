@@ -1,7 +1,8 @@
 require "aws-sdk-dynamodb"
-require 'fileutils'
-require 'erb'
-require 'yaml'
+require "erb"
+require "fileutils"
+require "json"
+require "yaml"
 
 module Dynomite
   module Client
@@ -28,6 +29,12 @@ module Dynomite
         # Example:
         #   endpoint: https://dynamodb.us-east-1.amazonaws.com
         options = endpoint ? { endpoint: endpoint } : {}
+
+        formatter = Aws::Log::Formatter.new(':operation | Request :http_request_body | Response :http_response_body')
+        options[:log_formatter] = formatter
+        options[:log_level] = :debug
+        options[:logger] = Dynomite.logger
+
         @@db ||= Aws::DynamoDB::Client.new(options)
       end
 

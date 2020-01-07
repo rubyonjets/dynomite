@@ -14,24 +14,36 @@ class Dynomite::Item
       self
     end
 
-    def all
-      Enumerator.new do |y|
-        params = to_params
-        params = { table_name: @source.table_name }.merge(params)
-        # params[:limit] = 1
+    def scan(params)
+      params = { table_name: @source.table_name }.merge(params)
+      params[:limit] = 1
+
+      results = []
+      last_evaluated_key = :start
+      while last_evaluated_key
+        if last_evaluated_key && last_evaluated_key != :start
+          params[:exclusive_start_key] = last_evaluated_key
+        end
         resp = db.scan(params)
-        puts "resp:"
-        pp resp
-        results = resp.items.map do |i|
+        page = resp.items.map do |i|
           item = @source.new(i)
           item.new_record = false
           item
         end
-        puts "results:"
-        pp results
+        results += page
+        last_evaluated_key = resp.last_evaluated_key
+      end
+      results
+    end
 
-        y.yield(results, resp)
+    def all
+      params = to_params
+      Enumerator.new do |y|
+        page = scan(params)
+        y.yield(page)
       end.lazy.flat_map { |i| i }
+      #   y.yield(page, resp)
+      # end.lazy.flat_map { |i| i }
     end
 
     def each(&block)

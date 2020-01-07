@@ -14,28 +14,29 @@ module Dynomite::Item::Query
       self
     end
 
-    def to_params(meth)
-      names, values, filter = {}, {}, []
+    def to_params
+      names, values, key_condition_expression, filter_expression, index = {}, {}, [], [], nil
       @args.each do |hash|
         hash.each do |k,v|
           names.merge!("##{k}" => k.to_s)
           values.merge!(":#{k}" => v)
-          filter << "##{k} = :#{k}"
+          index = find_index(k) # Only supports the first index it finds
+          if index
+            key_condition_expression << "##{k} = :#{k}"
+          else
+            filter_expression << "##{k} = :#{k}"
+          end
         end
       end
 
       params = {
-        table_name: @source.table_name,
         expression_attribute_names: names,
         expression_attribute_values: values,
+        filter_expression: filter_expression.join(" AND "),
+        key_condition_expression: key_condition_expression.join(" AND "),
+        table_name: @source.table_name,
       }
-
-      # TODO: use key condition and filter expression at the same time
-      if meth == :query
-        params[:key_condition_expression] = filter.join(' AND ')
-      else
-        params[:filter_expression] = filter.join(' AND ')
-      end
+      params[:index_name] = index.index_name if index
 
       params.reject { |k,v| v.empty? }
     end
@@ -44,17 +45,28 @@ module Dynomite::Item::Query
       records.lazy.flat_map { |i| i }
     end
 
+    # TODO: possiblet to hav multiple indexes with the same name.
+    def find_index(attribute_name)
+      @source.indexes.find do |i|
+        i.key_schema.find do |key|
+          attribute_name.to_s == key.attribute_name
+        end
+      end
+    end
+
     def records
-      if index_name
-        params = to_params(:query)
-        perform(:query, params.merge(index_name: index_name))
+      params = to_params
+      puts "params:"
+      pp params
+      if params[:key_condition_expression]
+        perform(:query, params)
       else
-        params = to_params(:scan)
         perform(:scan, params)
       end
     end
     private :records
 
+    # meth: query or scan
     def perform(meth, params)
       Enumerator.new do |y|
         executer.call(meth, params).each do |resp|
@@ -73,22 +85,6 @@ module Dynomite::Item::Query
     # Enumerable provides .first but does not provide .last
     def last
       all.to_a.last
-    end
-
-    # TODO: There could be multiple indexes with the same name and also indexes where there's a sort key...
-    def index_name
-      index = @source.indexes.find do |i|
-        i.key_schema.find do |key|
-          args_hash.keys.map(&:to_s).include?(key.attribute_name)
-        end
-      end
-      index.index_name if index
-    end
-
-    def args_hash
-      @args.inject({}) do |result, hash|
-        result.merge(hash)
-      end
     end
 
     def executer

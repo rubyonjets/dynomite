@@ -1,6 +1,7 @@
 class Dynomite::Item
   # Builds up the query with methods like where and eventually executes Query or Scan.
   class QueryBuilder
+    include Dynomite::Client
     include Enumerable
 
     def initialize(source)
@@ -11,6 +12,19 @@ class Dynomite::Item
     def where(args)
       @args << args
       self
+    end
+
+    def all
+      params = to_params
+      params = { table_name: @source.table_name }.merge(params)
+      resp = db.scan(params)
+      resp.items.map {|i| @source.new(i.merge(new_record: false)) }
+    end
+
+    def execute
+      params = to_params
+      puts "@source.table_name #{@source.table_name}"
+      puts "params #{params}"
     end
 
     def to_params

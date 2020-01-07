@@ -135,8 +135,7 @@ class Dynomite::Item
       # end
 
       def where(args)
-        builder = Dynomite::Item::QueryBuilder.new(self)
-        builder.where(args)
+        Dynomite::Item::QueryBuilder.new(self).where(args)
       end
 
       def replace(attrs)

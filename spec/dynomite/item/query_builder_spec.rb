@@ -14,4 +14,9 @@ describe Dynomite::Item::QueryBuilder do
        :filter_expression=>"#name = :name AND #active = :active AND #email = :email"}
     )
   end
+
+  it "execute" do
+    builder = model.where(name: "Tung Nguyen", active: true).where(email: "tung@boltops.com")
+    builder.execute
+  end
 end

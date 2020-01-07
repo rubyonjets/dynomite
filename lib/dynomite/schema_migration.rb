@@ -2,7 +2,7 @@ module Dynomite
   class SchemaMigration < Item
     table_name :schema_migrations
 
-    column :version, :status
+    column :version, :status, :time_took, :path
 
     class << self
       def ensure_table_exists!
@@ -10,7 +10,7 @@ module Dynomite
       end
 
       def create_table
-        puts "Creating #{table} table..."
+        puts "Creating #{table_name} table..."
         params = {
           table_name: table_name,
           key_schema: [{attribute_name: "id", key_type: "HASH"}],

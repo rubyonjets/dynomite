@@ -21,7 +21,7 @@ class Dynomite::Item
       end
 
       def get_table_name
-        @table_name ||= self.name.pluralize.gsub('::','-').underscore.dasherize
+        @table_name ||= self.name.pluralize.gsub('::','/').underscore
         [namespace, @table_name].reject {|s| s.nil? || s.empty?}.join(namespace_separator)
       end
 

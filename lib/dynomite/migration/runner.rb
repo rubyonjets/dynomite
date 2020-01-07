@@ -38,7 +38,7 @@ class Dynomite::Migration
       end
 
       # INSERT scheme_migrations table - in_progress
-      migration = Dynomite::SchemaMigration.new(version: file_info.version, status: "in_progress")
+      migration = Dynomite::SchemaMigration.new(version: file_info.version, status: "in_progress", path: file_info.path)
       migration.save
       start_time = Time.now
 
@@ -47,7 +47,7 @@ class Dynomite::Migration
 
       # UPDATE scheme_migrations table - complete
       migration.status = "complete"
-      migration.time_took = Time.now - start_time
+      migration.time_took = (Time.now - start_time).to_i
       migration.save
     end
 

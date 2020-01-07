@@ -10,7 +10,7 @@ class Dynomite::Migration
     end
 
     def generate
-      puts "Generating migration for #{@table_name}" unless @options[:quiet]
+      puts "Generating migration" unless @options[:quiet]
       return if @options[:noop]
       create_migration
     end
@@ -18,13 +18,19 @@ class Dynomite::Migration
     def create_migration
       FileUtils.mkdir_p(File.dirname(migration_path))
       IO.write(migration_path, migration_code)
-      puts "Migration file created: #{migration_path}. \nTo run:"
-      puts "  jets dynamodb:migrate #{migration_path}"
+      puts "Migration file created: #{migration_path}\nTo run:\n\n"
+      command = File.basename($0)
+      if command == "jets"
+        puts "    #{command} dynamodb:migrate"
+      else
+        puts "    #{command} migrate"
+      end
+      puts
     end
 
     def migration_code
-      path = File.expand_path("../templates/#{table_action}.rb", __FILE__)
-      result = Dynomite::Erb.result(path,
+      path = File.expand_path("../templates/#{action}.rb", __FILE__)
+      Dynomite::Erb.result(path,
         migration_class_name: migration_class_name,
         table_name: table_name,
         partition_key: @options[:partition_key],
@@ -33,16 +39,21 @@ class Dynomite::Migration
       )
     end
 
-    def table_action
-      @options[:table_action] || conventional_table_action
+    def action
+      action = @options[:action] || conventional_action
+      if %w[create_table update_table].include?(action)
+        action
+      else
+        "create_table" # fallback
+      end
     end
 
-    def conventional_table_action
+    def conventional_action
       @migration_name.include?("update") ? "update_table" : "create_table"
     end
 
     def table_name
-      @options[:table_name] || conventional_table_name
+      @options[:table_name] || conventional_table_name || "TABLE_NAME"
     end
 
     # create_posts => posts
@@ -56,7 +67,7 @@ class Dynomite::Migration
     end
 
     def migration_path
-      "#{Dynomite.app_root}dynamodb/migrate/#{timestamp}-#{@migration_name}_migration.rb"
+      "#{Dynomite.root}/dynamodb/migrate/#{timestamp}-#{@migration_name}_migration.rb"
     end
 
     def timestamp

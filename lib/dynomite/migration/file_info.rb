@@ -1,5 +1,6 @@
 class Dynomite::Migration
   class FileInfo
+    attr_reader :path
     def initialize(path)
       @path = path
     end

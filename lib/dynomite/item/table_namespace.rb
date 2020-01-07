@@ -22,25 +22,25 @@ class Dynomite::Item
 
       def get_table_name
         @table_name ||= self.name.pluralize.gsub('::','-').underscore.dasherize
-        [table_namespace, @table_name].reject {|s| s.nil? || s.empty?}.join(namespace_separator)
+        [namespace, @table_name].reject {|s| s.nil? || s.empty?}.join(namespace_separator)
       end
 
-      def table_namespace(*args)
+      def namespace(*args)
         case args.size
         when 0
-          get_table_namespace
+          get_namespace
         when 1
-          set_table_namespace(args[0])
+          set_namespace(args[0])
         end
       end
 
-      def get_table_namespace
-        return @table_namespace if defined?(@table_namespace)
-        @table_namespace = Dynomite.config.table_namespace
+      def get_namespace
+        return @namespace if defined?(@namespace)
+        @namespace = Dynomite.config.namespace
       end
 
-      def set_table_namespace(value)
-        @table_namespace = value
+      def set_namespace(value)
+        @namespace = value
       end
 
       def namespace_separator
@@ -48,7 +48,7 @@ class Dynomite::Item
         default = legacy ? '-' : '_'
         separator = Dynomite.config.namespace_separator || default
         # if legacy && separator == '-'
-        #   Dynomite.logger.info "INFO: namespace_separator is '-' is deprecated. Next major release will have '_' as the separator. You can override this to `table_namespace_separator: -` config/dynamodb.yml but is encouraged to rename your tables.".color(:yellow)
+        #   Dynomite.logger.info "INFO: namespace_separator is '-' is deprecated. Next major release will have '_' as the separator. You can override this to `namespace_separator: -` config/dynamodb.yml but is encouraged to rename your tables.".color(:yellow)
         # end
         separator
       end

@@ -16,5 +16,9 @@ module Dynomite
     def logger
       config.logger
     end
+
+    def configure
+      yield(config)
+    end
   end
 end

@@ -40,12 +40,14 @@ class Dynomite::Migration
       # INSERT scheme_migrations table - in_progress
       migration = Dynomite::SchemaMigration.new(version: file_info.version, status: "in_progress")
       migration.save
+      start_time = Time.now
 
       migration_class = file_info.migration_class
       migration_class.new.up # wait happens within create_table or update_table
 
       # UPDATE scheme_migrations table - complete
       migration.status = "complete"
+      migration.time_took = Time.now - start_time
       migration.save
     end
 

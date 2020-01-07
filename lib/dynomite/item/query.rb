@@ -88,7 +88,7 @@ class Dynomite::Item
       def query(params={})
         params = { table_name: table_name }.merge(params)
         resp = db.query(params)
-        resp.items.map {|i| self.new(i) }
+        resp.items.map { |i| self.new(i) }
       end
 
       def where(args)

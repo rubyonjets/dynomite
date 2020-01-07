@@ -30,10 +30,12 @@ module Dynomite
         #   endpoint: https://dynamodb.us-east-1.amazonaws.com
         options = endpoint ? { endpoint: endpoint } : {}
 
-        # formatter = Aws::Log::Formatter.new(':operation | Request :http_request_body | Response :http_response_body')
-        # options[:log_formatter] = formatter
-        # options[:log_level] = :debug
-        # options[:logger] = Dynomite.logger
+        if ENV['DYNOMITE_LOG_DEBUG']
+          formatter = Aws::Log::Formatter.new(':operation | Request :http_request_body | Response :http_response_body')
+          options[:log_formatter] = formatter
+          options[:log_level] = :debug
+          options[:logger] = Dynomite.logger
+        end
 
         @@db ||= Aws::DynamoDB::Client.new(options)
       end

@@ -36,8 +36,9 @@ require "yaml"
 #
 module Dynomite
   class Item
-    extend Memoist
     extend Dsl
+    extend Indexes
+    extend Memoist
     include ActiveModel::Model
     include ActiveModel::Validations
     include Client

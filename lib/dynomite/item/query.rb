@@ -51,11 +51,11 @@ class Dynomite::Item
       #
       #   MyModel.scan(
       #     expression_attribute_names: {"#updated_at"=>"updated_at"},
-      #     filter_expression: "#updated_at between :start_time and :end_time",
       #     expression_attribute_values: {
       #       ":start_time" => "2010-01-01T00:00:00",
       #       ":end_time" => "2020-01-01T00:00:00"
-      #     }
+      #     },
+      #     filter_expression: "#updated_at between :start_time and :end_time",
       #   )
       #
       # AWS Docs examples: http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GettingStarted.Ruby.04.html
@@ -110,28 +110,33 @@ class Dynomite::Item
       #   Post.where({category: "Drama"}, {index_name: "category-index"})
       #     VS
       #   Post.where(category: "Drama").index_name("category-index")
-      def where(attributes, options={})
-        raise "attributes.size == 1 only supported for now" if attributes.size != 1
+      # def where(attributes, options={})
+      #   raise "attributes.size == 1 only supported for now" if attributes.size != 1
 
-        attr_name = attributes.keys.first
-        attr_value = attributes[attr_name]
+      #   attr_name = attributes.keys.first
+      #   attr_value = attributes[attr_name]
 
-        # params = {
-        #   expression_attribute_names: { "#category_name" => "category" },
-        #   expression_attribute_values: { ":category_value" => "Entertainment" },
-        #   key_condition_expression: "#category_name = :category_value",
-        # }
-        name_key, value_key = "##{attr_name}_name", ":#{attr_name}_value"
-        params = {
-          expression_attribute_names: { name_key => attr_name },
-          expression_attribute_values: { value_key => attr_value },
-          key_condition_expression: "#{name_key} = #{value_key}",
-        }
-        # Allow direct access to override params passed to dynamodb query options.
-        # This is is how index_name is passed:
-        params = params.merge(options)
+      #   # params = {
+      #   #   expression_attribute_names: { "#category_name" => "category" },
+      #   #   expression_attribute_values: { ":category_value" => "Entertainment" },
+      #   #   key_condition_expression: "#category_name = :category_value",
+      #   # }
+      #   name_key, value_key = "##{attr_name}_name", ":#{attr_name}_value"
+      #   params = {
+      #     expression_attribute_names: { name_key => attr_name },
+      #     expression_attribute_values: { value_key => attr_value },
+      #     key_condition_expression: "#{name_key} = #{value_key}",
+      #   }
+      #   # Allow direct access to override params passed to dynamodb query options.
+      #   # This is is how index_name is passed:
+      #   params = params.merge(options)
 
-        query(params)
+      #   query(params)
+      # end
+
+      def where(args)
+        builder = Dynomite::Item::QueryBuilder.new(self)
+        builder.where(args)
       end
 
       def replace(attrs)

@@ -18,8 +18,8 @@ class Dynomite::Migration::Dsl
       @attribute_definitions = []
       # default provisioned_throughput
       @provisioned_throughput = {
-        read_capacity_units: 5,
-        write_capacity_units: 5
+        read_capacity_units: 1,
+        write_capacity_units: 1
       }
     end
 

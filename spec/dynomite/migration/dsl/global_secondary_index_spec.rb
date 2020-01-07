@@ -1,5 +1,3 @@
-require "spec_helper"
-
 GSI = Dynomite::Migration::Dsl::GlobalSecondaryIndex
 
 describe GSI do

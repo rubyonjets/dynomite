@@ -1,5 +1,3 @@
-require "spec_helper"
-
 describe Dynomite::Migration::Dsl do
   # Supports this DSL, the `t` variable passed to the block is the Dsl instance
   #
@@ -73,4 +71,3 @@ describe Dynomite::Migration::Dsl do
   #   # dsl.execute # TODO: dsl.execute in here
   # end
 end
-

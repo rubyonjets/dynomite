@@ -1,5 +1,3 @@
-require "spec_helper"
-
 LSI = Dynomite::Migration::Dsl::LocalSecondaryIndex
 
 describe LSI do

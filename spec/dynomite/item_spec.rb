@@ -1,4 +1,3 @@
-require "spec_helper"
 require "active_model"
 
 class Post < Dynomite::Item

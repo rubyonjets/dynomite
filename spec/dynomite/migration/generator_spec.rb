@@ -1,5 +1,3 @@
-require "spec_helper"
-
 describe Dynomite::Migration::Generator do
   before(:each) do
     FileUtils.rm_rf("#{Dynomite.app_root}dynamodb/migrate")

@@ -1,5 +1,3 @@
-require "spec_helper"
-
 class CreateCommentsMigration < Dynomite::Migration
   def up
     create_table :comments do |t|
@@ -57,4 +55,3 @@ describe Dynomite::Migration do
     end
   end if ENV['LIVE']
 end
-

@@ -36,11 +36,6 @@ module Dynomite::Item::Query
       all.to_a.last
     end
 
-    def executer
-      Executer.new
-    end
-    memoize :executer
-
     def to_params
       names, values, filter = {}, {}, []
       @args.each do |hash|
@@ -51,13 +46,19 @@ module Dynomite::Item::Query
         end
       end
 
-      {
+      params = {
         table_name: @source.table_name,
         expression_attribute_names: names,
         expression_attribute_values: values,
         filter_expression: filter.join(' AND ')
       }
+      params.reject { |k,v| v.empty? }
     end
+
+    def executer
+      Executer.new
+    end
+    memoize :executer
 
     def each(&block)
       all.each(&block)

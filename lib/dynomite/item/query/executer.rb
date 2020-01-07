@@ -3,7 +3,7 @@ module Dynomite::Item::Query
     include Dynomite::Client
 
     def scan(params={})
-      params[:limit] = 1
+      # params[:limit] = 1
       Enumerator.new do |y|
         last_evaluated_key = :start
         while last_evaluated_key

@@ -91,51 +91,20 @@ class Dynomite::Item
         resp.items.map {|i| self.new(i) }
       end
 
-      # Translates simple query searches:
-      #
-      #   Post.where({category: "Drama"}, index_name: "category-index")
-      #
-      # translates to
-      #
-      #   resp = db.query(
-      #     table_name: "demo-dev-post",
-      #     index_name: 'category-index',
-      #     expression_attribute_names: { "#category_name" => "category" },
-      #     expression_attribute_values: { ":category_value" => category },
-      #     key_condition_expression: "#category_name = :category_value",
-      #   )
-      #
-      # TODO: Implement nicer where syntax with index_name as a chained method.
-      #
-      #   Post.where({category: "Drama"}, {index_name: "category-index"})
-      #     VS
-      #   Post.where(category: "Drama").index_name("category-index")
-      # def where(attributes, options={})
-      #   raise "attributes.size == 1 only supported for now" if attributes.size != 1
-
-      #   attr_name = attributes.keys.first
-      #   attr_value = attributes[attr_name]
-
-      #   # params = {
-      #   #   expression_attribute_names: { "#category_name" => "category" },
-      #   #   expression_attribute_values: { ":category_value" => "Entertainment" },
-      #   #   key_condition_expression: "#category_name = :category_value",
-      #   # }
-      #   name_key, value_key = "##{attr_name}_name", ":#{attr_name}_value"
-      #   params = {
-      #     expression_attribute_names: { name_key => attr_name },
-      #     expression_attribute_values: { value_key => attr_value },
-      #     key_condition_expression: "#{name_key} = #{value_key}",
-      #   }
-      #   # Allow direct access to override params passed to dynamodb query options.
-      #   # This is is how index_name is passed:
-      #   params = params.merge(options)
-
-      #   query(params)
-      # end
-
       def where(args)
         Builder.new(self).where(args)
+      end
+
+      def first
+        where({}).first
+      end
+
+      def last
+        where({}).last
+      end
+
+      def find_by(attrs)
+        where(attrs).first
       end
 
       def replace(attrs)
@@ -179,12 +148,13 @@ class Dynomite::Item
 
       # Two ways to use the delete method:
       #
-      # 1. Specify the key as a String. In this case the key will is the partition_key
-      # set on the model.
+      # 1. Specify the key as a String. In this case the key will is the partition_key set on the model.
+      #
       #   MyModel.delete("728e7b5df40b93c3ea6407da8ac3e520e00d7351")
       #
       # 2. Specify the key as a Hash, you can arbitrarily specific the key structure this way
-      # MyModel.delete("728e7b5df40b93c3ea6407da8ac3e520e00d7351")
+      #
+      #   MyModel.delete(id: "728e7b5df40b93c3ea6407da8ac3e520e00d7351")
       #
       # options is provided in case you want to specific condition_expression or
       # expression_attribute_values.
@@ -208,7 +178,7 @@ class Dynomite::Item
       end
 
       def count
-        table.item_count
+        table.item_count # can be stale
       end
 
       def table

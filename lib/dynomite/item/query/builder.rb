@@ -74,11 +74,14 @@ module Dynomite::Item::Query
 
     def records
       params = to_params
-      puts "params:"
-      pp params
-      if params[:key_condition_expression]
+      if ENV['DYNOMITE_DEBUG_PARAMS']
+        puts "params:"
+        pp params
+      end
+      if params[:index_name]
         perform(:query, params)
       else
+        Dynomite.logger.info("WARN: Scan operations are slow. Considering using an index.")
         perform(:scan, params)
       end
     end

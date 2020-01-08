@@ -30,7 +30,7 @@ module Dynomite
         #   endpoint: https://dynamodb.us-east-1.amazonaws.com
         options = endpoint ? { endpoint: endpoint } : {}
 
-        if ENV['DYNOMITE_LOG_DEBUG']
+        if ENV['DYNOMITE_DEBUG_LOG']
           formatter = Aws::Log::Formatter.new(':operation | Request :http_request_body | Response :http_response_body')
           options[:log_formatter] = formatter
           options[:log_level] = :debug

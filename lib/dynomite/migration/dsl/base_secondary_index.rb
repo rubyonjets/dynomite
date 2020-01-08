@@ -17,10 +17,7 @@ class Dynomite::Migration::Dsl
       @key_schema = []
       @attribute_definitions = []
       # default provisioned_throughput
-      @provisioned_throughput = {
-        read_capacity_units: 1,
-        write_capacity_units: 1
-      }
+      @provisioned_throughput = nil # billing_mode PAY_PER_REQUEST default  now
     end
 
     def index_name

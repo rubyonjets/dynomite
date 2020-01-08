@@ -95,12 +95,10 @@ class Dynomite::Item
         Builder.new(self).where(args)
       end
 
-      def first
-        where({}).first
-      end
-
-      def last
-        where({}).last
+      %w[all first last].each do |meth|
+        define_method(meth) do
+          where({}).send(meth)
+        end
       end
 
       def find_by(attrs)

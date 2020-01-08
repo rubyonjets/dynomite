@@ -13,10 +13,8 @@ class Dynomite::Migration
       # Dsl fills in atttributes in as methods are called within the block.
       # Attributes for both create_table and updated_table:
       @attribute_definitions = []
-      @provisioned_throughput = {
-        read_capacity_units: 5,
-        write_capacity_units: 5
-      }
+      @billing_mode = "PAY_PER_REQUEST"
+      @provisioned_throughput = nil
 
       # Attributes for create_table only:
       @key_schema = []
@@ -77,11 +75,13 @@ class Dynomite::Migration
       merge_gsi_attribute_definitions!
 
       params = {
+        billing_mode: @billing_mode,
         table_name: namespaced_table_name,
         key_schema: @key_schema,
         attribute_definitions: @attribute_definitions,
         provisioned_throughput: @provisioned_throughput
       }
+      params.reject! { |k,v| v.blank? }
 
       params[:local_secondary_indexes] = lsi_secondary_index_creates unless @lsi_indexes.empty?
       params[:global_secondary_indexes] = gsi_secondary_index_creates unless @gsi_indexes.empty?
@@ -92,14 +92,16 @@ class Dynomite::Migration
       merge_gsi_attribute_definitions!
 
       params = {
+        billing_mode: @billing_mode,
         table_name: namespaced_table_name,
         attribute_definitions: @attribute_definitions,
         # update table take values only some values for the "parent" table
         # no key_schema, update_table does not handle key_schema for the "parent" table
       }
-      # only set "parent" table provisioned_throughput if user actually invoked
-      # it in the dsl
-      params[:provisioned_throughput] =  @provisioned_throughput if @provisioned_throughput_set_called
+      params.reject! { |k,v| v.blank? }
+
+      # only set "parent" table provisioned_throughput if user actually invoked it in the dsl
+      params[:provisioned_throughput] = @provisioned_throughput if @provisioned_throughput_set_called
       params[:global_secondary_index_updates] = global_secondary_index_updates
       params
     end

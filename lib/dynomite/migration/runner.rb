@@ -25,21 +25,25 @@ class Dynomite::Migration
         if migration.status == "complete"
           return
         else
-          Dynomite.logger.info(<<~EOL)
+          puts(<<~EOL)
             The {file_info.path} migration is status is not complete. Status: #{migration.status}
             This can happen and was if the migration interupted by a CTRL-C.
             To continue, verify that the migration completed successfully and you can mark this migration completed with:
 
                 dynomite complete #{file_info.path}
 
+            Or if the migration failed to run at all, you can continue. Continue? (y/N)
           EOL
-          exit 1
+          yes = $stdin.gets
+          exit 0 unless yes =~ /^y/i
         end
       end
 
       # INSERT scheme_migrations table - in_progress
-      migration = Dynomite::SchemaMigration.new(version: file_info.version, status: "in_progress", path: file_info.path)
-      migration.save
+      unless migration
+        migration = Dynomite::SchemaMigration.new(version: file_info.version, status: "in_progress", path: file_info.path)
+        migration.save
+      end
       start_time = Time.now
 
       migration_class = file_info.migration_class

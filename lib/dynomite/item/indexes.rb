@@ -2,8 +2,10 @@ class Dynomite::Item
   module Indexes
     extend Memoist
 
+    # Sorted by indexes with combo partition and sort keys first so they take priority for
+    # Indexes::Finder#find
     def indexes
-      global_secondary_indexes
+      global_secondary_indexes.map { |i| Index.new(i) }.sort_by { |i| i.fields.size * -1 }
     end
 
     def global_secondary_indexes

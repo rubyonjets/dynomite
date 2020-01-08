@@ -7,7 +7,7 @@ module Dynomite::Item::Query
     def initialize(source)
       @source = source
       @query = {}
-      @index_finder = IndexFinder.new(@source, @query)
+      @index_finder = Dynomite::Item::Indexes::Finder.new(@source, @query)
     end
 
     def where(args)
@@ -23,17 +23,23 @@ module Dynomite::Item::Query
     end
 
     def to_params
-      names, values, key_condition_expression, filter_expression, index_name = {}, {}, [], [], nil
+      names, values, key_condition_expression, filter_expression = {}, {}, [], []
+      index = @index_finder.find
+
       @query[:where].each do |hash|
-        hash.each do |k,v|
-          names.merge!("##{k}" => k.to_s)
-          values.merge!(":#{k}" => v)
-          index_name = find_index_name(k)
-          if index_name
-            key_condition_expression << "##{k} = :#{k}"
-          else
-            filter_expression << "##{k} = :#{k}"
+        hash.each do |field, value|
+          field = field.to_s
+          names.merge!("##{field}" => field)
+          values.merge!(":#{field}" => value)
+          unless index && index.fields.include?(field)
+            filter_expression << "##{field} = :#{field}"
           end
+        end
+      end
+
+      if index
+        index.fields.each do |field|
+          key_condition_expression << "##{field} = :#{field}"
         end
       end
 
@@ -44,7 +50,7 @@ module Dynomite::Item::Query
         key_condition_expression: key_condition_expression.join(" AND "),
         table_name: @source.table_name,
       }
-      params[:index_name] = index_name
+      params[:index_name] = index.index_name if index
 
       params.reject { |k,v| v.blank? }
     end

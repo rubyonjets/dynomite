@@ -6,23 +6,30 @@ module Dynomite::Item::Query
 
     def initialize(source)
       @source = source
-      @args = []
-      @index_finder = IndexFinder.new(@source, @args)
+      @query = {}
+      @index_finder = IndexFinder.new(@source, @query)
     end
 
     def where(args)
-      @args << args
+      @query[:where] ||= []
+      @query[:where] << args
+      self
+    end
+
+     # data has partition_key and sort_key
+    def index(name, data={})
+      @query[:index] = {index_name: name}.merge(data)
       self
     end
 
     def to_params
-      names, values, key_condition_expression, filter_expression, index = {}, {}, [], [], nil
-      @args.each do |hash|
+      names, values, key_condition_expression, filter_expression, index_name = {}, {}, [], [], nil
+      @query[:where].each do |hash|
         hash.each do |k,v|
           names.merge!("##{k}" => k.to_s)
           values.merge!(":#{k}" => v)
-          index = @index_finder.find(k) # Only supports the first index it finds
-          if index
+          index_name = find_index_name(k)
+          if index_name
             key_condition_expression << "##{k} = :#{k}"
           else
             filter_expression << "##{k} = :#{k}"
@@ -37,9 +44,22 @@ module Dynomite::Item::Query
         key_condition_expression: key_condition_expression.join(" AND "),
         table_name: @source.table_name,
       }
-      params[:index_name] = index.index_name if index
+      params[:index_name] = index_name
 
-      params.reject { |k,v| v.empty? }
+      params.reject { |k,v| v.blank? }
+    end
+
+    def find_index_name(attribute_name)
+      attribute_name = attribute_name.to_s
+      if @query[:index]
+        data = @query[:index]
+        if attribute_name == data[:partition_key] # TODO: figure out how to use sort_key?
+          data[:index_name]
+        end
+      else
+        index = @index_finder.find(attribute_name) # Only supports the first index it finds
+        index.index_name if index
+      end
     end
 
     def all

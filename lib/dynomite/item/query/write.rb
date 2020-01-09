@@ -31,8 +31,8 @@ module Dynomite::Item::Query
     end
     alias_method :replace!, :save!
 
-    def delete
-      self.class.delete(@attrs[:id]) if @attrs[:id]
+    def destroy
+      self.class.destroy(@attrs[:id]) if @attrs[:id]
     end
 
     class_methods do
@@ -64,19 +64,19 @@ module Dynomite::Item::Query
       end
       alias_method :replace, :save
 
-      # Two ways to use the delete method:
+      # Two ways to use the destroy method:
       #
       # 1. Specify the key as a String. In this case the key will is the partition_key set on the model.
       #
-      #   MyModel.delete("728e7b5df40b93c3ea6407da8ac3e520e00d7351")
+      #   MyModel.destroy("728e7b5df40b93c3ea6407da8ac3e520e00d7351")
       #
       # 2. Specify the key as a Hash, you can arbitrarily specific the key structure this way
       #
-      #   MyModel.delete(id: "728e7b5df40b93c3ea6407da8ac3e520e00d7351")
+      #   MyModel.destroy(id: "728e7b5df40b93c3ea6407da8ac3e520e00d7351")
       #
       # options is provided in case you want to specific condition_expression or
       # expression_attribute_values.
-      def delete(key_object, options={})
+      def destroy(key_object, options={})
         if key_object.is_a?(String)
           key = {
             partition_key => key_object

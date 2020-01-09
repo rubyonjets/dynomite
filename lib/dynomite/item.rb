@@ -60,11 +60,11 @@ module Dynomite
       when 0
         ActiveSupport::HashWithIndifferentAccess.new(@attrs)
       when 1
-        attributes = args[0] # Hash
-        if attributes.empty?
+        attrs = args[0] # Hash
+        if attrs.empty?
           ActiveSupport::HashWithIndifferentAccess.new
         else
-          @attrs = attrs.deep_merge!(attributes)
+          @attrs = attrs.deep_merge!(attrs)
         end
       end
     end
@@ -80,12 +80,12 @@ module Dynomite
 
     # Longer hand methods for completeness.
     # Internallly encourage the shorter attrs method.
-    def attributes=(attributes)
-      @attributes = attributes
+    def attributes=(attrs)
+      @attrs = attrs
     end
 
     def attributes
-      @attributes
+      @attrs
     end
 
     def new_record?

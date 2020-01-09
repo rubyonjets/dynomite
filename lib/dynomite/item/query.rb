@@ -111,6 +111,7 @@ class Dynomite::Item
           partition_key => Digest::SHA1.hexdigest([Time.now, rand].join)
         }
         item = defaults.merge(attrs)
+        # TODO: use Time.now and Typecast.dump values that match the a date pattern
         item["created_at"] ||= Time.now.utc.strftime('%Y-%m-%dT%TZ')
         item["updated_at"] = Time.now.utc.strftime('%Y-%m-%dT%TZ')
 
@@ -118,6 +119,7 @@ class Dynomite::Item
           table_name: table_name,
           item: item
         }
+        params = Typecast.dump(fields, params)
         Dynomite.logger.debug("put_item params: #{params}")
         # put_item full replaces the item
         db.put_item(params)
@@ -185,8 +187,9 @@ class Dynomite::Item
       end
 
       def create(attrs={})
-        new(attrs).save
-        self
+        item = new(attrs)
+        item.save
+        item
       end
     end
   end

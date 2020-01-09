@@ -39,7 +39,7 @@ class Dynomite::Item
         @attrs ||= {}
         value = @attrs[name]
         meta = self.class.fields[name]
-        Typecast.cast(meta["type"], value)
+        Typecast.load_item(meta["type"], value)
       end
 
       define_method("#{name}=") do |value|

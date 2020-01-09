@@ -8,16 +8,18 @@ class Dynomite::Item
     # use to dot notation.
 
     def save(attrs={})
-      @attrs = @attrs.deep_merge(attrs)
+      saved = nil
+      run_callbacks(:save) do
+        @attrs = @attrs.deep_merge(attrs)
 
-      # valid? method comes from ActiveModel::Validations
-      if respond_to? :valid?
-        return false unless valid?
+        # valid? method comes from ActiveModel::Validations
+        if respond_to? :valid?
+          return false unless valid?
+        end
+
+        saved = self.class.save(@attrs)
       end
-
-      attrs = self.class.save(@attrs)
-
-      @attrs = attrs # refresh attrs because it now has the id
+      self.attrs(saved.attrs) # refresh attrs because it now has the id
       self
     end
     alias_method :replace, :save
@@ -110,22 +112,23 @@ class Dynomite::Item
         defaults = {
           partition_key => Digest::SHA1.hexdigest([Time.now, rand].join)
         }
-        item = defaults.merge(attrs)
-        # TODO: use Time.now and Typecast.dump values that match the a date pattern
-        item["created_at"] ||= Time.now.utc.strftime('%Y-%m-%dT%TZ')
-        item["updated_at"] = Time.now.utc.strftime('%Y-%m-%dT%TZ')
+        attrs = defaults.merge!(attrs)
+        attrs["created_at"] ||= Time.now
+        attrs["updated_at"] = Time.now
 
         params = {
           table_name: table_name,
-          item: item
+          item: attrs
         }
-        params = Typecast.dump(fields, params)
+        params = Typecaster.dump(params)
         Dynomite.logger.debug("put_item params: #{params}")
         # put_item full replaces the item
         db.put_item(params)
+        # Note: The resp does not contain the attrs.
 
-        # The resp does not contain the attrs. So might as well return
-        # the original item with the generated partition_key value
+        # Return item instance
+        item = new(attrs)
+        item.new_record = false
         item
       end
       alias_method :replace, :save
@@ -144,7 +147,11 @@ class Dynomite::Item
           key: params
         )
         attrs = resp.item # unwraps the item's attrs
-        self.new(attrs) if attrs
+        if attrs # is nil when no item found
+          item = self.new(attrs)
+          item.new_record = false
+          item
+        end
       end
 
       # Two ways to use the delete method:

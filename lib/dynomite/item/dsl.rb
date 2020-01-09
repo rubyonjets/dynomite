@@ -26,11 +26,6 @@ class Dynomite::Item
 
     # @see Item.column
     def add_field(name)
-      name = name.to_s
-      name, type = name.split(':')
-      type ||= :infer
-      self.fields.merge!(name => {"type" => type}) # store field metadata
-
       if Dynomite::RESERVED_WORDS.include?(name)
         raise ReservedWordError, "'#{name}' is a reserved word"
       end
@@ -38,13 +33,12 @@ class Dynomite::Item
       define_method(name) do
         @attrs ||= {}
         value = @attrs[name]
-        meta = self.class.fields[name]
-        Typecast.load_item(meta["type"], value)
+        Typecaster.load(value)
       end
 
       define_method("#{name}=") do |value|
         @attrs ||= {}
-        @attrs[name] = value
+        @attrs[name] = Typecaster.dump(value)
       end
     end
   end

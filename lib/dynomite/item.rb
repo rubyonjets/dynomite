@@ -34,19 +34,20 @@ require "yaml"
 #
 module Dynomite
   class Item
-    class_attribute :fields
-    self.fields = {}
-
+    extend ActiveModel::Callbacks
     extend Dsl
     extend Indexes
     extend Memoist
     include ActiveModel::Model
     include ActiveModel::Validations
+    include ActiveModel::Validations::Callbacks
     include Client
     include Errors
     include Query
     include TableNamespace
     include WaiterMethods
+
+    define_model_callbacks :create, :save#, :destroy, :initialize, :update
 
     attr_writer :new_record
     def initialize(attrs={})
@@ -92,7 +93,12 @@ module Dynomite
       @new_record
     end
 
+    # Required for ActiveModel
+    def persisted?
+      !new_record?
+    end
+
     # magic fields
-    field :id, "created_at:datetime", "updated_at:datetime"
+    field :id, :created_at, :updated_at
   end
 end

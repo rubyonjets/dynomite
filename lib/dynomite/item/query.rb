@@ -7,8 +7,7 @@ class Dynomite::Item
     # DynamoDB attrs can go many levels deep so it makes less make sense to
     # use to dot notation.
 
-    # The method is named replace to clearly indicate that the item is fully replaced.
-    def replace(attrs={})
+    def save(attrs={})
       @attrs = @attrs.deep_merge(attrs)
 
       # valid? method comes from ActiveModel::Validations
@@ -16,19 +15,19 @@ class Dynomite::Item
         return false unless valid?
       end
 
-      attrs = self.class.replace(@attrs)
+      attrs = self.class.save(@attrs)
 
       @attrs = attrs # refresh attrs because it now has the id
       self
     end
-    alias_method :save, :replace
+    alias_method :replace, :save
 
     # Similar to replace, but raises an error on failed validation.
     # Works that way only if ActiveModel::Validations are included
-    def replace!(attrs={})
+    def save!(attrs={})
       raise ValidationError, "Validation failed: #{errors.full_messages.join(', ')}" unless replace(attrs)
     end
-    alias_method :save!, :replace!
+    alias_method :replace!, :save!
 
     def find(id)
       self.class.find(id)
@@ -104,7 +103,7 @@ class Dynomite::Item
         where(attrs).first
       end
 
-      def replace(attrs)
+      def save(attrs)
         # Automatically adds some attributes:
         #   partition key unique id
         #   created_at and updated_at timestamps. Timestamp format from AWS docs: http://amzn.to/2z98Bdc
@@ -127,6 +126,7 @@ class Dynomite::Item
         # the original item with the generated partition_key value
         item
       end
+      alias_method :replace, :save
 
       def find(id)
         params =

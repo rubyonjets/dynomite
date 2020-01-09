@@ -4,7 +4,6 @@ class Dynomite::Migration
     include Common
 
     attr_accessor :attribute_definitions,
-                  :billing_mode,
                   :key_schema,
                   :table_name
     def initialize(method_name, table_name, &block)

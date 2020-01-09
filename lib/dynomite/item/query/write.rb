@@ -8,6 +8,7 @@ module Dynomite::Item::Query
     # use to dot notation.
 
     def save(attrs={})
+      attrs.deep_symbolize_keys!
       saved = nil
       run_callbacks(:save) do
         @attrs = @attrs.deep_merge(attrs)
@@ -37,6 +38,7 @@ module Dynomite::Item::Query
 
     class_methods do
       def save(attrs)
+        attrs.deep_symbolize_keys!
         # Automatically adds some attributes:
         #   partition key unique id
         #   created_at and updated_at timestamps. Timestamp format from AWS docs: http://amzn.to/2z98Bdc
@@ -44,8 +46,8 @@ module Dynomite::Item::Query
           partition_key => Digest::SHA1.hexdigest([Time.now, rand].join)
         }
         attrs = defaults.merge!(attrs)
-        attrs["created_at"] ||= Time.now
-        attrs["updated_at"] = Time.now
+        attrs[:created_at] ||= Time.now
+        attrs[:updated_at] = Time.now
 
         params = {
           table_name: table_name,

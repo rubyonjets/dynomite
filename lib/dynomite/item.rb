@@ -51,7 +51,7 @@ module Dynomite
 
     attr_writer :new_record
     def initialize(attrs={})
-      @attrs = attrs
+      @attrs = attrs.deep_symbolize_keys!
       @new_record = true
     end
 
@@ -82,7 +82,7 @@ module Dynomite
     # Longer hand methods for completeness.
     # Internallly encourage the shorter attrs method.
     def attributes=(attrs)
-      @attrs = attrs
+      @attrs = attrs.deep_symbolize_keys!
     end
 
     def attributes
@@ -99,6 +99,6 @@ module Dynomite
     end
 
     # magic fields
-    field :id, :created_at, :updated_at
+    field partition_key, :created_at, :updated_at
   end
 end

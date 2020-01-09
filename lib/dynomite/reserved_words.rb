@@ -1,18 +1,20 @@
 module Dynomite
   RESERVED_WORDS = %w[
     as_json
-    attrs
     attributes
-    delete
+    attrs
     columns
+    destroy
+    fields
     find
     getter
     new_record
     param_name
     partition_key
     replace
-    setter
+    save
     scan
+    setter
     table_name
   ].freeze
 end

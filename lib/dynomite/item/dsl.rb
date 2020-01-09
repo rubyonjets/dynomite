@@ -10,9 +10,9 @@ class Dynomite::Item
     def partition_key(*args)
       case args.size
       when 0
-        @partition_key || "id" # defaults to id
+        @partition_key || :id # defaults to id
       when 1
-        @partition_key = args[0].to_s
+        @partition_key = args[0].to_sym
       end
     end
 
@@ -26,7 +26,8 @@ class Dynomite::Item
 
     # @see Item.column
     def add_field(name)
-      if Dynomite::RESERVED_WORDS.include?(name)
+      name = name.to_sym
+      if Dynomite::RESERVED_WORDS.include?(name.to_s)
         raise ReservedWordError, "'#{name}' is a reserved word"
       end
 

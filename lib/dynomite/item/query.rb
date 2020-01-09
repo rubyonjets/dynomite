@@ -7,10 +7,9 @@ class Dynomite::Item
     # DynamoDB attrs can go many levels deep so it makes less make sense to
     # use to dot notation.
 
-    # The method is named replace to clearly indicate that the item is
-    # fully replaced.
-    def replace(hash={})
-      @attrs = @attrs.deep_merge(hash)
+    # The method is named replace to clearly indicate that the item is fully replaced.
+    def replace(attrs={})
+      @attrs = @attrs.deep_merge(attrs)
 
       # valid? method comes from ActiveModel::Validations
       if respond_to? :valid?
@@ -26,8 +25,8 @@ class Dynomite::Item
 
     # Similar to replace, but raises an error on failed validation.
     # Works that way only if ActiveModel::Validations are included
-    def replace!(hash={})
-      raise ValidationError, "Validation failed: #{errors.full_messages.join(', ')}" unless replace(hash)
+    def replace!(attrs={})
+      raise ValidationError, "Validation failed: #{errors.full_messages.join(', ')}" unless replace(attrs)
     end
     alias_method :save!, :replace!
 
@@ -116,11 +115,13 @@ class Dynomite::Item
         item["created_at"] ||= Time.now.utc.strftime('%Y-%m-%dT%TZ')
         item["updated_at"] = Time.now.utc.strftime('%Y-%m-%dT%TZ')
 
-        # put_item full replaces the item
-        db.put_item(
+        params = {
           table_name: table_name,
           item: item
-        )
+        }
+        Dynomite.logger.debug("put_item params: #{params}")
+        # put_item full replaces the item
+        db.put_item(params)
 
         # The resp does not contain the attrs. So might as well return
         # the original item with the generated partition_key value
@@ -140,8 +141,8 @@ class Dynomite::Item
           table_name: table_name,
           key: params
         )
-        attributes = resp.item # unwraps the item's attributes
-        self.new(attributes) if attributes
+        attrs = resp.item # unwraps the item's attrs
+        self.new(attrs) if attrs
       end
 
       # Two ways to use the delete method:
@@ -181,6 +182,11 @@ class Dynomite::Item
 
       def table
         Aws::DynamoDB::Table.new(name: table_name, client: db)
+      end
+
+      def create(attrs={})
+        new(attrs).save
+        self
       end
     end
   end

@@ -10,7 +10,7 @@ class Dynomite::Item
 
     def global_secondary_indexes
       resp = desc_table
-      resp.table.global_secondary_indexes.select { |i| i.index_status == "ACTIVE" }
+      resp.table.global_secondary_indexes.to_a.select { |i| i.index_status == "ACTIVE" }
     end
 
     def desc_table

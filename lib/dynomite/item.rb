@@ -2,19 +2,17 @@ require "active_model"
 require "digest"
 require "yaml"
 
-# The modeling is ActiveRecord-ish but not exactly because DynamoDB is a
-# different type of database.
+# The modeling is ActiveRecord-ish even though DynamoDB is a different type of database.
 #
 # Examples:
 #
-#   post = MyModel.new
-#   post = post.replace(title: "test title")
+#   post = Post.new(title: "test title")
+#   success = post.save
 #
-# post.attrs[:id] now contain a generaetd unique partition_key id.
-# Usually the partition_key is 'id'. You can set your own unique id also:
+# post.id now contain a generated unique partition_key id. You can set your own unique id also:
 #
-#   post = MyModel.new(id: "myid", title: "my title")
-#   post.replace
+#   post = Post.new(id: "myid", title: "my title")
+#   post.save
 #
 # Note that the replace method replaces the entire item, so you
 # need to merge the attributes if you want to keep the other attributes.
@@ -36,6 +34,9 @@ require "yaml"
 #
 module Dynomite
   class Item
+    class_attribute :fields
+    self.fields = {}
+
     extend Dsl
     extend Indexes
     extend Memoist
@@ -90,5 +91,8 @@ module Dynomite
     def new_record?
       @new_record
     end
+
+    # magic fields
+    field :id, "created_at:datetime", "updated_at:datetime"
   end
 end

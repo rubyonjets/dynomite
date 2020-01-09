@@ -3,8 +3,10 @@ class Dynomite::Migration
     include Dynomite::Client
     include Common
 
-    attr_accessor :key_schema, :attribute_definitions
-    attr_accessor :table_name
+    attr_accessor :attribute_definitions,
+                  :billing_mode,
+                  :key_schema,
+                  :table_name
     def initialize(method_name, table_name, &block)
       @method_name = method_name
       @table_name = table_name

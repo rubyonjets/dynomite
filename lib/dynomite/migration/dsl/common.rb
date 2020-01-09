@@ -50,10 +50,8 @@ class Dynomite::Migration::Dsl
     def provisioned_throughput(*params)
       case params.size
       when 0 # reader method
-        puts "hi1"
         return @provisioned_throughput # early return
       when 1
-        puts "hi2"
         # @provisioned_throughput_set_called useful for update_table
         # only provide a provisioned_throughput settings if explicitly called for update_table
         @provisioned_throughput_set_called = true
@@ -72,7 +70,6 @@ class Dynomite::Migration::Dsl
           capacity_units = arg
         end
       when 2
-        puts "hi3"
         @provisioned_throughput_set_called = true
         # Case: provisioned_throughput(:read, 5)
         capacity_type, capacity_units = params

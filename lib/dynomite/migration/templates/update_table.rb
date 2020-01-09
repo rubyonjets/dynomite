@@ -7,7 +7,8 @@ class <%= @migration_class_name %> < Dynomite::Migration
         t.sort_key  "<%= @sort_key %>" # optional
 <% end -%>
 
-        i.provisioned_throughput(5)
+        # Either use billing_mode = "PAY_PER_REQUEST" or provisioned_throughput. Cannot use both.
+        # i.provisioned_throughput(5)
       end
 
       # Examples:

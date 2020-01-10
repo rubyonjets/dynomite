@@ -112,7 +112,7 @@ Note that any column not defined using the `column` method can still be accessed
 
 ```ruby
 post = Post.new
-post.attrs = {name = "My First Post"}
+post.attrs = {name: "My First Post"}
 post.attrs
 ```
 

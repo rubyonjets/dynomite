@@ -9,6 +9,11 @@ class Dynomite::Item
       extend Memoist
 
       define_model_callbacks :create, :save, :destroy, :initialize, :update
+
+      include MagicFields
+      before_save :set_partition_id
+      before_save :set_created_at
+      before_save :set_updated_at
     end
 
     include ActiveModel::Model

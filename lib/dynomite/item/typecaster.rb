@@ -20,7 +20,7 @@ class Dynomite::Item
     def dump_item(obj)
       # !obj.is_a?(String) because activesupport/core_ext/string/conversions adds .to_date
       if obj.respond_to?(:to_datetime) && !obj.is_a?(String)
-        obj.utc.strftime('%Y-%m-%dT%TZ')
+        obj.utc.strftime('%Y-%m-%dT%TZ') # Timestamp format iso8601 from AWS docs: http://amzn.to/2z98Bdc
       else
         obj
       end

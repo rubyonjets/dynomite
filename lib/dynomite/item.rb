@@ -17,7 +17,7 @@ module Dynomite
 
     attr_writer :new_record
     def initialize(attrs={})
-      @attrs = attrs.deep_symbolize_keys # will eventually be ActiveSupport::HashWithIndifferentAccess
+      @attrs = ActiveSupport::HashWithIndifferentAccess.new(attrs)
       @new_record = true
     end
 
@@ -25,13 +25,13 @@ module Dynomite
     def attrs(*args)
       case args.size
       when 0
-        ActiveSupport::HashWithIndifferentAccess.new(@attrs)
+        @attrs
       when 1
         attrs = args[0] # Hash
         if attrs.empty?
-          ActiveSupport::HashWithIndifferentAccess.new
+          @attrs = ActiveSupport::HashWithIndifferentAccess.new(attrs)
         else
-          @attrs = attrs.deep_merge!(attrs)
+          @attrs.deep_merge!(attrs)
         end
       end
     end
@@ -63,8 +63,5 @@ module Dynomite
     def persisted?
       !new_record?
     end
-
-    # magic fields
-    field partition_key, :created_at, :updated_at
   end
 end

@@ -41,15 +41,6 @@ post = Post.find("2db602210009613583b25240b0b4e3cd3fc4fe9f")
 post.title # => "test title"
 ```
 
-### Delete
-
-```ruby
-resp = Post.delete("myid")  # dynamodb client resp
-# or
-post = Post.find("myid")
-resp = post.delete  # dynamodb client resp
-```
-
 ### Destroy
 
 ```ruby

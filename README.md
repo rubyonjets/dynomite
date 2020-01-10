@@ -108,7 +108,7 @@ puts post.id # 1962DE7D852298C5CDC809C0FEF50D8262CEDF09
 puts post.name # "My First Post"
 ```
 
-Note that any column not defined using the `column` method can still be accessed using the `attributes` method.
+Note that any field not defined using the `field` method can still be accessed using the `attributes` method.
 
 ```ruby
 post = Post.new
@@ -137,7 +137,7 @@ class Post < Dynomite::Item
 end
 ```
 
-**Be sure to define all validated columns using `field` method**.
+**Be sure to define all validated fields using `field` method**.
 
 Validations can also be ran manually using the `valid?` method, just like with ActiveRecord models.
 

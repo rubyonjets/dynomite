@@ -15,12 +15,14 @@ class Dynomite::Migration::Dsl
     # http://docs.aws.amazon.com/sdkforruby/api/Aws/DynamoDB/Types/KeySchemaElement.html
     # partition_key is required
     def partition_key(identifier)
+      identifier = identifier.to_s
       @partition_key_identifier = identifier # for later use. useful for conventional_index_name
       adjust_schema_and_attributes(identifier, "hash")
     end
 
     # sort_key is optional
     def sort_key(identifier)
+      identifier = identifier.to_s
       @sort_key_identifier = identifier # for later use. useful for conventional_index_name
       adjust_schema_and_attributes(identifier, "range")
     end
@@ -33,7 +35,7 @@ class Dynomite::Migration::Dsl
     # partition_key and sort_key
     def adjust_schema_and_attributes(identifier, key_type)
       name, attribute_type = identifier.split(':')
-      attribute_type = "string" if attribute_type.nil?
+      attribute_type ||= "string" # default to string
 
       partition_key = {
         attribute_name: name,

@@ -45,11 +45,13 @@ class Dynomite::Migration
 
       # INSERT scheme_migrations table - in_progress
       unless migration
-        migration = SchemaMigration.new(version: file_info.version, status: "in_progress", path: file_info.path)
+        pretty_path = file_info.path.sub(/^\.\//,'') # remove leading ./
+        migration = SchemaMigration.new(version: file_info.version, status: "in_progress", path: pretty_path)
         migration.save
       end
       start_time = Time.now
 
+      # Run actual migration
       migration_class = file_info.migration_class
       migration_class.new.up # wait happens within create_table or update_table
 

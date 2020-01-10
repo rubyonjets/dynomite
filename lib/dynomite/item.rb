@@ -38,6 +38,28 @@ module Dynomite
       end
     end
 
+    # Longer hand methods for completeness. Internallly encourage use the shorter @attrs.
+    def attributes=(attrs)
+      @attrs.deep_merge!(attrs)
+    end
+
+    def attributes
+      @attrs
+    end
+
+    def write_attribute(field, value)
+      @attrs[field.to_sym] = value
+    end
+
+    def read_attribute(field)
+      @attrs[field.to_sym]
+    end
+
+    def update_attribute(field, value)
+      write_attribute(field, value)
+      update(@attrs, {validate: false})
+    end
+
     def partition_key
       self.class.partition_key
     end
@@ -47,16 +69,6 @@ module Dynomite
       @attrs
     end
 
-    # Longer hand methods for completeness.
-    # Internallly encourage the shorter attrs method.
-    def attributes=(attrs)
-      @attrs = ActiveSupport::HashWithIndifferentAccess.new(attrs)
-    end
-
-    def attributes
-      ActiveSupport::HashWithIndifferentAccess.new(@attrs)
-    end
-
     def new_record?
       @new_record
     end
@@ -64,6 +76,15 @@ module Dynomite
     # Required for ActiveModel
     def persisted?
       !new_record?
+    end
+
+    def reload
+      if persisted?
+        id = @attrs[partition_key]
+        item = find(id) # item has different object_id
+        @attrs = item.attrs # replace current loaded attributes
+      end
+      self
     end
   end
 end

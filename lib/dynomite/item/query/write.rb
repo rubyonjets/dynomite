@@ -46,6 +46,11 @@ module Dynomite::Item::Query
       end
     end
 
+    # Similar to update, but raises an error on failed validation.
+    def update!(attrs, **options)
+      raise Dynomite::Errors::ValidationError, "Validation failed: #{errors.full_messages.join(', ')}" unless update(attrs, options)
+    end
+
     def destroy(options={})
       run_callbacks(:destroy) do
         Destroy.call(self, options)

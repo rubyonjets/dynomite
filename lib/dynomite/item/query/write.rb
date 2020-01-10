@@ -25,8 +25,7 @@ module Dynomite::Item::Query
     end
     alias_method :replace, :save
 
-    # Similar to replace, but raises an error on failed validation.
-    # Works that way only if ActiveModel::Validations are included
+    # Similar to save, but raises an error on failed validation.
     def save!(attrs={})
       raise Dynomite::Errors::ValidationError, "Validation failed: #{errors.full_messages.join(', ')}" unless replace(attrs)
     end
@@ -49,6 +48,17 @@ module Dynomite::Item::Query
         item
       end
 
+      # Two ways to use the delete method:
+      #
+      # 1. Specify the key as a String. In this case the key will is the partition_key set on the model.
+      #
+      #   MyModel.destroy("728e7b5df40b93c3ea6407da8ac3e520e00d7351")
+      #
+      # 2. Specify the key as a Hash, you can arbitrarily specific the key structure this way
+      #
+      #   MyModel.destroy(id: "728e7b5df40b93c3ea6407da8ac3e520e00d7351")
+      #
+      # options can be used to specific condition_expression or expression_attribute_values.
       def delete(obj, options={})
         key = if obj.is_a?(String)
                 { partition_key => obj }

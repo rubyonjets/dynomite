@@ -81,13 +81,10 @@ module Dynomite::Item::Query
             id
           end
 
-        puts "find params:"
-        pp params
         resp = db.get_item(
           table_name: table_name,
           key: params
         )
-        puts "resp: #{resp}"
         attrs = resp.item # unwraps the item's attrs
         if attrs # is nil when no item found
           item = self.new(attrs)

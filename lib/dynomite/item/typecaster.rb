@@ -1,6 +1,6 @@
 require "time"
 
-# Only support typecasting DateTime objects to strings since aws-sdk-dynamodb doesnt handle it
+# aws-sdk-dynamodb handles typecast heavy-lifting. Adds typecasting support for DateTime objects.
 class Dynomite::Item
   class Typecaster
     def dump(data)

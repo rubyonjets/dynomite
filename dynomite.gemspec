@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Tung Nguyen"]
   spec.email         = ["tongueroo@gmail.com"]
 
-  spec.summary       = "ActiveRecord-ish Dynamodb Model"
+  spec.summary       = "ActiveRecord-ish DynamoDB ORM"
   spec.homepage      = "https://github.com/tongueroo/dynomite"
   spec.license       = "MIT"
 

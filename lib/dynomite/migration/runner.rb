@@ -63,14 +63,14 @@ class Dynomite::Migration
       choice = nil
       until %w[s c e].include?(choice)
         puts(<<~EOL)
-          The {file_info.path} migration is status is not complete. Status: #{migration.status}
-          This can happen and was if the migration interupted by a CTRL-C.
-          Please check the migration to figure out what to do next.
+          The #{file_info.path} migration status is incomplete. Status: #{migration.status}
+          This can happen and if it was interrupted by a CTRL-C.
+          Please check the migration to help determine what to do next.
 
           Options:
 
-              s - skip and continue, will leave schema_migrations item as-is
-              c - mark as completed and continue, will update the schema_migrations item and mark completed.
+              s - skip and continue. leaves schema_migrations item as-is
+              c - mark as completed and continue. updates the schema_migrations item as completed.
               e - exit
 
           Choose an option (s/c/e):

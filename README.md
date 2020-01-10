@@ -108,7 +108,7 @@ puts post.id # 1962DE7D852298C5CDC809C0FEF50D8262CEDF09
 puts post.name # "My First Post"
 ```
 
-Note that any field not defined using the `field` method can still be accessed using the `attributes` method.
+Note that any field not defined using the `field` method can still be accessed using the `attrs` method.
 
 ```ruby
 post = Post.new

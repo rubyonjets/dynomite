@@ -162,7 +162,7 @@ class CreateCommentsMigration < Dynomite::Migration
     create_table :comments do |t|
       t.partition_key "post_id:string" # required
       t.sort_key  "created_at:string" # optional
-      t.provisioned_throughput(5) # sets both read and write, defaults to 5 when not set
+      t.billing_mode "PAY_PER_REQUEST"
     end
   end
 end

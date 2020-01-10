@@ -13,13 +13,7 @@
 module Dynomite::Item::Query::Write
   class Destroy < Base
     def call
-      obj = @model.attrs[:id]
-      key = if obj.is_a?(String)
-              { partition_key => obj }
-            else # it should be a Hash
-              obj
-            end
-
+      key = @model.attrs.slice(self.class.partition_key)
       params = {
         table_name: table_name,
         key: key

@@ -26,7 +26,7 @@ module Dynomite
     include TableNamespace
     include WaiterMethods
 
-    define_model_callbacks :create, :save#, :destroy, :initialize, :update
+    define_model_callbacks :create, :save, :destroy, :initialize, :update
 
     attr_writer :new_record
     def initialize(attrs={})
@@ -61,11 +61,11 @@ module Dynomite
     # Longer hand methods for completeness.
     # Internallly encourage the shorter attrs method.
     def attributes=(attrs)
-      @attrs = attrs.deep_symbolize_keys!
+      @attrs = ActiveSupport::HashWithIndifferentAccess.new(attrs)
     end
 
     def attributes
-      @attrs
+      ActiveSupport::HashWithIndifferentAccess.new(@attrs)
     end
 
     def new_record?

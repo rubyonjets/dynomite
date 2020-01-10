@@ -1,10 +1,10 @@
 require "active_model"
 
 class Post < Dynomite::Item
-  column :defined_column
+  field :title, :desc
 end
 class Comment < Dynomite::Item
-  partition_key "post_id" # defaults to id
+  partition_key :post_id # defaults to :id
 end
 module Ns
   class Pet < Dynomite::Item; end
@@ -16,35 +16,29 @@ describe Dynomite::Item do
       post = Post.new(title: "my title", desc: "my desc")
       expect(post.attrs).to eq("title" => "my title", "desc" => "my desc")
 
-      post.attrs(title: "my title2")
+      post.title = "my title2"
       expect(post.attrs).to eq("title" => "my title2", "desc" => "my desc")
     end
 
     it "table_name" do
-      expect(Post.table_name).to eq "testnamespace-posts"
-      expect(Comment.table_name).to eq "testnamespace-comments"
-      # hack to quickly test blank and namespaces
-      old_namespace = Comment.instance_variable_get(:@table_namespace)
-      Comment.instance_variable_set(:@table_namespace, '')
-      expect(Comment.table_name).to eq "comments"
-      Comment.instance_variable_set(:@table_namespace, old_namespace)
-      # test for namespaced models
-      expect(Ns::Pet.table_name).to eq "testnamespace-ns-pets"
+      expect(Post.table_name).to eq "dynomite_posts"
+      expect(Comment.table_name).to eq "dynomite_comments"
+      expect(Ns::Pet.table_name).to eq "dynomite_ns_pets"
     end
 
     it "partition_key" do
-      expect(Post.partition_key).to eq "id"
-      expect(Comment.partition_key).to eq "post_id"
+      expect(Post.partition_key).to eq :id
+      expect(Comment.partition_key).to eq :post_id
     end
 
     it "uses defined column" do
       post = Post.new
-      expect(post.defined_column).to be_nil
-      expect(post.attrs).to_not include('defined_column')
+      expect(post.title).to be_nil
+      expect(post.attrs).to_not include('title')
 
-      post.defined_column = 'abc'
-      expect(post.defined_column).to eq 'abc'
-      expect(post.attrs).to include('defined_column')
+      post.title = 'abc'
+      expect(post.title).to eq 'abc'
+      expect(post.attrs).to include('title')
     end
 
     it "tries to use undefined column" do
@@ -60,7 +54,7 @@ describe Dynomite::Item do
         post.undefined_column
       end.to raise_exception(NoMethodError)
 
-      Post.add_column('undefined_column')
+      Post.add_field(:undefined_column)
 
       expect do
         post.undefined_column
@@ -83,7 +77,7 @@ describe Dynomite::Item do
 
       post = Post.find("myid")
 
-      expect(post.attrs).to eq("id" => "myid", "title" => "my title")
+      expect(post.attrs.to_h).to eq(ActiveSupport::HashWithIndifferentAccess.new("id" => "myid", "title" => "my title"))
     end
 
     it "find with hash" do
@@ -100,7 +94,7 @@ describe Dynomite::Item do
       expect(Post.db).to receive(:put_item)
 
       post = Post.new(title: "my title")
-      post.replace
+      post.save
       attrs = post.attrs
 
       expect(attrs[:title]).to eq "my title"
@@ -109,12 +103,13 @@ describe Dynomite::Item do
 
     it "replace with hash" do
       # Not returning a resp with receive because it is not useful
-      # Dynanmodb doesnt provide much useful info there.
+      # Dynamodb doesnt provide much useful info there.
       expect(Post.db).to receive(:put_item)
 
       post = Post.new(title: "my title")
-      post.replace(title: "my title 2")
-      attrs = post.attrs
+      post.attributes = {title: "my title 2"}
+      post.save
+      attrs = post.attributes
 
       expect(attrs[:title]).to eq "my title 2"
       expect(attrs[:id].size).to eq 40 # generated unique id
@@ -137,7 +132,7 @@ describe Dynomite::Item do
     it "scan" do
       allow(Post.db).to receive(:scan).and_return(scan_resp)
 
-      post = Post.scan
+      Post.scan
 
       expect(Post.db).to have_received(:scan)
     end
@@ -153,8 +148,6 @@ describe Dynomite::Item do
 
   describe "validations" do
     class ValidatedItem < Dynomite::Item
-      include ActiveModel::Validations
-
       column :first, :second
       validates :first, presence: true
     end

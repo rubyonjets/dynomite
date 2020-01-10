@@ -6,6 +6,8 @@ A DynamoDB ORM that is ActiveModel compatible.
 
 NOTE: Am looking for maintainers to help with this gem. Send me an email!
 
+**IMPORTANT**: This edge branch is highly experimental and unfinished.
+
 ## Jets Docs
 
 * [Database DynamoDB](https://rubyonjets.com/docs/database/dynamodb/)

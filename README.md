@@ -62,7 +62,7 @@ The query builder discovers indexes automatically. When indexes are available, d
 You can override the auto-discovered index with the index method:
 
 ```ruby
-posts = Post.where(title: "test post", category: "Drama").where(desc: "test desc").index(name: "my-index", partition_key: "hash_key", sort_key: "range_key")
+posts = Post.where(title: "test post").index(name: "my-index", partition_key: "hash_key", sort_key: "range_key")
 posts.each { |p| puts p }
 ```
 

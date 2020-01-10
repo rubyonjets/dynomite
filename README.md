@@ -2,9 +2,9 @@
 
 [![BoltOps Badge](https://img.boltops.com/boltops/badges/boltops-badge.png)](https://www.boltops.com)
 
-NOTE: Am looking for maintainers to help with this gem. Send me an email!  Also [dynamoid](https://github.com/Dynamoid/dynamoid) seems like a good option that should be considered delegating to or straight using. Learning on delegation so we can have better default behavior for a DynamoDB model layer for Jets.
+A DynamoDB ORM that is ActiveModel compatible.
 
-A simple wrapper library to make DynamoDB usage a little more friendly.  The modeling is ActiveRecord-ish but not exactly because DynamoDB is a different type of database.  Examples below explain it best:
+NOTE: Am looking for maintainers to help with this gem. Send me an email!
 
 ## Jets Docs
 
@@ -18,49 +18,26 @@ First define a class:
 class Post < Dynomite::Item
   # partition_key "id" # optional, defaults to id
 
-  column :id, :title, :desc
+  field :id, :title, :desc
 end
 ```
 
 ### Create
 
 ```ruby
-post = Post.new
-post = post.replace(title: "test title")
-post.attrs # {"id" => "generated-id", title" => "my title"}
+post = Post.new(title: "test title")
+post.save
+post.id  # generated IE: 2db602210009613583b25240b0b4e3cd3fc4fe9f
 ```
 
-`post.attrs[:id]` now contain a generated unique partition_key id.  Usually the partition_key is 'id'. You can set your own unique id also by specifying id.
-
-```ruby
-post = Post.new(id: "myid", title: "my title")
-post.replace
-post.attrs # {"id" => "myid", title" => "my title"}
-```
-
-Note that the replace method replaces the entire item, so you need to merge the attributes if you want to keep the other attributes.  Know this is weird, but this is how DynamoDB works.
+`post.id` now contain a generated value.  `post.id` is the DynamoDB partition_key used for simple lookups like `Post.find`
 
 ### Find
 
 ```ruby
-post = Post.find("myid")
-post.attrs = post.attrs.deep_merge("desc": "my desc") # keeps title field
-post.replace
-post.attrs # {"id" => "myid", title" => "my title", desc: "my desc"}
+post = Post.find("2db602210009613583b25240b0b4e3cd3fc4fe9f")
+post.title # => "test title"
 ```
-
-The convenience `attrs` method performs a deep_merge:
-
-```ruby
-post = Post.find("myid")
-post.attrs("desc": "my desc 2") # <= does a deep_merge
-post.replace
-post.attrs # {"id" => "myid", title" => "my title", desc: "my desc 2"}
-```
-
-Note, a race condition edge case can exist when several concurrent replace
-calls are happening.  This is why the interface is called replace to
-emphasize that possibility.
 
 ### Delete
 
@@ -70,6 +47,18 @@ resp = Post.delete("myid")  # dynamodb client resp
 post = Post.find("myid")
 resp = post.delete  # dynamodb client resp
 ```
+
+### Where
+
+The where could be prettied up. Appreciate any pull requests.
+
+```ruby
+Post.where({category: "Drama"}, {index_name: "category-index"})
+```
+
+Examples are also in [item_spec.rb](spec/lib/dynomite/item_spec.rb).
+
+## Low-Level Methods
 
 ### Scan
 
@@ -91,30 +80,18 @@ posts = Post.query(
 posts # Array of Post items.  [Post.new, Post.new, ...]
 ```
 
-### Where
+## Field Definitions
 
-The where could be prettied up. Appreciate any pull requests.
-
-```ruby
-Post.where({category: "Drama"}, {index_name: "category-index"})
-```
-
-Examples are also in [item_spec.rb](spec/lib/dynomite/item_spec.rb).
-
-## Column Lists
-
-You can define your column list using the `column` method inside your item class. This gives you
-a possibility to access your column fields using getters and setters. Also, any predefined column
-can be passed to `ActiveModel::Validations` (see Validations).
+You can define your fields using the `field` method inside your item class. This gives you a possibility to access your fields using getters and setters.
 
 ```ruby
 class Post < Dynomite::Item
-  column :id, :name
+  column :name
 end
 
 post = Post.new
 post.name = "My First Post"
-post.replace
+post.save
 
 puts post.id # 1962DE7D852298C5CDC809C0FEF50D8262CEDF09
 puts post.name # "My First Post"
@@ -123,27 +100,30 @@ puts post.name # "My First Post"
 Note that any column not defined using the `column` method can still be accessed using the `attrs`
 method.
 
+### Magic Fields
+
+These fields are automatically created: id, created_at, updated_at.
+
+Field | Description
+--- | ---
+id | The partition_key. Defaults to the name `id` and can be changed. IE: `partition_key :myid`
+created_at | Automatically iniitally set when new items are created.
+updated_at | Automatically set when new items are updated.
+
 ## Validations
 
-You can add validations known from ActiveRecord to your Dynomite items.
-Just add `include ActiveModel::Validations` at the top of your item class.
+You can add validations to declared fields.
 
 ```ruby
 class Post < Dynomite::Item
-  include ActiveModel::Validations
-
-  column :id, :name # needed
-
-  validates :id, presence: true
+  column :name
   validates :name, presence: true
 end
 ```
 
-**Be sure to define all validated columns using `column` method**.
+**Be sure to define all validated columns using `field` method**.
 
-Validations are executed by default as soon as you call the `replace` method, returning `false` on
-failure. It also can be ran manually using the `valid?` method just like with ActiveRecord models.
-
+Validations can als be ran manually using the `valid?` method just like with ActiveRecord models.
 
 ## Migration Support
 
@@ -188,8 +168,3 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/tongueroo/dynomite.
-
-### TODO
-
-* improve Post.where.  Something like `Post.index_name("user_id").where(category_name: "Entertainment")` would be nice.
-* implement `post.update` with `db.update_item` in a Ruby-ish way

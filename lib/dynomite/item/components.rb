@@ -7,6 +7,7 @@ class Dynomite::Item
       extend Dsl
       extend Indexes
       extend Memoist
+      extend TableNamespace
 
       define_model_callbacks :create, :save, :destroy, :initialize, :update
 
@@ -20,7 +21,6 @@ class Dynomite::Item
     include Dynomite::Client
     include Dynomite::Errors
     include Query
-    include TableNamespace
     include WaiterMethods
   end
 end

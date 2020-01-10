@@ -26,10 +26,25 @@ module Dynomite::Item::Query
     alias_method :replace, :save
 
     # Similar to save, but raises an error on failed validation.
-    def save!(attrs={})
-      raise Dynomite::Errors::ValidationError, "Validation failed: #{errors.full_messages.join(', ')}" unless replace(attrs)
+    def save!(options={})
+      raise Dynomite::Errors::ValidationError, "Validation failed: #{errors.full_messages.join(', ')}" unless save(options)
     end
     alias_method :replace!, :save!
+
+    # post.update(title: "test", body: "body")
+    # post.update({title: "test", body: "body"}, {validate: false})
+    def update(attrs, **options)
+      puts "options #{options.inspect}"
+
+      options.reverse_merge!(validate: true)
+      return false if options[:validate] && !valid?
+
+      run_callbacks(:update) do
+        run_callbacks(:save) do
+          Save.call(self, options)
+        end
+      end
+    end
 
     def destroy(options={})
       run_callbacks(:destroy) do

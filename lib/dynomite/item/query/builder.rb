@@ -48,7 +48,7 @@ module Dynomite::Item::Query
         expression_attribute_values: values,
         filter_expression: filter_expression.join(" AND "),
         key_condition_expression: key_condition_expression.join(" AND "),
-        table_name: @source.table_name,
+        table_name: @source.class.table_name,
       }
       params[:index_name] = index.index_name if index
 

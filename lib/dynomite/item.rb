@@ -17,8 +17,10 @@ module Dynomite
 
     attr_writer :new_record
     def initialize(attrs={})
-      @attrs = ActiveSupport::HashWithIndifferentAccess.new(attrs)
-      @new_record = true
+      run_callbacks(:initialize) do
+        @attrs = ActiveSupport::HashWithIndifferentAccess.new(attrs)
+        @new_record = true
+      end
     end
 
     # Defining our own reader so we can do a deep merge if user passes in attrs

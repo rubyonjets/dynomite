@@ -14,6 +14,14 @@ module Dynomite
       self.class.db
     end
 
+    def show_request(params)
+      self.class.show_request(params)
+    end
+
+    def show_response(resp)
+      self.class.show_response(resp)
+    end
+
     module ClassMethods
       @@db = nil
       def db

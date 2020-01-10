@@ -2,8 +2,9 @@ module Dynomite::Item::Query
   module Read
     extend ActiveSupport::Concern
 
-    def find(id)
-      self.class.find(id)
+    # Note: options are merged into get_item params.
+    def find(id, options={})
+      self.class.find(id, options)
     end
 
     class_methods do
@@ -69,11 +70,25 @@ module Dynomite::Item::Query
       end
 
       def find_by(attrs)
-        where(attrs).first
+        if attrs.size == 1 && attrs.key?(partition_key)
+          find(attrs[partition_key], error_on_not_found: false)
+        else
+          where(attrs).first
+        end
       end
 
-      def find(id)
-        params =
+      # Examples of
+      #
+      #     find("id")
+      #     find("id", consistent_read: true)
+      #
+      # Note: options are merged into get_item params.
+      def find(id, options={})
+        error_on_not_found = options.delete(:error_on_not_found) # clean for params
+        error_on_not_found.nil? ? true : error_on_not_found
+
+        # standardize key structure
+        key =
           case id
           when String, Symbol
             { partition_key => id }
@@ -81,16 +96,27 @@ module Dynomite::Item::Query
             id
           end
 
-        resp = db.get_item(
+        params = {
           table_name: table_name,
-          key: params
-        )
+          key: key,
+        }
+        params.merge!(options)
+
+        resp = db.get_item(params)
         attrs = resp.item # unwraps the item's attrs
+
+        # Mimic ActiveRecord::RecordNotFound behavior
+        raise Dynomite::Error::RecordNotFound if attrs.nil? && error_on_not_found != false
+
         if attrs # is nil when no item found
           item = self.new(attrs)
           item.new_record = false
           item
         end
+      end
+
+      def find_or_initialize_by(attrs)
+        find_by(attrs) || new(attrs)
       end
 
       def count

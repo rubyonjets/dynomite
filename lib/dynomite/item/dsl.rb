@@ -28,7 +28,7 @@ class Dynomite::Item
     def add_field(name)
       name = name.to_sym
       if Dynomite::RESERVED_WORDS.include?(name.to_s)
-        raise Dynomite::Errors::ReservedWordError, "'#{name}' is a reserved word"
+        raise Dynomite::Error::ReservedWord, "'#{name}' is a reserved word"
       end
 
       define_method(name) do

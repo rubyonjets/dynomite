@@ -2,6 +2,16 @@
 # as well a the Dsl class that handles create_table and update_table methods.
 class Dynomite::Migration::Dsl
   module Common
+    # Only used for migrations
+    ATTRIBUTE_TYPES = {
+      'string' => 'S',
+      'number' => 'N',
+      'binary' => 'B',
+      's' => 'S',
+      'n' => 'N',
+      'b' => 'B',
+    }
+
     # http://docs.aws.amazon.com/sdkforruby/api/Aws/DynamoDB/Types/KeySchemaElement.html
     # partition_key is required
     def partition_key(identifier)
@@ -33,7 +43,7 @@ class Dynomite::Migration::Dsl
 
       attribute_definition = {
         attribute_name: name,
-        attribute_type: Dynomite::ATTRIBUTE_TYPES[attribute_type]
+        attribute_type: ATTRIBUTE_TYPES[attribute_type]
       }
       @attribute_definitions << attribute_definition
     end

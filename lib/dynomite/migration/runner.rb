@@ -1,3 +1,6 @@
+require_relative "internal/migrate/create_schema_migrations_migration"
+require_relative "internal/models/schema_migration"
+
 class Dynomite::Migration
   class Runner
     include Dynomite::Item::WaiterMethods
@@ -8,7 +11,7 @@ class Dynomite::Migration
 
     def run
       puts "Running Dynomite migrations"
-      Dynomite::SchemaMigration.ensure_table_exists!
+      ensure_schema_migrations_exist!
 
       Dynomite::Migration::FileInfo.all_files.each do |path|
         migrate(path)
@@ -19,7 +22,7 @@ class Dynomite::Migration
       load path
       file_info = FileInfo.new(path)
 
-      migration = find_migration(file_info)
+      migration = SchemaMigration.find_by(version: file_info.version)
       if migration
         if migration.status == "complete"
           return
@@ -42,7 +45,7 @@ class Dynomite::Migration
 
       # INSERT scheme_migrations table - in_progress
       unless migration
-        migration = Dynomite::SchemaMigration.new(version: file_info.version, status: "in_progress", path: file_info.path)
+        migration = SchemaMigration.new(version: file_info.version, status: "in_progress", path: file_info.path)
         migration.save
       end
       start_time = Time.now
@@ -83,8 +86,10 @@ class Dynomite::Migration
       map[choice]
     end
 
-    def find_migration(file_info)
-      Dynomite::SchemaMigration.find_by(version: file_info.version)
+    def ensure_schema_migrations_exist!
+      migration = CreateSchemaMigrationsMigration.new
+      return if migration.table_exist?(SchemaMigration.table_name)
+      migration.up
     end
   end
 end

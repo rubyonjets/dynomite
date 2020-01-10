@@ -16,7 +16,8 @@ module Dynomite
     include Components
 
     attr_reader :attrs
-    attr_writer :new_record
+    attr_accessor :new_record
+    alias_method :new_record?, :new_record
     def initialize(attrs={})
       run_callbacks(:initialize) do
         @attrs = ActiveSupport::HashWithIndifferentAccess.new(attrs)
@@ -29,7 +30,7 @@ module Dynomite
       @attrs.deep_merge!(attrs)
     end
 
-    # Longer hand methods for completeness. Internally encourage use the shorter attrs method.
+    # Longer hand methods for completeness. Internally encourage shorter attrs.
     alias_method :attributes=, :attrs=
     alias_method :attributes, :attrs
 
@@ -53,10 +54,6 @@ module Dynomite
     # For render json: item
     def as_json(options={})
       @attrs
-    end
-
-    def new_record?
-      @new_record
     end
 
     # Required for ActiveModel

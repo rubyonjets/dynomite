@@ -27,7 +27,7 @@ module Dynomite::Item::Query
 
     # Similar to save, but raises an error on failed validation.
     def save!(options={})
-      raise Dynomite::Errors::ValidationError, "Validation failed: #{errors.full_messages.join(', ')}" unless save(options)
+      raise Dynomite::Error::Validation, "Validation failed: #{errors.full_messages.join(', ')}" unless save(options)
     end
     alias_method :replace!, :save!
 
@@ -48,7 +48,7 @@ module Dynomite::Item::Query
 
     # Similar to update, but raises an error on failed validation.
     def update!(attrs, **options)
-      raise Dynomite::Errors::ValidationError, "Validation failed: #{errors.full_messages.join(', ')}" unless update(attrs, options)
+      raise Dynomite::Error::Validation, "Validation failed: #{errors.full_messages.join(', ')}" unless update(attrs, options)
     end
 
     def destroy(options={})

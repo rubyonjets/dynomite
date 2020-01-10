@@ -12,14 +12,5 @@ Dynomite::Autoloader.setup
 require "dynomite/reserved_words"
 
 module Dynomite
-  ATTRIBUTE_TYPES = {
-    'string' => 'S',
-    'number' => 'N',
-    'binary' => 'B',
-    's' => 'S',
-    'n' => 'N',
-    'b' => 'B',
-  }
-
   extend Core
 end

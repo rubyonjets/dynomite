@@ -19,7 +19,6 @@ class Dynomite::Item
 
     include ActiveModel::Model
     include Dynomite::Client
-    include Dynomite::Errors
     include Query
     include WaiterMethods
   end

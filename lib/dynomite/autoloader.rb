@@ -15,6 +15,8 @@ module Dynomite
         loader.inflector = Inflector.new
         loader.push_dir(File.dirname(__dir__)) # lib
         loader.ignore("#{__dir__}/reserved_words.rb")
+        loader.ignore("#{__dir__}/migration/templates/*")
+        loader.ignore("#{__dir__}/migration/internal/*")
         loader.setup
       end
     end

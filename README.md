@@ -118,7 +118,7 @@ post.attrs
 
 ### Magic Fields
 
-These fields are automatically defined: id, created_at, updated_at.
+You get these fields for free: id, created_at, updated_at.
 
 Field | Description
 --- | ---

@@ -35,8 +35,10 @@ describe Dynomite::Migration do
 
     it "executes the migration" do
       allow(db).to receive(:create_table).and_return(null)
+      migration = CreateCommentsMigration.new
+      allow(migration).to receive(:waiter).and_return(null)
 
-      CreateCommentsMigration.new.up
+      migration.up
 
       expect(db).to have_received(:create_table)
     end

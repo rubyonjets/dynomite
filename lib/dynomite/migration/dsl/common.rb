@@ -79,7 +79,7 @@ class Dynomite::Migration::Dsl
         read: :read_capacity_units,
         write: :write_capacity_units,
       }
-
+      @provisioned_throughput ||= {}
       if capacity_type == :both
         @provisioned_throughput[map[:read]] = capacity_units
         @provisioned_throughput[map[:write]] = capacity_units

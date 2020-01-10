@@ -1,5 +1,3 @@
-require "active_model"
-
 class Post < Dynomite::Item
   field :title, :desc
 end

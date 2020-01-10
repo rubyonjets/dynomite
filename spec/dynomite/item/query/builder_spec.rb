@@ -1,7 +1,7 @@
 class QueryBuilderTester < Dynomite::Item
 end
 
-describe Dynomite::Item::QueryBuilder do
+describe Dynomite::Item::Query::Builder do
   let(:model) { QueryBuilderTester }
 
   it "to_params" do
@@ -15,8 +15,9 @@ describe Dynomite::Item::QueryBuilder do
     )
   end
 
-  it "execute" do
+  it "to_params" do
     builder = model.where(name: "Tung Nguyen", active: true).where(email: "tung@boltops.com")
-    builder.execute
+    puts builder.to_params
+    # builder.execute
   end
 end

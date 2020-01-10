@@ -1,6 +1,6 @@
 describe Dynomite::Migration::Generator do
   before(:each) do
-    FileUtils.rm_rf("#{Dynomite.app_root}dynamodb/migrate")
+    FileUtils.rm_rf("#{Dynomite.root}/dynamodb/migrate")
   end
 
   let(:generator) do
@@ -14,7 +14,7 @@ describe Dynomite::Migration::Generator do
   it "generates migration file in dynamodb/migrate" do
     generator.generate
 
-    migration_path = Dir.glob("#{Dynomite.app_root}dynamodb/migrate/*").first
+    migration_path = Dir.glob("#{Dynomite.root}/dynamodb/migrate/*").first
     migration_exist = File.exist?(migration_path)
     expect(migration_exist).to be true
   end

@@ -64,6 +64,7 @@ class Dynomite::Migration::Dsl
         params[:provisioned_throughput] = @provisioned_throughput
       end
 
+      params.reject! { |k,v| v.blank? }
       params
     end
   end

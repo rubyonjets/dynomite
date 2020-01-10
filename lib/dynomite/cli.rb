@@ -1,8 +1,5 @@
 module Dynomite
   class CLI < Command
-    class_option :verbose, type: :boolean
-    class_option :noop, type: :boolean
-
     desc "migrate", "Run migrations"
     long_desc Help.text(:migrate)
     def migrate

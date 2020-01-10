@@ -1,5 +1,5 @@
 ENV["DYNOMITE_TEST"] = '1'
-ENV['DYNOMITE_CONFIG'] = 'spec/fixtures/app_root/config/dynamodb.yml'
+ENV['DYNOMITE_ROOT'] = 'spec/fixtures/app_root'
 ENV['DYNOMITE_ENV'] = 'test'
 ENV['JETS_ROOT'] = 'spec/fixtures'
 # Ensures aws api never called. Fixture home folder does not contain ~/.aws/credentials
@@ -9,7 +9,11 @@ require "byebug"
 root = File.expand_path("../", File.dirname(__FILE__))
 require "#{root}/lib/dynomite"
 
-# Not currently using dynamodb-local for specs but configure the endpoint to it just in case
+# Setting up dynamodb-local for specs for acceptance test
+# Some tests will mock out aws-sdk API calls and some will use dynamodb-local
+ENV['AWS_REGION'] = 'us-west-2'
+ENV['AWS_SECRET_ACCESS_KEY'] = 'local'
+ENV['AWS_ACCESS_KEY_ID'] = 'local'
 Dynomite.configure do |config|
   config.endpoint = "http://localhost:8000"
 end

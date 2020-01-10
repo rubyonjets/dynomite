@@ -13,20 +13,7 @@ require "yaml"
 #
 module Dynomite
   class Item
-    extend ActiveModel::Callbacks
-    extend Dsl
-    extend Indexes
-    extend Memoist
-    include ActiveModel::Model
-    include ActiveModel::Validations
-    include ActiveModel::Validations::Callbacks
-    include Client
-    include Errors
-    include Query
-    include TableNamespace
-    include WaiterMethods
-
-    define_model_callbacks :create, :save, :destroy, :initialize, :update
+    include Components
 
     attr_writer :new_record
     def initialize(attrs={})

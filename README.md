@@ -32,7 +32,7 @@ post.save
 post.id  # generated IE: 2db602210009613583b25240b0b4e3cd3fc4fe9f
 ```
 
-`post.id` now contain a generated value.  `post.id` is the DynamoDB partition_key used for simple lookups like `Post.find`
+`post.id` now contains a generated value.  `post.id` is the DynamoDB partition_key used for fast lookups like `Post.find`
 
 ### Find
 

@@ -15,6 +15,7 @@ module Dynomite
   class Item
     include Components
 
+    attr_reader :attrs
     attr_writer :new_record
     def initialize(attrs={})
       run_callbacks(:initialize) do
@@ -23,29 +24,14 @@ module Dynomite
       end
     end
 
-    # Defining our own reader so we can do a deep merge if user passes in attrs
-    def attrs(*args)
-      case args.size
-      when 0
-        @attrs
-      when 1
-        attrs = args[0] # Hash
-        if attrs.empty?
-          @attrs = ActiveSupport::HashWithIndifferentAccess.new(attrs)
-        else
-          @attrs.deep_merge!(attrs)
-        end
-      end
-    end
-
-    # Longer hand methods for completeness. Internallly encourage use the shorter @attrs.
-    def attributes=(attrs)
+    # Keeps the current attrs
+    def attrs=(attrs)
       @attrs.deep_merge!(attrs)
     end
 
-    def attributes
-      @attrs
-    end
+    # Longer hand methods for completeness. Internally encourage use the shorter attrs method.
+    alias_method :attributes=, :attrs=
+    alias_method :attributes, :attrs
 
     def write_attribute(field, value)
       @attrs[field.to_sym] = value

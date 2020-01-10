@@ -4,7 +4,7 @@
 
 A DynamoDB ORM that is ActiveModel compatible.
 
-NOTE: Am looking for maintainers to help with this gem. Send me an email!
+NOTE: Looking for maintainers for this gem. Send an email!
 
 **IMPORTANT**: This edge branch is highly experimental and unfinished.
 
@@ -14,12 +14,10 @@ NOTE: Am looking for maintainers to help with this gem. Send me an email!
 
 ## Examples
 
-First define a class:
+First, define a class:
 
 ```ruby
 class Post < Dynomite::Item
-  # partition_key "id" # optional, defaults to id
-
   field :id, :title, :desc
 end
 ```
@@ -95,7 +93,7 @@ posts # Array of Post items.  [Post.new, Post.new, ...]
 
 ## Field Definitions
 
-You can define your fields using the `field` method inside your item class. This gives you a possibility to access your fields using getters and setters.
+Define fields using the `field` method inside your item class.
 
 ```ruby
 class Post < Dynomite::Item
@@ -110,8 +108,13 @@ puts post.id # 1962DE7D852298C5CDC809C0FEF50D8262CEDF09
 puts post.name # "My First Post"
 ```
 
-Note that any column not defined using the `column` method can still be accessed using the `attrs`
-method.
+Note that any column not defined using the `column` method can still be accessed using the `attributes` method.
+
+```ruby
+post = Post.new
+post.attrs = {name = "My First Post"}
+post.attrs
+```
 
 ### Magic Fields
 
@@ -120,7 +123,7 @@ These fields are automatically defined: id, created_at, updated_at.
 Field | Description
 --- | ---
 id | The partition_key. Defaults to the name `id` and can be changed. IE: `partition_key :myid`
-created_at | Automatically iniitally set when new items are created.
+created_at | Automatically initially set when items are created.
 updated_at | Automatically set when new items are updated.
 
 ## Validations
@@ -136,7 +139,7 @@ end
 
 **Be sure to define all validated columns using `field` method**.
 
-Validations can als be ran manually using the `valid?` method just like with ActiveRecord models.
+Validations can also be ran manually using the `valid?` method, just like with ActiveRecord models.
 
 ## Callbacks
 

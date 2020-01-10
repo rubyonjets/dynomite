@@ -45,7 +45,7 @@ describe Dynomite::Item do
         post.undefined_column
       end.to raise_exception(NoMethodError)
 
-      post.attrs('undefined_column' => 'value')
+      post.attrs = {'undefined_column' => 'value'}
 
       # should not allow access while column is undefined
       expect do

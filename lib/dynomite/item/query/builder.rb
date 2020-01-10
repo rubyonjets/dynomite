@@ -16,7 +16,7 @@ module Dynomite::Item::Query
       self
     end
 
-     # data has partition_key and sort_key
+     # data is a hash with partition_key and optional sort_key
     def index(name, data={})
       @query[:index] = {index_name: name}.merge(data)
       self

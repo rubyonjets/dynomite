@@ -50,15 +50,28 @@ resp = post.delete  # dynamodb client resp
 
 ### Where
 
-The where could be prettied up. Appreciate any pull requests.
+Chained where query builder.
 
 ```ruby
-Post.where({category: "Drama"}, {index_name: "category-index"})
+posts = Post.where(title: "test post", category: "Drama").where(desc: "test desc")
+posts.each { |p| puts p }
 ```
 
-Examples are also in [item_spec.rb](spec/lib/dynomite/item_spec.rb).
+The query builder discovers indexes automatically. When indexes are available, dynomite will use the faster [DynamoDB query](https://docs.aws.amazon.com/sdk-for-ruby/v3/api/Aws/DynamoDB/Client.html#query-instance_method) method. When indexes are not available, dynomite falls back to the slower [DynamoDB scan](https://docs.aws.amazon.com/sdk-for-ruby/v3/api/Aws/DynamoDB/Client.html#scan-instance_method).
+
+You can override the auto-discovered index with the index method:
+
+```ruby
+posts = Post.where(title: "test post", category: "Drama").where(desc: "test desc").index(name: "my-index", partition_key: "hash_key", sort_key: "range_key")
+posts.each { |p| puts p }
+```
 
 ## Low-Level Methods
+
+The `scan` and `query` are low-level methods that correspond to the raw DynamoDB Client methods. They automatically:
+
+* add the `table_name` to the params
+* return model items instances like `Post` instead of the raw resp.table.items
 
 ### Scan
 
@@ -86,7 +99,7 @@ You can define your fields using the `field` method inside your item class. This
 
 ```ruby
 class Post < Dynomite::Item
-  column :name
+  field :name
 end
 
 post = Post.new
@@ -116,7 +129,7 @@ You can add validations to declared fields.
 
 ```ruby
 class Post < Dynomite::Item
-  column :name
+  field :name
   validates :name, presence: true
 end
 ```

@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 This project *tries* to adhere to [Semantic Versioning](http://semver.org/), even before v1.0.
 
+## [UNRELEASED]
+- standalone dynamodb cli to generate migrations and run them
+- upgrade to use zeitwerk
+- Breaking: Change interface to be ActiveModel compatible
+- ActiveModel support: validations, callbacks
+- Favor `save` method over `replace` method
+- Add `destroy` method
+- Typecast support for DateTime-like objects. Store date as iso8601 string.
+- Remove config/dynamodb.yml in favor of Dynomite.configure for use with initializers
+- namespace separator default is `_` instead of `-`
+- Dynomite.logger introduction
+- where query builder
+- finder methods: all, first, last, find_by, find, count
+- index finder: automatically use query over scan with `where` when possible
+- organize query to read and write ruby files
+- Migrations: easier to use migrate command. No need to specify files.
+- Instead migrate command tracks ran migrations in a namespaced schema_migrations table.
+- Favor ondemand provisioning vs explicit provisioned_throughput
+
 ## [1.2.5]
 - use correct color method
 

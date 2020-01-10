@@ -11,7 +11,7 @@ class Dynomite::Migration
 
     def generate
       puts "Generating migration" unless @options[:quiet]
-      return if @options[:noop]
+      return if ENV['DYNOMITE_TEST']
       create_migration
     end
 

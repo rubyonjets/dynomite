@@ -1,8 +1,8 @@
 describe Dynomite::CLI do
   describe "dynomite" do
-    it "hello" do
-      out = execute("NOOP=1 exe/dynomite generate create_users")
-      expect(out).to include("from: Tung\nHello world")
+    it "generate" do
+      out = execute("exe/dynomite generate create_users")
+      expect(out).to include("Generating migration")
     end
   end
 end

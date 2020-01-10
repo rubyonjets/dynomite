@@ -50,6 +50,13 @@ post = Post.find("myid")
 resp = post.delete  # dynamodb client resp
 ```
 
+### Destroy
+
+```ruby
+post = Post.find("myid")  # dynamodb client resp
+post.destroy
+```
+
 ### Where
 
 Chained where query builder.
@@ -139,6 +146,20 @@ end
 **Be sure to define all validated columns using `field` method**.
 
 Validations can als be ran manually using the `valid?` method just like with ActiveRecord models.
+
+## Callbacks
+
+These callbacks are supported: create, save, destroy, initialize, update. Example:
+
+```ruby
+class Post < Dynomite::Item
+  field :name
+  before_save :set_name
+  def set_name
+    self.name = "my name"
+  end
+end
+```
 
 ## Migration Support
 

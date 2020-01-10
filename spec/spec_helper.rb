@@ -2,15 +2,17 @@ ENV["DYNOMITE_TEST"] = '1'
 ENV['DYNOMITE_CONFIG'] = 'spec/fixtures/app_root/config/dynamodb.yml'
 ENV['DYNOMITE_ENV'] = 'test'
 ENV['JETS_ROOT'] = 'spec/fixtures'
+# Ensures aws api never called. Fixture home folder does not contain ~/.aws/credentials
+ENV['HOME'] = File.join(Dir.pwd,'spec/fixtures/home')
 
-# CodeClimate test coverage: https://docs.codeclimate.com/docs/configuring-test-coverage
-# require 'simplecov'
-# SimpleCov.start
-
-require "pp"
 require "byebug"
 root = File.expand_path("../", File.dirname(__FILE__))
 require "#{root}/lib/dynomite"
+
+# Not currently using dynamodb-local for specs but configure the endpoint to it just in case
+Dynomite.configure do |config|
+  config.endpoint = "http://localhost:8000"
+end
 
 module Helper
   def execute(cmd)

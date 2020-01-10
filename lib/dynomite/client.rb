@@ -20,7 +20,6 @@ module Dynomite
         return @@db if @@db
 
         endpoint = Dynomite.config.endpoint
-        endpoint = "http://localhost:8000" if ENV['DYNOMITE_TEST']
         check_dynamodb_local!(endpoint)
 
         # Normally, do not set the endpoint to use the current configured region.

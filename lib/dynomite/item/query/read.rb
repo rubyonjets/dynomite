@@ -28,7 +28,7 @@ module Dynomite::Item::Query
       #
       # AWS Docs examples: http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GettingStarted.Ruby.04.html
       def scan(params={})
-        Dynomite.logger.info("It's recommended to not use scan for production. It can be slow and expensive. You can a LSI or GSI and query the index instead.")
+        Dynomite.logger.info("WARN: It's recommended to not use scan for production. It can be slow and expensive. You can a LSI or GSI and query the index instead.")
         Dynomite.logger.info("Scanning table: #{table_name}")
         params = { table_name: table_name }.merge(params)
         resp = db.scan(params)

@@ -70,8 +70,12 @@ module Dynomite::Item::Query
       end
 
       def find_by(attrs)
-        # Note: ActionController::Parameters do not respond to .size. Unsure if should use .to_h on it
+        # Note: ActionController::Parameters does not have .any? Unsure if should use .to_h on it
+        # A blank attrs will break find_by since DynamoDB doesnt support blank attribute values
+        # Guard blank attrs like and return new return so validation error surfaces in a standard CRUD scaffold
         attrs = attrs.to_h
+        return nil if attrs.any? { |k,v| v.blank? }
+
         if attrs.size == 1 && attrs.key?(partition_key)
           find(attrs[partition_key], error_on_not_found: false)
         else
@@ -118,9 +122,6 @@ module Dynomite::Item::Query
       end
 
       def find_or_initialize_by(attrs)
-        # A blank attrs will break find_by since DynamoDB doesnt support blank attribute values
-        # Guard blank attrs like and return new return so validation error surfaces in a standard CRUD scaffold
-        return new(attrs) if attrs.any? { |k,v| v.blank? }
         find_by(attrs) || new(attrs)
       end
 

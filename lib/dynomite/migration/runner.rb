@@ -1,3 +1,4 @@
+require "timeout"
 require_relative "internal/migrate/create_schema_migrations_migration"
 require_relative "internal/models/schema_migration"
 
@@ -27,7 +28,9 @@ class Dynomite::Migration
         if migration.status == "complete"
           return
         else
-          action = uncompleted_migration_prompt(file_info, migration)
+          action = with_timeout(message: "Timed out. You must respond within 60s.") do
+            uncompleted_migration_prompt(file_info, migration)
+          end
         end
       end
 
@@ -59,6 +62,16 @@ class Dynomite::Migration
       migration.status = "complete"
       migration.time_took = (Time.now - start_time).to_i
       migration.save
+    end
+
+    def with_timeout(options={}, &block)
+      seconds = options[:seconds] || 60
+      message = options[:message] || "Timed out after #{seconds}s."
+      Timeout::timeout(seconds, &block)
+    rescue Timeout::Error => e
+      puts "#{e.class}: #{e.message}"
+      puts message
+      exit 1
     end
 
     def uncompleted_migration_prompt(file_info, migration)

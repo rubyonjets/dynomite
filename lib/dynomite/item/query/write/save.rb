@@ -6,7 +6,6 @@ module Dynomite::Item::Query::Write
         item: @model.attrs
       }
       params = Dynomite::Item::Typecaster.dump(params)
-      Dynomite.logger.debug("put_item params: #{params}")
       # put_item replaces the item fully. The resp does not contain the attrs.
       db.put_item(params)
 

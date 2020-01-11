@@ -21,9 +21,7 @@ class Dynomite::Migration
         #   resp = db.update_table(@params)
         return if ENV['DYNOMITE_DRY'] # dry run flag
 
-        show_request(@params)
         resp = db.send(@method_name, @params)
-        show_response(resp)
         puts "DynamoDB Table: #{@table_name} Status: #{resp.table_description.table_status}"
       rescue Aws::DynamoDB::Errors::ServiceError => error
         puts "Unable to #{@method_name.to_s.gsub('_',' ')}: #{error.message}".color(:red)

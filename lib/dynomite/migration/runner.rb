@@ -17,6 +17,7 @@ class Dynomite::Migration
       Dynomite::Migration::FileInfo.all_files.each do |path|
         migrate(path)
       end
+      puts "Running Dynomite finished"
     end
 
     def migrate(path)

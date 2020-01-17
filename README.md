@@ -18,7 +18,7 @@ First, define a class:
 
 ```ruby
 class Post < Dynomite::Item
-  field :id, :title, :desc
+  field :title, :desc
 end
 ```
 

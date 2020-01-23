@@ -27,7 +27,7 @@ end
 ```ruby
 post = Post.new
 post = post.replace(title: "test title")
-post.attrs # {"id" => "generated-id", title" => "my title"}
+post.attrs # {"id" => "generated-id", title" => "test title"}
 ```
 
 `post.attrs[:id]` now contain a generated unique partition_key id.  Usually the partition_key is 'id'. You can set your own unique id also by specifying id.

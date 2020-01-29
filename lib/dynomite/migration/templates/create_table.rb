@@ -1,6 +1,6 @@
 class <%= @migration_class_name %> < Dynomite::Migration
   def up
-    create_table :<%= @table_name %> do |t|
+    create_table "<%= @table_name %>" do |t|
       t.partition_key "<%= @partition_key %>" # required
 <% if @sort_key # so extra spaces are not added when generated -%>
       t.sort_key  "<%= @sort_key %>" # optional

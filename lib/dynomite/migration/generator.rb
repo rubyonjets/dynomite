@@ -44,7 +44,7 @@ class Dynomite::Migration
     end
 
     def table_name
-      @options[:table_name] || conventional_table_name
+      (@options[:table_name] || conventional_table_name).dasherize
     end
 
     # create_posts => posts

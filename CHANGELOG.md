@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 This project *tries* to adhere to [Semantic Versioning](http://semver.org/), even before v1.0.
 
-## [1.3.0]
+## [1.2.6]
 - Implement the `PAY_PER_USE` billing mode for table creations and updates. See [DynamoDB On Demand](https://aws.amazon.com/blogs/aws/amazon-dynamodb-on-demand-no-capacity-planning-and-pay-per-request-pricing/).
 
 ## [1.2.5]

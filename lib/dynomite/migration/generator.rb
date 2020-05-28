@@ -31,7 +31,7 @@ class Dynomite::Migration
         table_name: table_name,
         partition_key: @options[:partition_key],
         sort_key: @options[:sort_key],
-        provisioned_throughput: @options[:provisioned_throughput] || 5,
+        provisioned_throughput: @options[:provisioned_throughput] || 5
       )
     end
 

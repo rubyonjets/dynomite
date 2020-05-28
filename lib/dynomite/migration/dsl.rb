@@ -1,5 +1,12 @@
 class Dynomite::Migration
   class Dsl
+    ATTRIBUTES = %i[
+      key_schema
+      attribute_definitions
+      table_name
+      billing_mode
+    ].freeze
+
     autoload :Common, "dynomite/migration/common"
     autoload :BaseSecondaryIndex, "dynomite/migration/dsl/base_secondary_index"
     autoload :LocalSecondaryIndex, "dynomite/migration/dsl/local_secondary_index"
@@ -8,15 +15,16 @@ class Dynomite::Migration
     include Dynomite::DbConfig
     include Common
 
-    attr_accessor :key_schema, :attribute_definitions
-    attr_accessor :table_name
+    attr_accessor(*ATTRIBUTES)
+
     def initialize(method_name, table_name, &block)
       @method_name = method_name
       @table_name = table_name
       @block = block
 
-      # Dsl fills in atttributes in as methods are called within the block.
+      # Dsl fills in attributes in as methods are called within the block.
       # Attributes for both create_table and updated_table:
+      @billing_mode = 'PROVISIONED'
       @attribute_definitions = []
       @provisioned_throughput = {
         read_capacity_units: 5,
@@ -29,6 +37,14 @@ class Dynomite::Migration
       # Attributes for update_table only:
       @gsi_indexes = []
       @lsi_indexes = []
+    end
+
+    # t.billing_mode(:pay_per_request)
+    # t.billing_mode(:provisioned) # default value
+    def billing_mode(mode = nil)
+      return @billing_mode if mode.nil?
+
+      @billing_mode = mode.to_s.upcase
     end
 
     # t.gsi(:create) do |i|
@@ -81,9 +97,10 @@ class Dynomite::Migration
         table_name: namespaced_table_name,
         key_schema: @key_schema,
         attribute_definitions: @attribute_definitions,
-        provisioned_throughput: @provisioned_throughput
+        billing_mode: @billing_mode
       }
 
+      params[:provisioned_throughput] = @provisioned_throughput if @billing_mode == 'PROVISIONED'
       params[:local_secondary_indexes] = lsi_secondary_index_creates unless @lsi_indexes.empty?
       params[:global_secondary_indexes] = gsi_secondary_index_creates unless @gsi_indexes.empty?
       params
@@ -95,12 +112,15 @@ class Dynomite::Migration
       params = {
         table_name: namespaced_table_name,
         attribute_definitions: @attribute_definitions,
+        billing_mode: @billing_mode
         # update table take values only some values for the "parent" table
         # no key_schema, update_table does not handle key_schema for the "parent" table
       }
       # only set "parent" table provisioned_throughput if user actually invoked
       # it in the dsl
-      params[:provisioned_throughput] =  @provisioned_throughput if @provisioned_throughput_set_called
+      if @provisioned_throughput_set_called && @billing_mode == 'PROVISIONED'
+        params[:provisioned_throughput] = @provisioned_throughput
+      end
       params[:global_secondary_index_updates] = global_secondary_index_updates
       params
     end

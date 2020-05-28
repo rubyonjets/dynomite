@@ -5,6 +5,7 @@ class <%= @migration_class_name %> < Dynomite::Migration
 <% if @sort_key # so extra spaces are not added when generated -%>
       t.sort_key  "<%= @sort_key %>" # optional
 <% end -%>
+      t.billing_mode(:PROVISIONED)
       t.provisioned_throughput(<%= @provisioned_throughput %>) # sets both read and write, defaults to 5 when not set
 
       # Instead of using partition_key and sort_key you can set the

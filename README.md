@@ -2,7 +2,9 @@
 
 [![BoltOps Badge](https://img.boltops.com/boltops/badges/boltops-badge.png)](https://www.boltops.com)
 
-NOTE: Am looking for maintainers to help with this gem. Send me an email!  Also [dynamoid](https://github.com/Dynamoid/dynamoid) seems like a good option that should be considered delegating to or straight using. Learning on delegation so we can have better default behavior for a DynamoDB model layer for Jets.
+NOTE: Am looking for maintainers to help with this gem. Send me an email!
+
+IMPORTANT: The next major version of Dynomite will be ActiveModel compatible. A POC is in the [edge](https://github.com/tongueroo/dynomite/tree/edge) branch. It's still very rough and experimental. Would not recommend using it yet, but wanted to note it.
 
 A simple wrapper library to make DynamoDB usage a little more friendly.  The modeling is ActiveRecord-ish but not exactly because DynamoDB is a different type of database.  Examples below explain it best:
 

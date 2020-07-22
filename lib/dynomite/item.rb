@@ -4,6 +4,7 @@ require "digest"
 require "yaml"
 
 require "dynomite/reserved_words"
+require "dynomite/query"
 
 # The modeling is ActiveRecord-ish but not exactly because DynamoDB is a
 # different type of database.
@@ -170,9 +171,17 @@ module Dynomite
       resp.items.map {|i| self.new(i) }
     end
 
+    # Creates a new chainable ActiveRecord Query-style instance with a certain index_name.
+    #
+    #   Post.index_name("category-index").where(category: "Drama")
+    #
+    def self.index_name(name)
+      _new_query.index_name(name)
+    end
+
     # Translates simple query searches:
     #
-    #   Post.where({category: "Drama"}, index_name: "category-index")
+    #   Post.index_name("category-index").where(category: "Drama")
     #
     # translates to
     #
@@ -183,34 +192,8 @@ module Dynomite
     #     expression_attribute_values: { ":category_value" => category },
     #     key_condition_expression: "#category_name = :category_value",
     #   )
-    #
-    # TODO: Implement nicer where syntax with index_name as a chained method.
-    #
-    #   Post.where({category: "Drama"}, {index_name: "category-index"})
-    #     VS
-    #   Post.where(category: "Drama").index_name("category-index")
-    def self.where(attributes, options={})
-      raise "attributes.size == 1 only supported for now" if attributes.size != 1
-
-      attr_name = attributes.keys.first
-      attr_value = attributes[attr_name]
-
-      # params = {
-      #   expression_attribute_names: { "#category_name" => "category" },
-      #   expression_attribute_values: { ":category_value" => "Entertainment" },
-      #   key_condition_expression: "#category_name = :category_value",
-      # }
-      name_key, value_key = "##{attr_name}_name", ":#{attr_name}_value"
-      params = {
-        expression_attribute_names: { name_key => attr_name },
-        expression_attribute_values: { value_key => attr_value },
-        key_condition_expression: "#{name_key} = #{value_key}",
-      }
-      # Allow direct access to override params passed to dynamodb query options.
-      # This is is how index_name is passed:
-      params = params.merge(options)
-
-      query(params)
+    def self.where(attributes)
+      _new_query.where(attributes)
     end
 
     def self.replace(attrs)
@@ -342,6 +325,10 @@ module Dynomite
       define_method("#{name}=") do |value|
         @attrs[name.to_s] = value
       end
+    end
+
+    def self._new_query
+      Dynomite::Query.new(self, {})
     end
   end
 end

@@ -57,7 +57,7 @@ class CreateCommentsMigration < Dynomite::Migration
       # )
 
       # set the billing mode to on-demand (NOTE: this overrides provisioned_throughput)
-      # t.billing_mode(:pay_per_use)
+      # t.billing_mode(:pay_per_request)
     end
   end
 end
@@ -66,7 +66,7 @@ class UpdateCommentsMigration < Dynomite::Migration
   def up
     update_table :comments do |t|
       # You can update from provisioned_throughput to on-demand pricing
-      # t.billing_mode(:pay_per_use)
+      # t.billing_mode(:pay_per_request)
 
       # t.global_secondary_index do
       # t.gsi(METHOD, INDEX_NAME) do

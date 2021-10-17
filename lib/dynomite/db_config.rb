@@ -45,7 +45,7 @@ module Dynomite::DbConfig
 
       open = port_open?("127.0.0.1", 8000, 0.2)
       unless open
-        raise "You have configured your app to use DynamoDB local, but it is not running.  Please start DynamoDB local. Example: brew cask install dynamodb-local && dynamodb-local"
+        raise "You have configured your app to use DynamoDB local, but it is not running.  Please start DynamoDB local. Example: brew install --cask dynamodb-local && dynamodb-local"
       end
     end
 

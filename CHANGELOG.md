@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 This project *tries* to adhere to [Semantic Versioning](http://semver.org/), even before v1.0.
 
+## [1.2.7] - 2022-06-12
+- [#23](https://github.com/tongueroo/dynomite/pull/23) #where method refactor to allow Model.index_name('index').where(...)
+- [#24](https://github.com/tongueroo/dynomite/pull/24) Add get_endpoint_ip to db_config.rb
+- [#26](https://github.com/tongueroo/dynomite/pull/26) change pay_per_use to pay_per_request
+- [#27](https://github.com/tongueroo/dynomite/pull/27) Fixed message that tells how to install dynamodb-local
+
 ## [1.2.6]
 - Implement the `PAY_PER_USE` billing mode for table creations and updates. See [DynamoDB On Demand](https://aws.amazon.com/blogs/aws/amazon-dynamodb-on-demand-no-capacity-planning-and-pay-per-request-pricing/).
 

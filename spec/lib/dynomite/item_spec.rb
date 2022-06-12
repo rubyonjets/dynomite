@@ -152,6 +152,49 @@ describe Dynomite::Item do
     end
   end
 
+  describe "querying" do
+    before(:each) { Post.db = db }
+    let(:db) { double(:db) }
+
+    let!(:find_resp) do
+      fake_attributes = [{"id" => "myid", "title" => "my title"}]
+      resp = double(:resp)
+      expect(resp).to receive(:items).and_return(fake_attributes)
+      resp
+    end
+    let(:base_posts_query) do
+      expect(Post.db).to receive(:query).and_return(find_resp)
+      Post.index_name("category-index").where(category: "some category")
+    end
+
+    it "single where" do
+      posts = base_posts_query
+      expect(posts.to_a.first).to be_a(Post)
+    end
+
+    it "acts as enumerable" do
+      post_ids = base_posts_query.map { |p| p.attrs[:id] }
+      expect(post_ids).to eq(["myid"])
+    end
+
+    it "query object inspect" do
+      expect(base_posts_query.inspect).to include("#<Dynomite::Query [#<Post")
+    end
+
+    it "chained where" do
+      expect(Post.db).to receive(:query).with(
+        expression_attribute_names: { "#category_name"=>:category },
+        expression_attribute_values: { ":category_value"=>"some other category" },
+        index_name: "category-index",
+        key_condition_expression: "#category_name = :category_value",
+        table_name: "testnamespace-posts"
+      ).and_return(find_resp)
+      posts = Post.index_name("category-index").where(category: "some category")
+                  .where(category: "some other category")
+      expect(posts.to_a.first).to be_a(Post)
+    end
+  end
+
   describe "validations" do
     class ValidatedItem < Dynomite::Item
       include ActiveModel::Validations

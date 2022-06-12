@@ -51,6 +51,10 @@ module Dynomite
       self.class.partition_key
     end
 
+    def sort_key
+      self.class.sort_key
+    end
+
     # For render json: item
     def as_json(options={})
       @attrs

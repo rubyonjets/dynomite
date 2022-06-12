@@ -16,6 +16,15 @@ class Dynomite::Item
       end
     end
 
+    def sort_key(*args)
+      case args.size
+      when 0
+        @sort_key
+      when 1
+        @sort_key = args[0].to_sym
+      end
+    end
+
     # Defines column. Defined column can be accessed by getter and setter methods of the same
     # name (e.g. [model.my_column]). Attributes with undefined columns can be accessed by
     # [model.attrs] method.

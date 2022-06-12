@@ -3,6 +3,7 @@ class Post < Dynomite::Item
 end
 class Comment < Dynomite::Item
   partition_key :post_id # defaults to :id
+  sort_key :timestamp
 end
 module Ns
   class Pet < Dynomite::Item; end
@@ -27,6 +28,11 @@ describe Dynomite::Item do
     it "partition_key" do
       expect(Post.partition_key).to eq :id
       expect(Comment.partition_key).to eq :post_id
+    end
+
+    it "sort_key" do
+      expect(Post.sort_key).to be_nil
+      expect(Comment.sort_key).to eq :timestamp
     end
 
     it "uses defined column" do

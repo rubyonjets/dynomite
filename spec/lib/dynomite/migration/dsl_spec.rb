@@ -45,12 +45,12 @@ describe Dynomite::Migration::Dsl do
       end
     end
 
-    context "with billing_mode == :pay_per_use" do
+    context "with billing_mode == :pay_per_request" do
       before(:each) do
         dsl.partition_key "PK:string"
         dsl.sort_key "SK:string"
-        dsl.billing_mode(:pay_per_use)
-        # NOTE: billing_mode :pay_per_use will override provisioned_throughput
+        dsl.billing_mode(:pay_per_request)
+        # NOTE: billing_mode :pay_per_request will override provisioned_throughput
         dsl.provisioned_throughput(25)
       end
 
@@ -63,7 +63,7 @@ describe Dynomite::Migration::Dsl do
           { attribute_name: "PK", attribute_type: "S"},
           { attribute_name: "SK", attribute_type: "S"}
         ])
-        expect(subject[:billing_mode]).to eq("PAY_PER_USE")
+        expect(subject[:billing_mode]).to eq("PAY_PER_REQUEST")
         expect(subject[:provisioned_throughput]).to be_nil
       end
     end
@@ -102,15 +102,15 @@ describe Dynomite::Migration::Dsl do
       end
     end
 
-    context "with billing_mode == :pay_per_use" do
+    context "with billing_mode == :pay_per_request" do
       subject { dsl.params }
 
       before(:each) do
-        dsl.billing_mode(:pay_per_use)
+        dsl.billing_mode(:pay_per_request)
       end
 
       it "sets the billing mode" do
-        expect(subject[:billing_mode]).to eq('PAY_PER_USE')
+        expect(subject[:billing_mode]).to eq('PAY_PER_REQUEST')
         expect(subject[:provisioned_throughput]).to be_nil
       end
     end

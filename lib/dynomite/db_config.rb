@@ -42,10 +42,24 @@ module Dynomite::DbConfig
     # This wastes less of the users time.
     def check_dynamodb_local!(endpoint)
       return unless endpoint && endpoint.include?("8000")
-
-      open = port_open?("127.0.0.1", 8000, 0.2)
+      
+      host, port = endpoint.gsub("http://", "").split(":")
+      ip = get_endpoint_ip(host)
+      unless ip
+        raise "You have configured your app to use DynamoDB local, but it is not running on the host: #{host}."
+      end       
+      
+      open = port_open?(ip, 8000, 0.2)
       unless open
         raise "You have configured your app to use DynamoDB local, but it is not running.  Please start DynamoDB local. Example: brew install --cask dynamodb-local && dynamodb-local"
+      end
+    end
+    
+    def get_endpoint_ip(host)
+      begin
+        IPSocket.getaddress(host)
+      rescue SocketError
+        false # Can return anything you want here
       end
     end
 

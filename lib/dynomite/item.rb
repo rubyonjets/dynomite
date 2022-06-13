@@ -68,7 +68,11 @@ module Dynomite
     def reload
       if persisted?
         id = @attrs[partition_key]
-        item = find(id) # item has different object_id
+        item = if sort_key
+                 find(partition_key => id, sort_key => @attrs[sort_key])
+               else
+                 find(id) # item has different object_id
+               end
         @attrs = item.attrs # replace current loaded attributes
       end
       self

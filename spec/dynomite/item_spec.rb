@@ -148,6 +148,33 @@ describe Dynomite::Item do
 
       expect(Post.count).to eq 1
     end
+
+    it "reload" do
+      fake_attributes = {"id" => "myid", "title" => "my title"}
+      post_resp = double(:resp)
+      expect(post_resp).to receive(:item).and_return(fake_attributes).twice
+      expect(Post.db).to receive(:get_item).and_return(post_resp).twice
+
+      post = Post.find(id: "myid")
+      post.reload
+
+      expect(post.attrs).to eq("id" => "myid", "title" => "my title")
+    end
+
+    it "reload with sort key" do
+      fake_attributes = {"post_id" => "myid", "title" => "my title", "timestamp" => 12345}
+      comment_resp = double(:resp)
+      expect(comment_resp).to receive(:item).and_return(fake_attributes).twice
+
+      expect(Comment.db).to receive(:get_item).
+        with(table_name: 'dynomite_comments', key: { post_id: "myid", timestamp: 12345 }).
+        and_return(comment_resp).twice
+
+      comment = Comment.find(post_id: "myid", timestamp: 12345)
+      comment.reload
+
+      expect(comment.attrs).to eq("post_id" => "myid", "title" => "my title", "timestamp" => 12345)
+    end
   end
 
   describe "validations" do

@@ -1,7 +1,7 @@
 module Dynomite::Item::Query::Write
   class Destroy < Base
     def call
-      key = @model.attrs.slice(@model.class.partition_key)
+      key = @model.attrs.slice(@model.class.partition_key, @model.class.sort_key)
       params = {
         table_name: @model.class.table_name,
         key: key

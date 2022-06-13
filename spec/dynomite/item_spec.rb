@@ -194,7 +194,7 @@ describe Dynomite::Item do
 
     it "validates on save!" do
       post = ValidatedItem.new
-      expect { post.save! }.to raise_error(Dynomite::Errors::ValidationError)
+      expect { post.save! }.to raise_error(Dynomite::Error::Validation)
       expect(post.errors.messages).to include(:first)
 
       expect(ValidatedItem.db).to receive(:put_item)

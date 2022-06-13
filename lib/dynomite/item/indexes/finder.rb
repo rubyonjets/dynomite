@@ -4,9 +4,19 @@ module Dynomite::Item::Indexes
       @source, @query = source, query
     end
 
+    def find
+      find_primary_index || find_secondary_index
+    end
+
+    def find_primary_index
+      if fields.include?(@source.partition_key.to_s)
+        PrimaryIndex.new(@source.partition_key.to_s)
+      end
+    end
+
     # It's possible to have multiple indexes with the same partition and sort key.
     # Will use the first one we find.
-    def find
+    def find_secondary_index
       @source.indexes.find do |i|
         intersect = fields & i.fields
         intersect == i.fields

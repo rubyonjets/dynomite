@@ -1,9 +1,15 @@
 class QueryBuilderTester < Dynomite::Item
 end
 
+class QueryBuilderWithSortKeyTester < Dynomite::Item
+  partition_key :foo
+  sort_key :bar
+end
+
 describe Dynomite::Item::Query::Builder do
+  let(:tester) { QueryBuilderTester }
   let(:builder) do
-    builder = Dynomite::Item::Query::Builder.new(QueryBuilderTester)
+    builder = Dynomite::Item::Query::Builder.new(tester)
     builder.instance_variable_set(:@index_finder, index_finder)
     builder
   end
@@ -61,6 +67,24 @@ describe Dynomite::Item::Query::Builder do
          :table_name=>"dynomite_query_builder_testers",
          :index_name=>"fake-email-index"}
       )
+    end
+  end
+
+  context "query by partition key" do
+    let(:tester) { QueryBuilderWithSortKeyTester }
+
+    let(:index) do
+      Dynomite::Item::Indexes::PrimaryIndex.new('foo')
+    end
+
+    it "uses key_condition_expression for the partition key field" do
+      b = builder.where(foo: 'abcdef')
+      expect(b.to_params).to eq(
+         expression_attribute_names: { '#foo' => 'foo' },
+         expression_attribute_values: { ':foo' => 'abcdef' },
+         key_condition_expression: "#foo = :foo",
+         table_name: 'dynomite_query_builder_with_sort_key_testers'
+       )
     end
   end
 end

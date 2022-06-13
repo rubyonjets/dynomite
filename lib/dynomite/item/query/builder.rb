@@ -78,7 +78,7 @@ module Dynomite::Item::Query
         puts "params:"
         pp params
       end
-      if params[:index_name]
+      if params[:key_condition_expression]
         perform(:query, params)
       else
         Dynomite.logger.info("WARN: Scan operations are slow. Considering using an index.")

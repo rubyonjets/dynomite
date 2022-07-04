@@ -127,6 +127,16 @@ describe Dynomite::Item do
       expect(Post.db).to have_received(:delete_item)
     end
 
+    it "delete_attribute" do
+      expect(Post.db).to receive(:put_item)
+
+      post = Post.new(title: "my title", extras: "anything you want")
+      post.save
+      expect(post.attrs[:extras]).to eq "anything you want"
+      post.delete_attribute(:extras)
+      expect(post.attrs.keys).to_not include('extras')
+    end
+
     let(:scan_resp) do
       fake_attributes = [{"id" => "myid", "title" => "my title"}]
       resp = double(:resp)

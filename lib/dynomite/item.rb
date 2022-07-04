@@ -42,6 +42,10 @@ module Dynomite
       @attrs[field.to_sym]
     end
 
+    def delete_attribute(field)
+      @attrs.delete(field.to_sym)
+    end
+
     def update_attribute(field, value)
       write_attribute(field, value)
       update(@attrs, {validate: false})

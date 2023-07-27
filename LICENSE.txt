@@ -1,4 +1,4 @@
-Copyright (c) 2020 Tung Nguyen
+Copyright (c) Tung Nguyen
 
 MIT License
 

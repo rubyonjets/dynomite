@@ -1,25 +1,24 @@
 require 'logger'
 
-module Dynomite::Core
-  # Ensures trailing slash
-  # Useful for appending a './' in front of a path or leaving it alone.
-  # Returns: '/path/with/trailing/slash/' or './'
-  @@app_root = nil
-  def app_root
-    return @@app_root if @@app_root
-    @@app_root = ENV['APP_ROOT'] || ENV['JETS_ROOT'] || ENV['RAILS_ROOT']
-    @@app_root = '.' if @@app_root.nil? || @app_root == ''
-    @@app_root = "#{@@app_root}/" unless @@app_root.ends_with?('/')
-    @@app_root
-  end
+module Dynomite
+  module Core
+    @@root = nil
+    def root
+      return @@root if @@root
+      @@root = ENV['DYNOMITE_ROOT'] || ENV['JETS_ROOT'] || ENV['RAILS_ROOT'] || '.'
+    end
 
-  @@logger = nil
-  def logger
-    return @@logger if @@logger
-    @@logger = Logger.new($stderr)
-  end
+    @@config = nil
+    def config
+      @@config ||= Config.new
+    end
 
-  def logger=(value)
-    @@logger = value
+    def logger
+      config.logger
+    end
+
+    def configure
+      yield(config)
+    end
   end
 end

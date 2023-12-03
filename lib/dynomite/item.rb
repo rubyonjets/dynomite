@@ -1,109 +1,119 @@
-require "active_support/core_ext/hash"
-require "aws-sdk-dynamodb"
+require "active_model"
 require "digest"
 require "yaml"
 
-require "dynomite/reserved_words"
-require "dynomite/query"
-
-# The modeling is ActiveRecord-ish but not exactly because DynamoDB is a
-# different type of database.
+# The model is ActiveModel compatiable even though DynamoDB is a different type of database.
 #
 # Examples:
 #
-#   post = MyModel.new
-#   post = post.replace(title: "test title")
+#   post = Post.new(id: "myid", title: "my title")
+#   post.save
 #
-# post.attrs[:id] now contain a generaetd unique partition_key id.
-# Usually the partition_key is 'id'. You can set your own unique id also:
-#
-#   post = MyModel.new(id: "myid", title: "my title")
-#   post.replace
-#
-# Note that the replace method replaces the entire item, so you
-# need to merge the attributes if you want to keep the other attributes.
-#
-#   post = MyModel.find("myid")
-#   post.attrs = post.attrs.deep_merge("desc": "my desc") # keeps title field
-#   post.replace
-#
-# The convenience `attrs` method performs a deep_merge:
-#
-#   post = MyModel.find("myid")
-#   post.attrs("desc": "my desc") # <= does a deep_merge
-#   post.replace
-#
-# Note, a race condition edge case can exist when several concurrent replace
-# calls are happening.  This is why the interface is called replace to
-# emphasis that possibility.
-# TODO: implement post.update with db.update_item in a Ruby-ish way.
+# post.id now contain a generated unique partition_key id.
 #
 module Dynomite
   class Item
-    include Log
-    include DbConfig
-    include Errors
+    class_attribute :fields_map
+    self.fields_map = {}
+    class_attribute :id_prefix_value
 
-    def initialize(attrs={})
-      @attrs = attrs
+    include Components
+    include Abstract
+    abstract!
+
+    # Must come after include Dynomite::Associations
+    def self.inherited(subclass)
+      subclass.id_prefix_value = subclass.name.underscore
+      # Not direct descendants of Dynomite::Item are abstract
+      # IE: SchemaMigration < Dynomite::Item
+      subclass.abstract! if subclass.name == "ApplicationItem"
+      subclass.class_attribute :fields_map
+      subclass.fields_map = {}
+      super # Dynomite::Associations.inherited
     end
 
-    # Defining our own reader so we can do a deep merge if user passes in attrs
-    def attrs(*args)
-      case args.size
-      when 0
-        ActiveSupport::HashWithIndifferentAccess.new(@attrs)
-      when 1
-        attributes = args[0] # Hash
-        if attributes.empty?
-          ActiveSupport::HashWithIndifferentAccess.new
-        else
-          @attrs = attrs.deep_merge!(attributes)
+    delegate :partition_key_field, :sort_key_field, to: :class
+    attr_reader :attrs
+    attr_accessor :new_record
+    alias_method :new_record?, :new_record
+    def initialize(attrs={}, &block)
+      run_callbacks(:initialize) do
+        @new_record = true
+        attrs = attrs.to_hash if attrs.respond_to?(:to_hash) # IE: ActionController::Parameters
+        raise ArgumentError, "attrs must be a Hash. attrs is a #{attrs.class}" unless attrs.is_a?(Hash)
+        @attrs = ActiveSupport::HashWithIndifferentAccess.new(attrs)
+        attrs.each do |k,v|
+          send("#{k}=", v) if respond_to?("#{k}=") # so typecasting happens
+        end
+        @associations = {}
+
+        if block
+          yield(self)
         end
       end
     end
 
-    # Not using method_missing to allow usage of dot notation and assign
-    # @attrs because it might hide actual missing methods errors.
-    # DynamoDB attrs can go many levels deep so it makes less make sense to
-    # use to dot notation.
+    # Keeps the current attrs
+    def attrs=(attrs)
+      @attrs.deep_merge!(attrs)
+    end
 
-    # The method is named replace to clearly indicate that the item is
-    # fully replaced.
-    def replace(hash={})
-      @attrs = @attrs.deep_merge(hash)
+    # Longer hand methods for completeness. Internally encourage shorter attrs.
+    alias_method :attributes=, :attrs=
+    alias_method :attributes, :attrs
 
-      # valid? method comes from ActiveModel::Validations
-      if respond_to? :valid?
-        return false unless valid?
+    # Because using `define_attribute_methods *names` as part of `add_field` dsl.
+    # Found that define_attribute_methods is required for dirty support.
+    # This adds missing_attribute method that will look for a method called attribute.
+    #   send(match.target, match.attr_name, *args, &block)
+    #   send(:attribute, :my_column)
+    # The error message when an attribute is not found is more helpful when this is defined.
+    #
+    # It looks confusing that we always raise an error for attribute because fields must
+    # be defined to access them through dot notation. This is because users to
+    # explicitly define fields and access undeclared fields with hash notation [],
+    # read_attribute, or attributes.
+    def attribute(name)
+      raise NoMethodError, "undefined method '#{name}' for #{self.class}"
+    end
+
+    def read_attribute(field)
+      @attrs[field.to_sym]
+    end
+
+    # Only updates in memory, does not save to database.
+    # Same as ActiveRecord behavior.
+    def write_attribute(field, value)
+      @attrs[field.to_sym] = value
+    end
+
+    def update_attribute(field, value)
+      write_attribute(field, value)
+      update(@attrs, {validate: false})
+      valid? # ActiveRecord return value behavior
+    end
+
+    def delete_attribute(field)
+      @attrs.delete(field.to_sym)
+      update(@attrs, {validate: false})
+      valid? # ActiveRecord does not have a delete_attribute. Follow update_attribute behavior.
+    end
+    alias :remove_attribute :delete_attribute
+
+    def update_attribute_presence(field, value)
+      if value.present?
+        update_attribute(field, value)
+      else # nil or empty string or empty array
+        delete_attribute(field)
       end
-
-      attrs = self.class.replace(@attrs)
-
-      @attrs = attrs # refresh attrs because it now has the id
-      self
     end
 
-    # Similar to replace, but raises an error on failed validation.
-    # Works that way only if ActiveModel::Validations are included
-    def replace!(hash={})
-      raise ValidationError, "Validation failed: #{errors.full_messages.join(', ')}" unless replace(hash)
+    def [](field)
+      read_attribute(field)
     end
 
-    def find(id)
-      self.class.find(id)
-    end
-
-    def delete
-      self.class.delete(@attrs[:id]) if @attrs[:id]
-    end
-
-    def table_name
-      self.class.table_name
-    end
-
-    def partition_key
-      self.class.partition_key
+    def []=(field, value)
+      write_attribute(field, value)
     end
 
     # For render json: item
@@ -111,224 +121,41 @@ module Dynomite
       @attrs
     end
 
-    # Longer hand methods for completeness.
-    # Internallly encourage the shorter attrs method.
-    def attributes=(attributes)
-      @attributes = attributes
+    # Required for ActiveModel
+    def persisted?
+      !new_record?
     end
 
-    def attributes
-      @attributes
-    end
-
-    # Adds very little wrapper logic to scan.
-    #
-    # * Automatically add table_name to options for convenience.
-    # * Decorates return value.  Returns Array of [MyModel.new] instead of the
-    #   dynamodb client response.
-    #
-    # Other than that, usage is same was using the dynamodb client scan method
-    # directly.  Example:
-    #
-    #   MyModel.scan(
-    #     expression_attribute_names: {"#updated_at"=>"updated_at"},
-    #     filter_expression: "#updated_at between :start_time and :end_time",
-    #     expression_attribute_values: {
-    #       ":start_time" => "2010-01-01T00:00:00",
-    #       ":end_time" => "2020-01-01T00:00:00"
-    #     }
-    #   )
-    #
-    # AWS Docs examples: http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GettingStarted.Ruby.04.html
-    def self.scan(params={})
-      log("It's recommended to not use scan for production. It can be slow and expensive. You can a LSI or GSI and query the index instead.")
-      log("Scanning table: #{table_name}")
-      params = { table_name: table_name }.merge(params)
-      resp = db.scan(params)
-      resp.items.map {|i| self.new(i) }
-    end
-
-    # Adds very little wrapper logic to query.
-    #
-    # * Automatically add table_name to options for convenience.
-    # * Decorates return value.  Returns Array of [MyModel.new] instead of the
-    #   dynamodb client response.
-    #
-    # Other than that, usage is same was using the dynamodb client query method
-    # directly.  Example:
-    #
-    #   MyModel.query(
-    #     index_name: 'category-index',
-    #     expression_attribute_names: { "#category_name" => "category" },
-    #     expression_attribute_values: { ":category_value" => "Entertainment" },
-    #     key_condition_expression: "#category_name = :category_value",
-    #   )
-    #
-    # AWS Docs examples: http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GettingStarted.Ruby.04.html
-    def self.query(params={})
-      params = { table_name: table_name }.merge(params)
-      resp = db.query(params)
-      resp.items.map {|i| self.new(i) }
-    end
-
-    # Creates a new chainable ActiveRecord Query-style instance with a certain index_name.
-    #
-    #   Post.index_name("category-index").where(category: "Drama")
-    #
-    def self.index_name(name)
-      _new_query.index_name(name)
-    end
-
-    # Translates simple query searches:
-    #
-    #   Post.index_name("category-index").where(category: "Drama")
-    #
-    # translates to
-    #
-    #   resp = db.query(
-    #     table_name: "demo-dev-post",
-    #     index_name: 'category-index',
-    #     expression_attribute_names: { "#category_name" => "category" },
-    #     expression_attribute_values: { ":category_value" => category },
-    #     key_condition_expression: "#category_name = :category_value",
-    #   )
-    def self.where(attributes)
-      _new_query.where(attributes)
-    end
-
-    def self.replace(attrs)
-      # Automatically adds some attributes:
-      #   partition key unique id
-      #   created_at and updated_at timestamps. Timestamp format from AWS docs: http://amzn.to/2z98Bdc
-      defaults = {
-        partition_key => Digest::SHA1.hexdigest([Time.now, rand].join)
-      }
-      item = defaults.merge(attrs)
-      item["created_at"] ||= Time.now.utc.strftime('%Y-%m-%dT%TZ')
-      item["updated_at"] = Time.now.utc.strftime('%Y-%m-%dT%TZ')
-
-      # put_item full replaces the item
-      resp = db.put_item(
-        table_name: table_name,
-        item: item
-      )
-
-      # The resp does not contain the attrs. So might as well return
-      # the original item with the generated partition_key value
-      item
-    end
-
-    def self.find(id)
-      params =
-        case id
-        when String
-          { partition_key => id }
-        when Hash
-          id
-        end
-
-      resp = db.get_item(
-        table_name: table_name,
-        key: params
-      )
-      attributes = resp.item # unwraps the item's attributes
-      self.new(attributes) if attributes
-    end
-
-    # Two ways to use the delete method:
-    #
-    # 1. Specify the key as a String. In this case the key will is the partition_key
-    # set on the model.
-    #   MyModel.delete("728e7b5df40b93c3ea6407da8ac3e520e00d7351")
-    #
-    # 2. Specify the key as a Hash, you can arbitrarily specific the key structure this way
-    # MyModel.delete("728e7b5df40b93c3ea6407da8ac3e520e00d7351")
-    #
-    # options is provided in case you want to specific condition_expression or
-    # expression_attribute_values.
-    def self.delete(key_object, options={})
-      if key_object.is_a?(String)
-        key = {
-          partition_key => key_object
-        }
-      else # it should be a Hash
-        key = key_object
+    def reload
+      if persisted?
+        id = @attrs[partition_key_field]
+        item = if sort_key_field
+                 find(partition_key_field => id, sort_key_field => @attrs[sort_key_field])
+               else
+                 find(id) # item has different object_id
+               end
+        @attrs = item.attrs # replace current loaded attributes
       end
-
-      params = {
-        table_name: table_name,
-        key: key
-      }
-      # In case you want to specify condition_expression or expression_attribute_values
-      params = params.merge(options)
-
-      resp = db.delete_item(params)
+      self
     end
 
-    # When called with an argument we'll set the internal @partition_key value
-    # When called without an argument just retun it.
-    # class Comment < Dynomite::Item
-    #   partition_key "post_id"
-    # end
-    def self.partition_key(*args)
-      case args.size
-      when 0
-        @partition_key || "id" # defaults to id
-      when 1
-        @partition_key = args[0].to_s
+    # p1 = Product.first
+    # p2 = Product.first
+    # p1 == p2 # => true
+    #
+    # p1 = Product.first
+    # products = Product.all
+    # products.include?(p1) # => true
+    def ==(other)
+      self.class == other.class && self.attrs == other.attrs
+    end
+
+    def to_param
+      if id
+        id
+      else
+        raise "Need to define a id field for to_param"
       end
-    end
-
-    def self.table_name(*args)
-      case args.size
-      when 0
-        get_table_name
-      when 1
-        set_table_name(args[0])
-      end
-    end
-
-    def self.get_table_name
-      @table_name ||= self.name.pluralize.gsub('::','-').underscore.dasherize
-      [table_namespace, @table_name].reject {|s| s.nil? || s.empty?}.join('-')
-    end
-
-    def self.set_table_name(value)
-      @table_name = value
-    end
-
-    def self.table
-      Aws::DynamoDB::Table.new(name: table_name, client: db)
-    end
-
-    def self.count
-      table.item_count
-    end
-
-    # Defines column. Defined column can be accessed by getter and setter methods of the same
-    # name (e.g. [model.my_column]). Attributes with undefined columns can be accessed by
-    # [model.attrs] method.
-    def self.column(*names)
-      names.each(&method(:add_column))
-    end
-
-    # @see Item.column
-    def self.add_column(name)
-      if Dynomite::RESERVED_WORDS.include?(name)
-        raise ReservedWordError, "'#{name}' is a reserved word"
-      end
-
-      define_method(name) do
-        @attrs[name.to_s]
-      end
-
-      define_method("#{name}=") do |value|
-        @attrs[name.to_s] = value
-      end
-    end
-
-    def self._new_query
-      Dynomite::Query.new(self, {})
     end
   end
 end

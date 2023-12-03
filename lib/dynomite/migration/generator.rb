@@ -3,8 +3,6 @@ require "active_support/core_ext/string"
 class Dynomite::Migration
   # jets dynamodb:generate posts --partition-key id:string
   class Generator
-    include Dynomite::DbConfig
-
     attr_reader :migration_name, :table_name
     def initialize(migration_name, options)
       @migration_name = migration_name
@@ -12,21 +10,28 @@ class Dynomite::Migration
     end
 
     def generate
-      puts "Generating migration for #{@table_name}" unless @options[:quiet]
-      return if @options[:noop]
+      puts "Generating migration" unless @options[:quiet]
+      return if ENV['NOOP']
       create_migration
     end
 
     def create_migration
       FileUtils.mkdir_p(File.dirname(migration_path))
       IO.write(migration_path, migration_code)
-      puts "Migration file created: #{migration_path}. \nTo run:"
-      puts "  jets dynamodb:migrate #{migration_path}"
+      pretty_migration_path = migration_path.sub(/^\.\//,'') # remove leading ./
+      puts "Migration file created: #{pretty_migration_path}\nTo run:\n\n"
+      command = File.basename($0)
+      if command == "jets"
+        puts "    #{command} dynamodb:migrate"
+      else
+        puts "    #{command} migrate"
+      end
+      puts
     end
 
     def migration_code
-      path = File.expand_path("../templates/#{table_action}.rb", __FILE__)
-      result = Dynomite::Erb.result(path,
+      path = File.expand_path("../templates/#{action}.rb", __FILE__)
+      Dynomite::Erb.result(path,
         migration_class_name: migration_class_name,
         table_name: table_name,
         partition_key: @options[:partition_key],
@@ -35,30 +40,39 @@ class Dynomite::Migration
       )
     end
 
-    def table_action
-      @options[:table_action] || conventional_table_action
+    def action
+      # optoins[:table_action] is old and deprecated
+      action = @options[:action] || @options[:table_action] || conventional_action
+      case action
+      when /create/
+        "create_table"
+      when /delete/
+        "delete_table"
+      else
+        "update_table" # default and fallback
+      end
     end
 
-    def conventional_table_action
-      @migration_name.include?("update") ? "update_table" : "create_table"
+    def conventional_action
+      @migration_name.split("_").first
     end
 
     def table_name
-      @options[:table_name] || conventional_table_name
+      @options[:table_name] || conventional_table_name || "TABLE_NAME"
     end
 
     # create_posts => posts
     # update_posts => posts
     def conventional_table_name
-      @migration_name.sub(/^(create|update)_/, '')
+      @migration_name.sub(/^(create|update|delete)_/, '')
     end
 
     def migration_class_name
-      "#{@migration_name}_migration".classify # doesnt include timestamp
+      "#{@migration_name}".camelize # doesnt include timestamp
     end
 
     def migration_path
-      "#{Dynomite.app_root}dynamodb/migrate/#{timestamp}-#{@migration_name}_migration.rb"
+      "#{Dynomite.root}/dynamodb/migrate/#{timestamp}-#{@migration_name}.rb"
     end
 
     def timestamp

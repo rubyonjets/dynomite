@@ -3,8 +3,9 @@
 All notable changes to this project will be documented in this file.
 This project *tries* to adhere to [Semantic Versioning](http://semver.org/), even before v1.0.
 
-## [2.0.0] UNRELEASED
-- Breakings Change interface to be ActiveModel compatible
+## [2.0.0] - 2023-12-03
+- [#35](https://github.com/tongueroo/dynomite/pull/35) ActiveModel compatible
+- Breaking change interface to be ActiveModel compatible
 - ActiveModel: validations, callbacks, etc
 - Use zeitwerk for autoloading
 - Typecast support for DateTime-like objects. Store date as iso8601 string.
@@ -15,7 +16,8 @@ This project *tries* to adhere to [Semantic Versioning](http://semver.org/), eve
 - finder methods: all, first, last, find_by, find, count
 - index finder: automatically use query over scan with where when possible
 - organize query to read and write ruby files
-- Migrations: improved migrate command. No need to specify files. namespaced schema_migrations table tracks - ran migrations.
+- Migrations: improved migrate command. No need to specify files.
+- namespaced schema_migrations table tracks ran migrations.
 - Favor ondemand provisioning vs explicit provisioned_throughput
 - Standalone dynamodb cli to generate migrations and run them
 

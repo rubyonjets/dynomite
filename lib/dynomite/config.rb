@@ -6,7 +6,7 @@ module Dynomite
     def initialize
       @logger = Logger.new($stderr)
       @logger.formatter = ActiveSupport::Logger::SimpleFormatter.new
-      @log_level = nil
+      @log_level = :info
       @namespace_separator = "_"
       @endpoint = ENV['DYNOMITE_ENDPOINT'] # allow to use local dynamodb
       @env = ActiveSupport::StringInquirer.new(ENV['DYNOMITE_ENV'] || "development")

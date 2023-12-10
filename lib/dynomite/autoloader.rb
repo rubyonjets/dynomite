@@ -13,11 +13,13 @@ module Dynomite
       def setup
         loader = Zeitwerk::Loader.new
         loader.inflector = Inflector.new
-        loader.push_dir(File.dirname(__dir__)) # lib
-        loader.ignore("#{File.dirname(__dir__)}/jets/commands")
-        loader.ignore("#{__dir__}/migration/internal/*")
-        loader.ignore("#{__dir__}/migration/templates/*")
-        loader.ignore("#{__dir__}/reserved_words.rb")
+        lib = File.dirname(__dir__)
+        loader.push_dir(lib)
+        loader.ignore("#{lib}/jets/commands")
+        loader.ignore("#{lib}/dynomite/migration/internal/*")
+        loader.ignore("#{lib}/dynomite/migration/templates/*")
+        loader.ignore("#{lib}/dynomite/reserved_words.rb")
+        loader.do_not_eager_load("#{lib}/generators")
         loader.setup
       end
     end

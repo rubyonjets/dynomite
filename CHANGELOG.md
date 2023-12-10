@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file.
 This project *tries* to adhere to [Semantic Versioning](http://semver.org/), even before v1.0.
 
+## [2.0.2] - 2023-12-10
+- [#37](https://github.com/tongueroo/dynomite/pull/37) fix eager load
+
 ## [2.0.1] - 2023-12-08
 - [#36](https://github.com/tongueroo/dynomite/pull/36) set log level info as default
 

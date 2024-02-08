@@ -63,7 +63,8 @@ module Dynomite
       def check_dynamodb_local!(endpoint)
         return unless endpoint
         endpoint_uri = URI.parse(endpoint)
-        return unless endpoint.port == 8000
+
+        return unless endpoint_uri.port == 8000
 
         open = port_open?(endpoint_uri.host, endpoint_uri.port, 0.2)
         unless open

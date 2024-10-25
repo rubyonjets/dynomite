@@ -20,6 +20,7 @@ module Dynomite
         loader.ignore("#{lib}/dynomite/migration/templates/*")
         loader.ignore("#{lib}/dynomite/reserved_words.rb")
         loader.do_not_eager_load("#{lib}/generators")
+        loader.do_not_eager_load("#{lib}/dynomite/engine.rb")
         loader.setup
       end
     end

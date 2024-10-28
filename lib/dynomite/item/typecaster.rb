@@ -29,7 +29,7 @@ class Dynomite::Item
     #
     # The method also helps keep track of where we cast_to_type
     # It's only a few spots this provides an easy to search for it.
-    # See: https://rubyonjets.com/docs/database/dynamodb/model/typecasting/
+    # See: https://v5.docs.rubyonjets.com/docs/database/dynamodb/model/typecasting/
     FALSEY = [false, 'false', 'FALSE', 0, '0', 'f', 'F', 'off', 'OFF']
     def cast_to_type(type, value, on: :read)
       case type

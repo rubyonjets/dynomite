@@ -4,4 +4,4 @@ class <%= @migration_class_name %> < Dynomite::Migration
   end
 end
 
-# More examples: https://rubyonjets.com/docs/database/dynamodb/migration/
+# More examples: https://v5.docs.rubyonjets.com/docs/database/dynamodb/migration/

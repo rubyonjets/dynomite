@@ -5,7 +5,7 @@ module Dynomite::Item::Read
     class_methods do
       def find_all_with_stream_event(event, options={})
         # For event payload structure see
-        # https://rubyonjets.com/docs/events/dynamodb/#event-payload
+        # https://v5.docs.rubyonjets.com/docs/events/dynamodb/#event-payload
         # Keys structure:
         # {
         #   "Records": [

@@ -10,4 +10,4 @@ A DynamoDB ORM that is ActiveModel compatible.
 
 ## Dynomite Docs
 
-* [Database Dynomite](https://rubyonjets.com/docs/database/dynamodb/)
+* [Database Dynomite](https://v5.docs.rubyonjets.com/docs/database/dynamodb/)

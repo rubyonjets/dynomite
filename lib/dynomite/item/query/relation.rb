@@ -120,7 +120,7 @@ module Dynomite::Item::Query
         WARN: Scanning detected. It's recommended to not use scan. It can be slow.
         Scanning table: #{@source.table_name}
         Try creating a LSI or GSI index so dynomite can use query instead.
-        Docs: https://rubyonjets.com/docs/database/dynamodb/indexing/
+        Docs: https://v5.docs.rubyonjets.com/docs/database/dynamodb/indexing/
       EOL
     end
   end

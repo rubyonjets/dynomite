@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 This project *tries* to adhere to [Semantic Versioning](http://semver.org/), even before v1.0.
 
+## [2.0.3] - 2024-10-29
+- [#38](https://github.com/tongueroo/dynomite/pull/38) fix issue where running dynamodb-local in docker-compose (where host is not localhost)
+- [#40](https://github.com/tongueroo/dynomite/pull/40) Avoids eager-loading Dynomite::Engine
+- Updates documentation link in README.md
+
 ## [2.0.2] - 2023-12-10
 - [#37](https://github.com/tongueroo/dynomite/pull/37) fix eager load
 
